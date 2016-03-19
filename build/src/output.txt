@@ -1,0 +1,2289 @@
+MADNESS runtime initialized with 1 threads in the pool and affinity -1 -1 -1
+after FunctionDefaults
+Initial u0 norm 3.098489e-01 trace 5.773503e-01
+Before u0 is executed by OpExecutor
+wtf.!@#@!wtf.!@#@!
+
+[([2,[(1,3,0])2,]else: [empty tensor]
+
+[0wtf.!@#@!
+[(,32,,0[1])]else: [empty tensor]
+
+,3,1])]else: [empty tensor]
+
+wtf.!@#@!
+[(wtf.!@#@!
+[(2,2,[0[2,2,0,0,0])])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+[(2,[3wtf.!@#@!
+,0,[0](2,[0)]else: [empty tensor]
+,2
+,1]wtf.!@#@!
+[()]else: [empty tensor]
+
+2,[1,2,0])]else: wtf.!@#@!
+[([empty tensor]
+
+2,[2,1,0])]else: [empty tensor]
+
+wtf.!@#@!
+[(2,wtf.!@#@!
+[0,3,1[(])2,[3]else: [empty tensor]
+
+,1,0])]else: [empty tensor]
+
+wtf.!@#@!
+[(wtf.!@#@!
+[(2,2,[2[3,2,0,1,1])]else: [empty tensor]
+
+])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[([(2,2,[3,[30,,01],2)]else: [empty tensor]
+
+])wtf.!@#@!
+[(2,[3,1]else: [empty tensor]
+
+,1])]else: [empty tensor]
+
+wtf.!@#@!
+[(2,wtf.!@#@!
+[(2,[3,1,2])]else: [empty tensor]
+
+wtf.!@#@!
+[([2,2,0]2,[3)]else: [empty tensor]
+
+,2,wtf.!@#@!
+[(20]),[2,0,3])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[([(2,[2,2,[03,,00])]else: [empty tensor]
+,2])]else: [empty tensor]
+
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[1,0,2[(2,[2,3,1])]else: [empty tensor]
+
+])wtf.!@#@!
+]else: [empty tensor]
+
+[(2,[3,3,0])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[3[(2,[2,0,2])]else: [empty tensor]
+
+,3,1])wtf.!@#@!
+]else: [empty tensor]
+
+[(2,[0,0,3])]else: [empty tensor]
+
+wtf.!@#@!
+[(2,[wtf.!@#@!
+[(2,[1,0,3])]else: [empty tensor]
+
+3,0,3]wtf.!@#@!
+)]else: [empty tensor]
+
+[(2,[0,1,3])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[2,1,3])]else: [empty tensor]
+
+[(wtf.!@#@!
+2,[0,3,[(2,[1,3,2])]else: [empty tensor]
+
+2])]else: wtf.!@#@!
+[empty tensor]
+
+[(2,[3,1,3])]else: [empty tensor]
+
+wtf.!@#@!
+[(2,[wtf.!@#@!
+[(2,[1,3,3])]else: [empty tensor]
+
+0,1,2])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[3,2,2])]else: [empty tensor]
+
+[(wtf.!@#@!
+[(2,[0,3,3])]else: [empty tensor]
+
+2,[3wtf.!@#@!
+,2,3])[(2,[1,1,3])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[[(2,[2,3,2])]else: [empty tensor]
+
+2,2,3])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[0,2,2])]else: [empty tensor]
+
+[(2,[wtf.!@#@!
+3,3,3])]else: [empty tensor]
+
+[(2,[0,1,0])]else: [empty tensor]
+
+wtf.!@#@!
+[(2,[0,1,1])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[1,1,0])[(2,[0,2,3])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[0,0,0])]else: [empty tensor]
+
+[(wtf.!@#@!
+2,[1,2,3])]else: [empty tensor]
+
+[(2,[3,3,2])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(2,[[(3,[3,4,2])]else: [empty tensor]
+
+2,3,wtf.!@#@!
+3])]else: [(2,[0,0,1])]else: [empty tensor]
+
+[empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[3,5,2])]else: [empty tensor]
+
+wtf.!@#@!
+[(2,[1,0,0])]else: [empty tensor]
+
+[(2,[1,0,1]wtf.!@#@!
+[(3,[2,5,3])]else: [empty tensor]
+
+)]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[3,5,3])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[(3,[2,4,2])]else: [empty tensor]
+
+[5,5,3])wtf.!@#@!
+]else: [empty tensor]
+
+[(3,[4,2,2])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[2,5,2])]else: [empty tensor]
+[(3,[2,4,3])]else: [empty tensor]
+
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[5,4,2])]else: [empty tensor]
+
+[(3,wtf.!@#@!
+[5,5[(3,[5,3,2])]else: [empty tensor]
+
+,2])]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[4,5,3])]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[4,4,2])]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[4,5,2])]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[4,2,3])]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[5,4,3])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[5,2,2])]else: [empty tensor]
+
+[(wtf.!@#@!
+3,[5[(3,[4,3,2]),2,3]]else: [empty tensor]
+
+)]else: [empty tensor]
+
+wtf.!@#@!
+[(wtf.!@#@!
+3,[5,3,3])[(3,[4,2,4])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[5wtf.!@#@!
+,3,4])[(3,[4,2,5])]else: [empty tensor]
+
+]else: [empty tensor]
+wtf.!@#@!
+
+[(3,[5,2,4])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[5,2,5])]else: [empty tensor]
+
+[(3,[4,3,5])]else: [empty tensor]
+wtf.!@#@!
+[(3,[5,3,5])]else: [empty tensor]
+
+
+wtf.!@#@!
+[(wtf.!@#@!
+[(3,[3,5,4])]else: [empty tensor]
+
+3,[2wtf.!@#@!
+,5,4])]else: [empty tensor]
+
+[(3,[2,2,4])]else: [empty tensor]
+
+wtf.!@#@!wtf.!@#@!
+[(3,[3,2,4])]else: [empty tensor]
+
+
+[(3,[3,4wtf.!@#@!
+,5])[(3,[2,4,4])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[2,5,5])]else: [empty tensor]
+
+[(3,[3,5wtf.!@#@!
+,5])[(3,[2,4,5])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[2,3,5])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[2,2,5])]else: [empty tensor]
+
+[(wtf.!@#@!
+3,[2,3,4])[(3,[5,4,4])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[3,2,5])]else: [empty tensor]
+
+[(3,[5,5,4])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[(3,[4,4,5])]else: [empty tensor]
+
+[3,3wtf.!@#@!
+,5])[(3,[2,3,2])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[5,5,5])]else: [empty tensor]
+
+wtf.!@#@!
+[(3,[3,2,3])]else: [empty tensor]
+
+[(3,[4,5,4])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[5,4,5])]else: [empty tensor]
+
+[(wtf.!@#@!
+4,[7,[(3,[4,5,5])]else: [empty tensor]
+
+9,6])wtf.!@#@!
+]else: [empty tensor]
+
+[(3,[3,3,2])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[2,2,3])]else: [empty tensor]
+
+[(3,[2,2,2])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(3,[2,3,3])]else: [empty tensor]
+
+[(4,[6,9,7])]else: [empty tensor]
+wtf.!@#@!
+[(4,[6,8,6])]else: [empty tensor]
+
+
+wtf.!@#@!
+[(3wtf.!@#@!
+,[3,2,2[(4,[7,8,6])]else: [empty tensor]
+
+])wtf.!@#@!
+]else: [empty tensor]
+
+[(4,[7,9,7])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[9,8,6])[(4,[6,9,6])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[9,9,6])[(4,[8,8,6])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[8,6,6])]else: [empty tensor]
+
+[(4,[8wtf.!@#@!
+[(4,[9,7,6])]else: [empty tensor]
+
+,7,6])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[6,8,7])]else: [empty tensor]
+
+[(4,[9wtf.!@#@!
+,8,7[(4,[8,6,7])]else: [empty tensor]
+
+])wtf.!@#@!
+]else: [empty tensor]
+
+[(4,[9,9,7])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[9[(4,[9,7,7])]else: [empty tensor]
+
+,6,7])]else: [empty tensor]
+
+wtf.!@#@!
+[(4,[8,9wtf.!@#@!
+,7])[(4,[8,9,6])]else: [empty tensor]
+
+]else: [empty tensor]
+wtf.!@#@!
+
+[(4,[9,6,6])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[9,6,9])]else: [empty tensor]
+
+[(4wtf.!@#@!
+[(4,[9,7,9])]else: [empty tensor]
+
+,[9,6,8])]else: [empty tensor]
+wtf.!@#@!
+[(4,[8,6,8])]else: [empty tensor]
+
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[9,7,8])]else: [empty tensor]
+
+[(4,wtf.!@#@!
+[8,6,9])]else: [empty tensor]
+
+[(4,[8,7,9])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[[(4,[7,9,8])]else: [empty tensor]
+
+6,9,8])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[6,8,8])]else: [empty tensor]
+
+[(4,wtf.!@#@!
+[7,8,[(4,[6,8,9])]else: [empty tensor]
+
+9])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[6,6[(4,[7,6,8])]else: [empty tensor]
+
+,9])]else: wtf.!@#@!
+[(4,[9,8,9])]else: [empty tensor]
+
+[empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[6,9,9])]else: [empty tensor]
+
+[(wtf.!@#@!
+4,[7,9,9])[(4,[6]else: [empty tensor]
+
+,7,9])]else: [empty tensor]
+
+wtf.!@#@!
+[(4,[8,9,9])]else: wtf.!@#@!
+[empty tensor]
+
+[(4,[6,7,8])]else: [empty tensor]
+
+wtf.!@#@!
+[(4,[wtf.!@#@!
+[(4,[7,7,9])]else: [empty tensor]
+
+7,6,9wtf.!@#@!
+])]else: [empty tensor]
+
+[(4,[9,9,9])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(4[(4,[9,9,8])]else: [empty tensor]
+
+,[wtf.!@#@!
+8,9,[(4,[8,8,9])]else: [empty tensor]
+
+8]wtf.!@#@!
+)]else: [empty tensor]
+
+[(5,[15,17,14])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[(4,[9,8,8])]else: [empty tensor]
+
+[14wtf.!@#@!
+,17,15[(4,[7,6,7])]else: [empty tensor]
+
+])wtf.!@#@!
+]else: [empty tensor]
+
+[(4,[6,6,8])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[14,[(5,[14,16,14])]else: [empty tensor]
+
+17,14])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[15,16,14])]else: [empty tensor]
+
+[(wtf.!@#@!
+4,[6,[(4,[7,6,6])]else: [empty tensor]
+
+6,wtf.!@#@!
+6])]else: [empty tensor]
+[(5,[17,17,14])]else: [empty tensor]
+
+
+wtf.!@#@!
+wtf.!@#@!
+[(4,[6,7,6])]else: [empty tensor]
+
+[(4,[6,7,7])]else: [empty tensor]
+
+wtf.!@#@!
+[(4,[6,6,7])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,[16,17,14])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,wtf.!@#@!
+[([17,16,14])]else: [empty tensor]
+
+4,[7,7,6]wtf.!@#@!
+)]else: [empty tensor]
+
+[(5,[17,17,15])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[17,14,14])]else: [empty tensor]
+
+[(wtf.!@#@!
+5,[16,14,14][(5,[16,15,14])]else: [empty tensor]
+
+)]else: [empty tensor]
+
+wtf.!@#@!
+[(5,[17,14,17])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,[16,16,14])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,[17,14,15])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,wtf.!@#@!
+[17,14,16])[(5,[17,15,17])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!wtf.!@#@!
+[(5,[
+16,14,17])[(5,[15,16,17])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[([(5,[17,15,14])]else: [empty tensor]
+
+5,[16,15,17])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,[16,16,17])]else: [empty tensor]
+wtf.!@#@!
+
+[(6,[29,32,30])]else: [empty tensor]
+
+wtf.!@#@!wtf.!@#@!
+[(
+6,[(5,[14,17,16])]else: [empty tensor]
+
+[28,32,31]wtf.!@#@!
+)]else: [empty tensor]
+
+[(5,[15,14,17])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6[(5,[15,17,17])]else: [empty tensor]
+
+,[wtf.!@#@!
+30,32,30])]else: [empty tensor]
+[(5,[15,15,17])]else: [empty tensor]
+
+
+wtf.!@#@!
+wtf.!@#@!
+[([(6,[30,35,30])]else: [empty tensor]
+
+6,wtf.!@#@!
+[29,33,30])[(6,[32,32,30]]else: [empty tensor]
+
+)wtf.!@#@!
+[(5,[15,]else: [empty tensor]
+
+15,14])]else: [empty tensor]
+
+wtf.!@#@!
+[(5,[14,16,17])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6[(6,[30,33,31])]else: [empty tensor]
+
+,[33,wtf.!@#@!
+[(6,[30,34,30])]else: [empty tensor]
+
+34,31])wtf.!@#@!
+]else: [empty tensor]
+
+[(5,[14,17,17])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6[(6,[33,35,31])]else: [empty tensor]
+
+,[31,34,30]wtf.!@#@!
+[(6,[31,34,31])]else: [empty tensor]
+
+)]else: [empty tensor]
+wtf.!@#@!
+
+[(6,[30,wtf.!@#@!
+35,31])]else: [empty tensor]
+
+[(wtf.!@#@!
+6,[34,32,30[(6,[33,32,30])]else: [empty tensor]
+
+])wtf.!@#@!
+]else: [empty tensor]
+
+[(5,[17,17,16])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[33,33,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[(5,[16,17,17])]else: [empty tensor]
+
+[17wtf.!@#@!
+,16,17])]else: [empty tensor]
+
+[(6,[34,33,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[17,17[(5,[14,14,16])]else: [empty tensor]
+
+,17])]else: wtf.!@#@!
+[(6,[32,30,32])]else: [empty tensor]
+
+[empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[28,33,30])]else: [empty tensor]
+
+[(6,[33,30,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[34,30,32])]else: [empty tensor]
+
+[(5,[14,14,17])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[[(6,[32,34,30])]else: [empty tensor]
+
+28,33,31])wtf.!@#@!
+]else: [empty tensor]
+
+[(5,[14,15,17])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,34,30])]else: [empty tensor]
+
+[(5,[wtf.!@#@!
+[(6,[31,3315,14,14])]else: [empty tensor]
+
+,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[[(6,[31,33,31])]else: [empty tensor]
+
+33,30,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,34,31])]else: [empty tensor]
+
+[(5,[14,15,14])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,31,30])]else: [empty tensor]
+
+[(6,[31,35,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[28,32,30])]else: [empty tensor]
+
+[(6,[32,34,31])wtf.!@#@!
+[(6,[33,31,31])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[29,32,31])]else: [empty tensor]
+
+[(6,[29,33,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(5,[14,14,15])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[32,33,30])]else: [empty tensor]
+
+[(6,[31,32,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,33,30])]else: [empty tensor]
+
+[(6,[33,33,31])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[30,32,31wtf.!@#@!
+])[(6,[]else: [empty tensor]
+
+35,32,31])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[34,33,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[28,33,[(6,[35,33,31])]else: [empty tensor]
+
+32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,31,32])]else: [empty tensor]
+
+[(6,[32,35,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[29,33,33])]else: [empty tensor]
+
+[(6,[30,32,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[32,31,33])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[31wtf.!@#@!
+,35,30])]else: [empty tensor]
+
+[(6,[30,33,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,32,30])]else: [empty tensor]
+
+[(6,[31,33,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,30,33])]else: [empty tensor]
+
+[(6,[34,31,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,34,33])]else: [empty tensor]
+
+[(6,[30,34,32])]else: [empty tensor]
+
+wtf.!@#@!wtf.!@#@!
+[(6,[34,32,31])]else: [empty tensor]
+
+
+wtf.!@#@!
+[(6,[33,32,32])]else: [empty tensor]
+
+[(6,[30,30,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,33,31])]else: [empty tensor]
+
+[(6,[33,32,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,28,31])]else: [empty tensor]
+
+[(6,[33,29,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,30,33])]else: [empty tensor]
+
+[(6,[34,33,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[32,31,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,[(5,[14,14,14])]else: [empty tensor]
+
+31,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,30,31])]else: [empty tensor]
+
+[(6,[33,34,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[32,35,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,30,31])]else: [empty tensor]
+
+[(6,[32,29,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,35,30])]else: [empty tensor]
+
+[(6,[35,30,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[34,30,30])]else: [empty tensor]
+
+[(6,[33,35,32])]else: [empty tensor]
+
+wtf.!@#@!
+[wtf.!@#@!
+[(6,[33,34,33])]else: [empty tensor]
+
+(6,[34,30,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,31,30])]else: [empty tensor]
+
+[(6,[35,33,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,30,31])]else: [empty tensor]
+
+[(6,[28,32,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,32,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[([(6,[28,32,33])]else: [empty tensor]
+
+6,[28,33,33])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,33,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,29,32])]else: [empty tensor]
+
+[(6,[32,30,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,30[(6,[31,32,33])]else: [empty tensor]
+
+,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,33,33[(6,[30,29,33])]else: [empty tensor]
+
+])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[([(6,[28,30,32])]else: [empty tensor]
+
+6,[32,wtf.!@#@!
+28,32])]else: [empty tensor]
+
+[(6,[33,31,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,30,32])]else: [empty tensor]
+
+[(6,[33,28,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[28,30,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,31,32])]else: [empty tensor]
+
+[(6,[32,29,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[32,28,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[(6,[34,30,33])]else: [empty tensor]
+
+[29,30,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,28,33])]else: [empty tensor]
+
+[(6,[32,29,33])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[34,31,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,29,33])]else: [empty tensor]
+
+[(6,[31,34,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,28,30])]else: [empty tensor]
+
+[(6,[wtf.!@#@!
+[(6,[30,35,32])]else: [empty tensor]
+
+33,32,wtf.!@#@!
+33])]else: [empty tensor]
+
+[(6,[33,28,30])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[31,34,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,35,33])]else: [empty tensor]
+
+[(7,[63,64,62])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,33,32])]else: [empty tensor]
+
+[(6,[33,28,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,65,63])]else: [empty tensor]
+
+[(6,[32,29,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[[(6,[30,28,30])]else: [empty tensor]
+
+34,32,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,30,32])]else: [empty tensor]
+
+[(6,[33,29,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,30,30])]else: [empty tensor]
+
+[(6,[30,31,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[28,30,31])]else: [empty tensor]
+
+[(6,[35,32,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[(6,[[35,33,33])]else: [empty tensor]
+
+31,31,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[29,30,31])]else: [empty tensor]
+
+[(6,[32,34,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,35,32])]else: [empty tensor]
+
+[(6,[28,31,31])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,31,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@![(6,[34,31,30])]else: [empty tensor]
+
+
+wtf.!@#@!
+[(6,[32,34,33])]else: [empty tensor]
+
+[(6,[34,32,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,35,33])]else: [empty tensor]
+
+[(6,[33,35,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[35,31,31])]else: [empty tensor]
+
+[(6,[34,31,31])wtf.!@#@!
+[(7,[64,64,63])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[30,29,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,64,63])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,32,33])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,65,63])]else: [empty tensor]
+
+]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,32,33])]else: [empty tensor]
+
+[(6,[30,28,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[65,[(7,[63,64])]else: [empty tensor]
+
+64,62,64])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,33,33])]else: [empty tensor]
+
+[(6,[31,29,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,30,30])]else: [empty tensor]
+
+[(7,[65,63,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,30,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[28,31,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,31,30])]else: [(6,[30,31,30])]else: [empty tensor]
+
+[empty tensor]
+
+wtf.!@#@!
+[(6,[33,29,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[31,35,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,28,30])]else: [empty tensor]
+
+[(6,[30,30,31])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[62,64,62])]else: [empty tensor]
+
+[(6,[31,35,33])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,64,64])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[28,30,30])]else: [empty tensor]
+
+[(6,[30,29,31])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[63,64,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[28,31,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,65,62])]else: [empty tensor]
+
+[(7,[62,65,62])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,65,65])]else: [empty tensor]
+
+[(6,[29,31,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[32,32,[(6,[33,33,32])]else: [empty tensor]
+
+33])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[64,64,62])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,64,62])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[33,33,33])]else: [empty tensor]
+
+[(6,[32,33,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[65,65,62])]else: [empty tensor]
+
+[(7,[64,65,63])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[[(6,[31,29(6,[30,,31])]else: [empty tensor]
+
+29,30])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,63,64])]else: [empty tensor]
+
+[(7,[65,62,65])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,31,33])]else: [empty tensor]
+
+[(6,[31,30,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[64,62,62])]else: [empty tensor]
+
+[(6,[31,30,30])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[35,32,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[35,33,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,30,31])]else: [empty tensor]
+
+[(7,[64,63,62])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[34,33,33])]else: [empty tensor]
+
+[(7,[64,65,62])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[30,28,32])]else: [empty tensor]
+
+[(6,[31,28,32])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,31,32])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[64,63,65])]else: [empty tensor]
+
+[wtf.!@#@!
+[(7,[64,62,63])]else: [empty tensor]
+
+(6,[31,28,33])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[28,31,33])]else: [empty tensor]
+
+[(7,[64,63,63])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[65,63,63])]else: [empty tensor]
+
+[(6,[29,31,33])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,65,64])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[30,31,wtf.!@#@!
+31])]else: [empty tensor]
+
+[(7,[62,64,65])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,62,64])]else: [empty tensor]
+
+[(7,[62,64,63])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,64,63])]else: [empty tensor]
+
+[(7,[62,62,65]wtf.!@#@!
+)]else: [empty tensor]
+
+[(7,[65,64,65])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[62,65,63])]else: [empty tensor]
+
+[(6,[31,29,30])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[63,62,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[30,28,31])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,62,62])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(6,[31,28,31])]else: [empty tensor]
+
+[(7,[63,65,64])]else: [empty tensor]
+
+wtf.!@#@!
+[(6,[29,30,30])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,65,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,62,64wtf.!@#@!
+[(7,[64,65,64])]else: [empty tensor]
+
+])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[64,63,64])]else: [empty tensor]
+
+[(7,[65,65,64])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[64,64,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[64,62,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,62,62])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[63,62,63])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[62,63,63])]else: [empty tensor]
+
+[(7,[65,63,62])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,62,63])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[63,64,64])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,62,wtf.!@#@!
+[(7,[64,64,64])]else: [empty tensor]
+
+64])]else: [empty tensor]
+
+wtf.!@#@!
+wtf.!@#@!
+[(7,[63,62,62])]else: [empty tensor]
+
+[(7,[62,63,64])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[65,64,64])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[64,65,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(7wtf.!@#@!
+,[62,63,65])]else: [empty tensor]
+
+[(7,[65,65,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[63,63,65])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,62,63wtf.!@#@!
+][(7,[63,63,63])]else: [empty tensor]
+
+)]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[62,63,62])]else: [empty tensor]
+
+wtf.!@#@!
+[(7,[63,63,62])]else: [empty tensor]
+
+======================================
+Before u1.compress() by MADNESS
+[(2,[3,3,3])[(7,[63,63,63])]else: ]else: [empty tensor]
+[empty tensor]
+
+
+[(7,[62,63,63])]else: [empty tensor]
+
+[(2,[2,3,3])]else: [empty tensor]
+
+[(2,[3,2,3])]else: [empty tensor]
+
+[(2,[2,2,3])]else: [empty tensor]
+
+[(2,[3,3,2])]else: [empty tensor]
+
+[(2,[2,3,2])]else: [empty tensor]
+
+[(2,[3,2,2])]else: [empty tensor]
+
+[(7[(3,[5,5,5])]else: [empty tensor]
+
+[(3,[4,5,5])]else: [empty tensor]
+
+[(3,[5,4,5])]else: [empty tensor]
+
+[(3,[4,4,5])]else: [empty tensor]
+
+[(3,[5,5,4])]else: [empty tensor]
+
+[(3,[4,5,4])]else: [empty tensor]
+
+[(3,[5,4,4])]else: [empty tensor]
+
+,[63,62,63])]else: [empty tensor]
+
+[(4,[9,9,9])]else: [empty tensor]
+
+[(4,[8,9,9])]else: [empty tensor]
+
+[(4,[9,8,9])]else: [empty tensor]
+
+[(4,[8,8,9])]else: [empty tensor]
+
+[(4,[(7,[62,62,63])]else: [empty tensor]
+
+[9,9,8])]else: [empty tensor]
+
+[(4,[8,9,8])]else: [empty tensor]
+
+[(4,[9,8,8])]else: [empty tensor]
+
+[(7,[63,63,62])]else: [empty tensor]
+
+[(5,[17,17,17])]else: [empty tensor]
+
+[(5,[16,17,17])]else: [empty tensor]
+
+[(5,[17,16,17])]else: [empty tensor]
+
+[(5,[16,16[(7,[62,63,62])]else: [empty tensor]
+
+,17])]else: [empty tensor]
+
+[(7,[63,62,62])]else: [empty tensor]
+
+[(7,[62,62,62])]else: [empty tensor]
+
+[(5,[17,17,16])]else: [empty tensor]
+
+[(6,[30,31,31])]else: [empty tensor]
+
+[([(6,[31,30,31])]else: [empty tensor]
+
+6,[33,35,33[(6,[30,30,31])]else: [empty tensor]
+
+])]else: [empty tensor]
+[(6,[31,31,30])]else: [empty tensor]
+
+
+[([(6,[30,31,30])]else: [empty tensor]
+
+6,[32,35[(6,[31,30,30])]else: [empty tensor]
+
+,33])[(6,[30,30,30])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[33,34,33[(6,[29,31,31])]else: [empty tensor]
+
+])]else: [empty tensor]
+
+[(6,[28,31,31])]else: [empty tensor]
+
+[(6,[29,30,31])]else: [empty tensor]
+
+[(6,[32,34,33[(6,[28,30,31])]else: [empty tensor]
+
+])[(6,[29,31,30])]else: [empty tensor]
+
+]else: [empty tensor]
+[(6,[28,31,30])]else: [empty tensor]
+
+
+[(6,[(6,[29,30,30])]else: [empty tensor]
+
+[33,35,32])[(6,[28,30,30])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[32,35[(6,[31,29,31])]else: [empty tensor]
+
+,32])[(6,[30,29,31])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[33,34,32])]else: [empty tensor]
+
+[(6,[31,28,31])]else: [empty tensor]
+
+[(6,[32,34,32])[(6,[30,28,31])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[31,29,30])]else: [empty tensor]
+
+[(6,[35,33,33])]else: [empty tensor]
+[(6,[30,29,
+[(6,[34,33,30])]else: [empty tensor]
+
+33])]else: [empty tensor]
+
+[(6,[31,28,30])]else: [empty tensor]
+
+[(6,[35,32,33])[(6,[30,28,30])]else: [empty tensor]
+
+]else: [empty tensor]
+[(5,[14,14,15])]else: [empty tensor]
+
+
+[([(5,[15,15,14])]else: [empty tensor]
+
+6,[34[(5,[14,15,14])]else: [empty tensor]
+
+,32,33])]else: [empty tensor]
+
+[(6,[35,33,32][(5,[15,14,14])]else: [empty tensor]
+
+)]else: [empty tensor]
+
+[(5,[14,14,14])]else: [empty tensor]
+
+[(4,[6,7,7])]else: [empty tensor]
+
+[(6,[(4,[7,6,7])]else: [empty tensor]
+
+[34,33,32])[(4,[6,6,7])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[35,32,[(4,[7,7,6])]else: [empty tensor]
+
+32])]else: [empty tensor]
+
+[(4,[6,7,6])]else: [empty tensor]
+
+[(6,[34,32,32])[(4,[7,6,6])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(4,[6,6,6])]else: [empty tensor]
+
+[(6,[(3,[2,3,3])]else: [empty tensor]
+
+[33,33,33])]else: [empty tensor]
+
+[[(3,[3,2,3])]else: [empty tensor]
+
+(6,[32,33,[(3,[2,2,3])]else: [empty tensor]
+
+33])]else: [empty tensor]
+
+[(3,[3,3,2])]else: [empty tensor]
+
+[(3,[2,3,2])]else: [empty tensor]
+
+[(6,[33,[(3,[3,2,2])]else: [empty tensor]
+
+32,33][(3,[2,2,2])]else: [empty tensor]
+
+)]else: [(2,[0,1,1])]else: [empty tensor]
+
+[empty tensor]
+
+[(2,[1,0,1])]else: [empty tensor]
+
+[(6,[32,32,33[(2,[0,0,1])]else: [empty tensor]
+
+])]else: [empty tensor]
+[(2,[1,
+[(6,[33,33,32])]else: [empty tensor]
+
+1,0])]else: [empty tensor]
+
+[(2,[0,1,0])]else: [empty tensor]
+
+[(6,[32,33,32])]else: [empty tensor]
+[(2,[1,0,0])]else: [empty tensor]
+
+
+[([(2,[0,0,0])]else: [empty tensor]
+
+6,[33,32,32])]else: [empty tensor]
+
+[(7,[65,65,65])]else: [empty tensor]
+
+[(7,[64,65,65])]else: [empty tensor]
+
+[(7,[65,64,65])]else: [empty tensor]
+
+[(7,[64,64,65])]else: [empty tensor]
+
+[(7,[65,65,64])]else: [empty tensor]
+
+[(7,[64,65,64])]else: [empty tensor]
+
+[(7,[65,64,64])]else: [empty tensor]
+
+[(7,[64,64,64])]else: [empty tensor]
+
+[(2,[1,3,3])]else: [empty tensor]
+
+[(2,[0,3,3])]else: [empty tensor]
+
+[(2,[1,2,3])]else: [empty tensor]
+
+[(2,[0,2,3])]else: [empty tensor]
+
+[(2,[1,3,2])]else: [empty tensor]
+
+[(2,[0,3,2])]else: [empty tensor]
+
+[(3,[3,5,5])]else: [empty tensor]
+
+[(3,[2,5,5])]else: [empty tensor]
+
+[(3,[3,4,5])]else: [empty tensor]
+
+[(3,[2,4,5])]else: [empty tensor]
+
+[(3,[3,5,4])]else: [empty tensor]
+
+[(3,[2,5,4])]else: [empty tensor]
+
+[(4,[7,9,9])]else: [empty tensor]
+
+[(4,[6,9,9])]else: [empty tensor]
+
+[(4,[7,8,9])]else: [empty tensor]
+
+[(4,[6,8,9])]else: [empty tensor]
+
+[(4,[7,9,8])]else: [empty tensor]
+
+[(4,[6,9,8])]else: [empty tensor]
+
+[(5,[15,17,17])]else: [empty tensor]
+
+[(5,[14,17,17])]else: [empty tensor]
+
+[(5,[15,16,17])]else: [empty tensor]
+
+[(5,[14,16,17])]else: [empty tensor]
+
+[(6,[31,35,33])]else: [empty tensor]
+
+[(6,[30,35,33])]else: [empty tensor]
+
+[(6,[31,34,33])]else: [empty tensor]
+
+[(6,[30,34,33])]else: [empty tensor]
+
+[(6,[31,35,32])]else: [empty tensor]
+
+[(6,[30,35,32])]else: [empty tensor]
+
+[(6,[31,34,32])]else: [empty tensor]
+
+[(6,[30,34,32])]else: [empty tensor]
+
+[(5,[14,17,16])]else: [empty tensor]
+
+[(6,[31,33,33])]else: [empty tensor]
+
+[(6,[30,33,33])]else: [empty tensor]
+
+[(6,[31,32,33])]else: [empty tensor]
+
+[(6,[30,32,33])]else: [empty tensor]
+
+[(6,[31,33,32])]else: [empty tensor]
+
+[(6,[30,33,32])]else: [empty tensor]
+
+[(7,[63,65,65])]else: [empty tensor]
+
+[(7,[62,65,65])]else: [empty tensor]
+
+[(7,[63,64,65])]else: [empty tensor]
+
+[(7,[62,64,65])]else: [empty tensor]
+
+[(7,[63,65,64])]else: [empty tensor]
+
+[(7,[62,65,64])]else: [empty tensor]
+
+[(7,[63,64,64])]else: [empty tensor]
+
+[(7,[62,64,64])]else: [empty tensor]
+
+[(6,[30,32,32])]else: [empty tensor]
+
+[(6,[29,33,33])]else: [empty tensor]
+
+[(6,[28,33,33])]else: [empty tensor]
+
+[(6,[29,32,33])]else: [empty tensor]
+
+[(6,[28,32,33])]else: [empty tensor]
+
+[(6,[29,33,32])]else: [empty tensor]
+
+[(6,[28,33,32])]else: [empty tensor]
+
+[(6,[29,32,32])]else: [empty tensor]
+
+[(6,[28,32,32])]else: [empty tensor]
+
+[(4,[6,8,8])]else: [empty tensor]
+
+[(3,[2,4,4])]else: [empty tensor]
+
+[(2,[0,2,2])]else: [empty tensor]
+
+[(2,[3,1,3])]else: [empty tensor]
+
+[(2,[2,1,3])]else: [empty tensor]
+
+[(2,[3,0,3])]else: [empty tensor]
+
+[(2,[2,0,3])]else: [empty tensor]
+
+[(2,[3,1,2])]else: [empty tensor]
+
+[(3,[5,3,5])]else: [empty tensor]
+
+[(3,[4,3,5])]else: [empty tensor]
+
+[(3,[5,2,5])]else: [empty tensor]
+
+[(3,[4,2,5])]else: [empty tensor]
+
+[(3,[5,3,4])]else: [empty tensor]
+
+[(4,[9,7,9])]else: [empty tensor]
+
+[(4,[8,7,9])]else: [empty tensor]
+
+[(4,[9,6,9])]else: [empty tensor]
+
+[(4,[8,6,9])]else: [empty tensor]
+
+[(4,[9,7,8])]else: [empty tensor]
+
+[(5,[17,15,17])]else: [empty tensor]
+
+[(5,[16,15,17])]else: [empty tensor]
+
+[(5,[17,14,17])]else: [empty tensor]
+
+[(5,[16,14,17])]else: [empty tensor]
+
+[(6,[35,31,33])]else: [empty tensor]
+
+[(6,[34,31,33])]else: [empty tensor]
+
+[(6,[35,30,33])]else: [empty tensor]
+
+[(6,[34,30,33])]else: [empty tensor]
+
+[(6,[35,31,32])]else: [empty tensor]
+
+[(6,[34,31,32])]else: [empty tensor]
+
+[(6,[35,30,32])]else: [empty tensor]
+
+[(6,[34,30,32])]else: [empty tensor]
+
+[(6,[33,31,33])]else: [empty tensor]
+
+[(6,[32,31,33])]else: [empty tensor]
+
+[(6,[33,30,33])]else: [empty tensor]
+
+[(6,[32,30,33])]else: [empty tensor]
+
+[(6,[33,31,32])]else: [empty tensor]
+
+[(7,[65,63,65])]else: [empty tensor]
+
+[(7,[64,63,65])]else: [empty tensor]
+
+[(7,[65,62,65])]else: [empty tensor]
+
+[(7,[64,62,65])]else: [empty tensor]
+
+[(7,[65,63,64])]else: [empty tensor]
+
+[(7,[64,63,64])]else: [empty tensor]
+
+[(7,[65,62,64])]else: [empty tensor]
+
+[(7,[64,62,64])]else: [empty tensor]
+
+[(6,[33,30,32])]else: [empty tensor]
+
+[(6,[32,30,32])]else: [empty tensor]
+
+[(5,[17,14,16])]else: [empty tensor]
+
+[(6,[33,29,33])]else: [empty tensor]
+
+[(6,[32,29,33])]else: [empty tensor]
+
+[(6,[33,28,33])]else: [empty tensor]
+
+[(6,[32,28,33])]else: [empty tensor]
+
+[(6,[33,29,32])]else: [empty tensor]
+
+[(6,[32,29,32])]else: [empty tensor]
+
+[(6,[33,28,32])]else: [empty tensor]
+
+[(6,[32,28,32])]else: [empty tensor]
+
+[(4,[9,6,8])]else: [empty tensor]
+
+[(4,[8,6,8])]else: [empty tensor]
+
+[(3,[5,2,4])]else: [empty tensor]
+
+[(3,[4,2,4])]else: [empty tensor]
+
+[(2,[3,0,2])]else: [empty tensor]
+
+[(2,[2,0,2])]else: [empty tensor]
+
+[(2,[1,1,3])]else: [empty tensor]
+
+[(2,[0,1,3])]else: [empty tensor]
+
+[(2,[1,0,3])]else: [empty tensor]
+
+[(2,[0,0,3])]else: [empty tensor]
+
+[(3,[3,3,5])]else: [empty tensor]
+
+[(3,[2,3,5])]else: [empty tensor]
+
+[(3,[3,2,5])]else: [empty tensor]
+
+[(3,[2,2,5])]else: [empty tensor]
+
+[(4,[7,7,9])]else: [empty tensor]
+
+[(4,[6,7,9])]else: [empty tensor]
+
+[(4,[7,6,9])]else: [empty tensor]
+
+[(4,[6,6,9])]else: [empty tensor]
+
+[(5,[15,15,17])]else: [empty tensor]
+
+[(5,[14,15,17])]else: [empty tensor]
+
+[(5,[15,14,17])]else: [empty tensor]
+
+[(5,[14,14,17])]else: [empty tensor]
+
+[(6,[31,31,33])]else: [empty tensor]
+
+[(6,[30,31,33])]else: [empty tensor]
+
+[(6,[31,30,33])]else: [empty tensor]
+
+[(6,[30,30,33])]else: [empty tensor]
+
+[(7,[63,63,65])]else: [empty tensor]
+
+[(7,[62,63,65])]else: [empty tensor]
+
+[(7,[63,62,65])]else: [empty tensor]
+
+[(7,[62,62,65])]else: [empty tensor]
+
+[(7,[63,63,64])]else: [empty tensor]
+
+[(7,[62,63,64])]else: [empty tensor]
+
+[(7,[63,62,64])]else: [empty tensor]
+
+[(7,[62,62,64])]else: [empty tensor]
+
+[(6,[30,31[(2,[3,1,1])]else: [empty tensor]
+
+,32])]else: [empty tensor]
+[(3,[5,3,3])]else: [empty tensor]
+
+
+[(6[(4,[9,7,7])]else: [empty tensor]
+
+,[31,30,32])]else: [empty tensor]
+
+[(6,[35,31,31])]else: [empty tensor]
+
+[([(6,[34,31,31])]else: [empty tensor]
+
+[(6,[35,30,31])]else: [empty tensor]
+
+6,[30[(6,[34,30,31])]else: [empty tensor]
+
+,30[(6,[35,31,30])]else: [empty tensor]
+
+,32])]else: [empty tensor]
+
+[(6,[34,31,30])]else: [empty tensor]
+
+[([(6,[35,30,30])]else: [empty tensor]
+
+6,[(6,[34,30,30])]else: [empty tensor]
+
+[29,31,33][(6,[33,31,31])]else: [empty tensor]
+
+)]else: [empty tensor]
+
+[(7,[65,63,63])]else: [empty tensor]
+
+[(7,[64,63,63])]else: [empty tensor]
+
+[(6,[(7,[65,62,63])]else: [empty tensor]
+
+[28[(7,[64,62,63])]else: [empty tensor]
+
+,31[(7,[65,63,62])]else: [empty tensor]
+
+,33[(7,[64,63,62])]else: [empty tensor]
+
+])[(7,[65,62,62])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(7,[64,62,62])]else: [empty tensor]
+
+[(6,[29,30,33])[(6,[33,30,31])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[32,30,31])]else: [empty tensor]
+
+[(6,[(6,[33,31,30])]else: [empty tensor]
+
+[28[(6,[32,31,30])]else: [empty tensor]
+
+,30[(6,[33,30,30])]else: [empty tensor]
+
+,33[(6,[32,30,30])]else: [empty tensor]
+
+])[(5,[17,14,15])]else: [empty tensor]
+
+]else: [empty tensor]
+
+[(6,[29,31,32[(6,[33,29,31])]else: [empty tensor]
+
+])]else: [empty tensor]
+
+[([(6,[32,29,31])]else: [empty tensor]
+
+6,[(6,[33,28,31])]else: [empty tensor]
+
+[28[(6,[32,28,31])]else: [empty tensor]
+
+,31[(6,[33,29,30])]else: [empty tensor]
+
+,32[(6,[32,29,30])]else: [empty tensor]
+
+])[(6,[33,28,30])]else: [empty tensor]
+
+[(6,[32,28,30])]else: [empty tensor]
+
+]else: [empty tensor]
+[(5,[17,15,14])]else: [empty tensor]
+
+[(5,[16,15,14])]else: [empty tensor]
+
+[(5,[17,14,14])]else: [empty tensor]
+
+[(5,[16,14,14])]else: [empty tensor]
+
+[(4,[9,6,7])]else: [empty tensor]
+
+[(4,[8,6,7])]else: [empty tensor]
+
+
+[(4,[9,7,6])]else: [empty tensor]
+
+[(6,[29,30,32])]else: [empty tensor]
+
+[(4,[8,7,6])]else: [empty tensor]
+
+[(6,[28,30,32])]else: [empty tensor]
+
+[(4,[9,6,6])]else: [empty tensor]
+
+[(6,[31,29,33])]else: [empty tensor]
+
+[(4,[8,6,6])]else: [empty tensor]
+
+[(3,[5,2,3])]else: [empty tensor]
+
+[(3,[4,2,3])]else: [empty tensor]
+
+[(3,[5,3,2])]else: [(6,[30,29,33])]else: [empty tensor]
+
+[empty tensor]
+
+[(6,[31,28,33])]else: [empty tensor]
+
+[(6,[30,28,33])]else: [empty tensor]
+
+[(6,[31,29,32])]else: [empty tensor]
+
+[(6,[30,29,32])]else: [empty tensor]
+
+[(6,[31,28,32])]else: [empty tensor]
+
+[(6,[30,28,32])]else: [empty tensor]
+
+[(3,[4,3,2])]else: [empty tensor]
+
+[(3,[5,2,2])]else: [empty tensor]
+
+[(3,[4,2,2])]else: [empty tensor]
+
+[(2,[3,0,1])]else: [empty tensor]
+
+[(2,[2,0,1])]else: [empty tensor]
+
+[(2,[3,1,0])]else: [empty tensor]
+
+[(2,[2,1,0])]else: [empty tensor]
+
+[(2,[3,0,0])]else: [empty tensor]
+
+[(2,[2,0,0])]else: [empty tensor]
+
+[(5,[14,14,16])]else: [empty tensor]
+
+[(4,[6,7,8])]else: [empty tensor]
+
+[(4,[7,6,8])]else: [empty tensor]
+
+[(4,[6,6,8])]else: [empty tensor]
+
+[(3,[2,3,4])]else: [empty tensor]
+
+[(3,[3,2,4])]else: [empty tensor]
+
+[(3,[2,2,4])]else: [empty tensor]
+
+[(2,[0,1,2])]else: [empty tensor]
+
+[(2,[1,0,2])]else: [empty tensor]
+
+[(2,[0,0,2])]else: [empty tensor]
+
+[(2,[3,3,1])]else: [empty tensor]
+
+[(2,[2,3,1])]else: [empty tensor]
+
+[(2,[3,2,1])]else: [empty tensor]
+
+[(3,[5,5,3])]else: [empty tensor]
+
+[(3,[4,5,3])]else: [empty tensor]
+
+[(3,[5,4,3])]else: [empty tensor]
+
+[(4,[9,9,7])]else: [empty tensor]
+
+[(4,[8,9,7])]else: [empty tensor]
+
+[(4,[9,8,7])]else: [empty tensor]
+
+[(5,[17,17,15])]else: [empty tensor]
+
+[(6,[33,35,31])]else: [empty tensor]
+
+[(6,[32,35,31])]else: [empty tensor]
+
+[(6,[33,34,31])]else: [empty tensor]
+
+[(6,[32,34,31])]else: [empty tensor]
+
+[(6,[33,35,30])]else: [empty tensor]
+
+[(6,[32,35,30])]else: [empty tensor]
+
+[(6,[33,34,30])]else: [empty tensor]
+
+[(6,[32,34,30])]else: [empty tensor]
+
+[(6,[35,33,31])]else: [empty tensor]
+
+[(6,[34,33,31])]else: [empty tensor]
+
+[(6,[35,32,31])]else: [empty tensor]
+
+[(6,[34,32,31])]else: [empty tensor]
+
+[(6,[35,33,30])]else: [empty tensor]
+
+[(6,[34,33,30])]else: [empty tensor]
+
+[(6,[35,32,30])]else: [empty tensor]
+
+[(6,[34,32,30])]else: [empty tensor]
+
+[(6,[33,33,31])]else: [empty tensor]
+
+[(6,[32,33,31])]else: [empty tensor]
+
+[(6,[33,32,31])]else: [empty tensor]
+
+[(2,[1,3,1])]else: [empty tensor]
+
+[(7,[65,65,63])]else: [empty tensor]
+
+[(2,[0,3,1])]else: [empty tensor]
+
+[(7,[64,65,63])]else: [empty tensor]
+
+[(7,[65,64,63])]else: [empty tensor]
+
+[(7,[64,64,63])]else: [empty tensor]
+
+[(7,[65,65,62])]else: [empty tensor]
+
+[(7,[64,65,62[(3,[3,5,3])]else: [empty tensor]
+
+])]else: [empty tensor]
+
+[(3,[2,5,3])]else: [empty tensor]
+
+[(7,[65,64,62])]else: [empty tensor]
+
+[(4,[7,9,7])]else: [empty tensor]
+
+[(7,[64,64,62])]else: [empty tensor]
+
+[(4,[6,9,7])]else: [empty tensor]
+
+[(6,[33,33,30])]else: [empty tensor]
+
+[(6,[31,35,31])]else: [empty tensor]
+
+[(6,[32,33,30])]else: [empty tensor]
+
+[(6,[30,35,31])]else: [empty tensor]
+
+[(6,[33,32,30])]else: [empty tensor]
+
+[(6,[32,32,30])]else: [empty tensor]
+
+[(5,[17,17,14])]else: [empty tensor]
+
+[(5,[16,17,14])]else: [empty tensor]
+
+[(5,[17,16,14])]else: [empty tensor]
+
+[(6,[31,34,31])]else: [empty tensor]
+
+[(5,[16,16,14])]else: [empty tensor]
+
+[(6,[30,34,31])]else: [empty tensor]
+
+[(4,[9,9,6])]else: [empty tensor]
+
+[(4,[8,9,6])]else: [empty tensor]
+
+[(6,[31,35,30])]else: [empty tensor]
+
+[(6,[30,35,30])]else: [empty tensor]
+
+[(6,[31,34,30])]else: [empty tensor]
+
+[(6,[30,34,30])]else: [empty tensor]
+
+[(4,[9,8,6])]else: [empty tensor]
+
+[(5,[14,17,15])]else: [empty tensor]
+
+[(4,[8,8,6])]else: [empty tensor]
+
+[(6,[31,33,31])]else: [empty tensor]
+
+[(3,[5,5,2])]else: [empty tensor]
+
+[(6,[30,33,31])]else: [empty tensor]
+
+[([(7,[63,65,63])]else: [empty tensor]
+
+[(7,[62,65,63])]else: [empty tensor]
+
+[(7,[63,64,63])]else: [empty tensor]
+
+3,[4,5,2])]else: [empty tensor]
+
+[(7,[62,64,63])]else: [empty tensor]
+
+[(3,[5,4,2])]else: [empty tensor]
+
+[(3,[4,4,2])]else: [empty tensor]
+
+[(2,[3,3,0])]else: [empty tensor]
+
+[(2,[2,3,0])]else: [empty tensor]
+
+[(2,[3,2,0])]else: [empty tensor]
+
+[(7,[63,65,62])]else: [empty tensor]
+
+[(7,[62,65,62])]else: [empty tensor]
+
+[(7,[63,64,62])]else: [empty tensor]
+
+[(7,[62,64,62])]else: [empty tensor]
+
+[(2,[2,2,0])]else: [empty tensor]
+
+[(6,[30,32,31])]else: [empty tensor]
+
+[(6,[31,33,30])]else: [empty tensor]
+
+[(6,[30,33,30])]else: [empty tensor]
+
+[(6,[31,32,30])]else: [empty tensor]
+
+[(6,[30,32,30])]else: [empty tensor]
+
+[(6,[29,33,31])]else: [empty tensor]
+
+[(6,[28,33,31])]else: [empty tensor]
+
+[(6,[29,32,31])]else: [empty tensor]
+
+[(6,[28,32,31])]else: [empty tensor]
+
+[(6,[29,33,30])]else: [empty tensor]
+
+[(6,[28,33,30])]else: [empty tensor]
+
+[(6,[29,32,30])]else: [empty tensor]
+
+[(6,[28,32,30])]else: [empty tensor]
+
+[(5,[15,17,14])]else: [empty tensor]
+
+[(5,[14,17,14])]else: [empty tensor]
+
+[(5,[15,16,14])]else: [empty tensor]
+
+[(5,[14,16,14])]else: [empty tensor]
+
+[(4,[6,8,7])]else: [empty tensor]
+
+[(4,[7,9,6])]else: [empty tensor]
+
+[(4,[6,9,6])]else: [empty tensor]
+
+[(4,[7,8,6])]else: [empty tensor]
+
+[(4,[6,8,6])]else: [empty tensor]
+
+[(3,[2,4,3])]else: [empty tensor]
+
+[(3,[3,5,2])]else: [empty tensor]
+
+[(3,[2,5,2])]else: [empty tensor]
+
+[(3,[3,4,2])]else: [empty tensor]
+
+[(3,[2,4,2])]else: [empty tensor]
+
+[(2,[0,2,1])]else: [empty tensor]
+
+[(2,[1,3,0])]else: [empty tensor]
+
+[(2,[0,3,0])]else: [empty tensor]
+
+[(2,[1,2,0])]else: [empty tensor]
+
+[(2,[0,2,0])]else: [empty tensor]
+
+By MADNESS u1: norm 3.098489e-01  trace 5.773503e-01
+Input u0: norm 3.098489e-01  trace 5.773503e-01
+Output result: norm 3.098489e-01  trace 5.773503e-01

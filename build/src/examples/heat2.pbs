@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -l nodes=6:ppn=24,walltime=00:05:00
+#PBS -N test_heat2Ex
+#PBS -q short
+
+PBS_O_WORKDIR=/gpfs/home/jinsung/madness-original/madness/build/src/examples
+
+module load shared
+cd $PBS_O_WORKDIR
+source /gpfs/home/jinsung/modules.sh
+source /gpfs/home/jinsung/path-original.sh
+mpirun ./heat2 > output_heat2

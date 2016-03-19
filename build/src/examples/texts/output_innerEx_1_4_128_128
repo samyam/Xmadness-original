@@ -1,0 +1,25 @@
+MADNESS runtime initialized with 23 threads in the pool and affinity -1 -1 -1
+====================================================
+   Initializing Functions
+     128 Functions, 128 Functions
+====================================================
+Running Time: 2148.616082
+====================================================
+==      FUSET-FUSED       ==========================
+====================================================
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 119220 RUNNING AT cn002
+=   EXIT CODE: 9
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 119220 RUNNING AT cn002
+=   EXIT CODE: 9
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================

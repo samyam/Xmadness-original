@@ -1,0 +1,55 @@
+lda.lo: ../../../../src/apps/chem/lda.cc \
+ /gpfs/software/gcc-4.9.2/include/c++/4.9.2/cmath \
+ /gpfs/software/gcc-4.9.2/include/c++/4.9.2/x86_64-unknown-linux-gnu/bits/c++config.h \
+ /gpfs/software/gcc-4.9.2/include/c++/4.9.2/x86_64-unknown-linux-gnu/bits/os_defines.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
+ /gpfs/software/gcc-4.9.2/include/c++/4.9.2/x86_64-unknown-linux-gnu/bits/cpu_defines.h \
+ /gpfs/software/gcc-4.9.2/include/c++/4.9.2/bits/cpp_type_traits.h \
+ /gpfs/software/gcc-4.9.2/include/c++/4.9.2/ext/type_traits.h \
+ /usr/include/math.h /usr/include/bits/huge_val.h \
+ /usr/include/bits/huge_valf.h /usr/include/bits/huge_vall.h \
+ /usr/include/bits/inf.h /usr/include/bits/nan.h \
+ /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h \
+ /usr/include/bits/mathinline.h
+
+/gpfs/software/gcc-4.9.2/include/c++/4.9.2/cmath:
+
+/gpfs/software/gcc-4.9.2/include/c++/4.9.2/x86_64-unknown-linux-gnu/bits/c++config.h:
+
+/gpfs/software/gcc-4.9.2/include/c++/4.9.2/x86_64-unknown-linux-gnu/bits/os_defines.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-64.h:
+
+/gpfs/software/gcc-4.9.2/include/c++/4.9.2/x86_64-unknown-linux-gnu/bits/cpu_defines.h:
+
+/gpfs/software/gcc-4.9.2/include/c++/4.9.2/bits/cpp_type_traits.h:
+
+/gpfs/software/gcc-4.9.2/include/c++/4.9.2/ext/type_traits.h:
+
+/usr/include/math.h:
+
+/usr/include/bits/huge_val.h:
+
+/usr/include/bits/huge_valf.h:
+
+/usr/include/bits/huge_vall.h:
+
+/usr/include/bits/inf.h:
+
+/usr/include/bits/nan.h:
+
+/usr/include/bits/mathdef.h:
+
+/usr/include/bits/mathcalls.h:
+
+/usr/include/bits/mathinline.h:

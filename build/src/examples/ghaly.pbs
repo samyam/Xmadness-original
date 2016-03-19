@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -l nodes=2:ppn=16,walltime=00:30:00
+#PBS -N testFusedEx_s
+#PBS -q short
+
+PBS_O_WORKDIR=/gpfs/home/jinsung/madness-original/madness/build/src/examples
+
+module load shared
+cd $PBS_O_WORKDIR
+source /gpfs/home/jinsung/modules.sh
+source /gpfs/home/jinsung/path-original.sh
+
+mpirun ./testFusedEx > output_testFusedEx_short_test

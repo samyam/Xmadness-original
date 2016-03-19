@@ -1,0 +1,8 @@
+!!! WARNING: MAD_TASKPROFILER_NAME not set.
+!!! WARNING: There will be no task profile output.
+terminate called after throwing an instance of 'madness::MadnessException'
+terminate called after throwing an instance of 'madness::MadnessException'
+terminate called after throwing an instance of 'madness::MadnessException'
+  what():  ThreadPool::await() timeout
+  what():  ThreadPool::await() timeout
+  what():  ThreadPool::await() timeout
