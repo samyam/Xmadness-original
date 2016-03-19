@@ -45,7 +45,6 @@ namespace madness
 		bool notEmpty(map<int,bool>& notEmptyMap) const{
 		    unsigned long treeID = _i1->get_impl()->id().get_obj_id();
 		    unsigned long treeID2 = _i2->get_impl()->id().get_obj_id();
-		    //cout<<"Checking for treeID : "<<treeID<<" and result is "<<notEmptyMap[treeID]<<endl;
 		    return  notEmptyMap[treeID2] && notEmptyMap[treeID];
 		}
 
@@ -53,8 +52,9 @@ namespace madness
 		bool isDone(const keyT& key) const;
 		bool isPre() const { return true; }
 		bool needsParameter() const { return false; }
+		void reduce(World& world) { }
 	public:	// for Addddd Product (specific)
-		void do_add();
+		//void do_add() { }
 
 	private:
 		//!Points to operand trees
@@ -90,8 +90,6 @@ namespace madness
 		, _coeffs_target(output->get_impl()->get_coeffs())
 		, _k(i1->get_impl()->get_k())
 	{
-
-	    // output is itself.
 	    //dependnecy Info PSI, ALPHA, DELTA,SIGMA, ID
 	    this->_OpID = output->get_impl()->id().get_obj_id();
 	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(i1,true,false,false,false));
@@ -106,55 +104,49 @@ namespace madness
 	FuseTContainer<T>
 	AdddddOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
 	{
-		if ( key == keyT(0) )
-		{
-	//		this->_result->get_impl()->reset(new implT(*this->_i1.get_impl(), this->_i1.get_pmap(), false));
-		}
-
-		// impl->gaxpy(alpha,*left.get_impl(),beta,*right.get_impl(),fence);
-
 		// other is node
-		KNODE		target_node;
+		KNODE*		target_node;
 		TensorArgs	targs2	= this->_targs;
 		bool		isLeft	= _coeffs_left.probe(key);
 		bool		isRight	= _coeffs_right.probe(key);
 		T			alpha	= 1.0;
 		T			beta	= 1.0;
-		
+		coeffT		target_coeff = coeffT();
+	
 		if (isLeft == true)
 		{	// Left has a node with the key
 			const KNODE& node_left	= _coeffs_left.find(key).get()->second;
 			coeffT coeff_left = node_left.coeff().full_tensor_copy();
+			//target_coeff.copy(coeff_left);
 
 			if (isRight == true)
 			{	// Right also has a node with the key
 				const KNODE& node_right = _coeffs_right.find(key).get()->second;
 				coeffT coeff_right = node_right.coeff().full_tensor_copy();
-
-				// coeff().gaxpy(alpha, other.coeff(), beta);
-				//target_node.set_coeff(coeff_right);
+				target_coeff = coeff_left + coeff_right;	// can I use "+" operator directly??
+				target_node = new KNODE(target_coeff, true);
 			}
 			else
 			{	// Only Left has a node with the key
-				// coeff().scale(alpha);
-				//target_node.set_coeff(coeff_left);	
+				target_node = new KNODE(coeff_left, true);
 			}
 		}
 		else
-		{	// only Right has a node with the key
-			//const KNODE& node_right = _coeffs_right.find(key).get()->second;
-			//coeffT coeff_right = coeffT(copy(node_right.coeff()), targs2);
-	
-			// coeff() = other.coeff()*beta (const R& beta)	
-	
-			//target_node.set_coeff(coeff_right);
+		{
+			if (isRight == true)
+			{
+				// only Right has a node with the key
+				const KNODE& node_right = _coeffs_right.find(key).get()->second;
+				coeffT coeff_right = node_right.coeff().full_tensor_copy();
+				target_node = new KNODE(coeff_right, true);
+			}
+			else
+			{
+				std::cout<<"ERROR!!!! should not be happend"<<std::endl;
+			}
 		}
 
-
-		//_coeffs_target.replace(key, target_node);
-		//this->_result->get_impl()->get_coeffs().replace(key, target_node);
-
-
+		this->_result->get_impl()->get_coeffs().replace(key, *target_node);
 
 		FuseTContainer<T> result;
 		return result;

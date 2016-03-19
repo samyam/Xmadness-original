@@ -5264,8 +5264,6 @@ namespace madness {
                                  T alpha, T beta, double tol, bool below_leaf) {
             typedef typename FunctionImpl<L,NDIM>::dcT::const_iterator literT;
 
-			std::cout<<__func__<<" ghaly!"<<std::endl;
-
             // If we haven't yet reached the leaf level, check whether the
             // current key is a leaf node of left. If so, set below_leaf to true
             // and continue. If not, make this a parent, recur down, return.

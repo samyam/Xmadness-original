@@ -114,7 +114,9 @@ int main(int argc, char** argv)
 
     // Make exponential of Vp
     real_function_3d result_factory = real_factory_3d(world);
+    real_function_3d result_factory1 = real_factory_3d(world);
     real_function_3d result(result_factory);
+    real_function_3d result1(result_factory);
 
     double result_init_norm	 = result.norm2();
     double result_init_trace = result.trace();
@@ -134,9 +136,14 @@ int main(int argc, char** argv)
 	double result_norm  = result.norm2();
 	double result_trace = result.trace();
     
+	result1 = u0 + u1;
+
+	double result1_norm  = result1.norm2();
+	double result1_trace = result1.trace();
     if (world.rank() == 0) print("u0 norm", u0_norm," u0 trace", u0_trace);
     if (world.rank() == 0) print("u1 norm", u1_norm," u1 trace", u1_trace);
     if (world.rank() == 0) print("Result norm", result_norm," result trace", result_trace);
+    if (world.rank() == 0) print("Result1 norm", result1_norm," result1 trace", result1_trace);
     world.gop.fence();
    
 	finalize(); 

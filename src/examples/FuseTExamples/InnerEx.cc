@@ -77,7 +77,7 @@ using namespace madness;
 
 static const double L		= 20;     // Half box size
 static const long	k		= 8;        // wavelet order
-static const double thresh	= 1e-12; // precision   // w/o diff. and 1e-12 -> 64 x 64
+static const double thresh	= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
 static const double c		= 2.0;       //
 static const double tstep	= 0.1;
 static const double alpha	= 1.9; // Exponent

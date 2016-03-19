@@ -1708,7 +1708,6 @@ namespace madness {
     Function<TENSOR_RESULT_TYPE(L,R),NDIM>
     gaxpy_oop(TENSOR_RESULT_TYPE(L,R) alpha, const Function<L,NDIM>& left,
               TENSOR_RESULT_TYPE(L,R) beta,  const Function<R,NDIM>& right, bool fence=true) {
-		std::cout<<__func__<<" ghaly!"<<std::endl;
         PROFILE_FUNC;
         Function<TENSOR_RESULT_TYPE(L,R),NDIM> result;
         return result.gaxpy_oop(alpha, left, beta, right, fence);
@@ -1718,7 +1717,6 @@ namespace madness {
     template <typename L, typename R,std::size_t NDIM>
     Function<TENSOR_RESULT_TYPE(L,R),NDIM>
     add(const Function<L,NDIM>& left, const Function<R,NDIM>& right, bool fence=true) {
-		std::cout<<__func__<<" ghaly!"<<std::endl;
         return gaxpy_oop(TENSOR_RESULT_TYPE(L,R)(1.0), left,
                          TENSOR_RESULT_TYPE(L,R)(1.0), right, fence);
     }
@@ -1744,7 +1742,6 @@ namespace madness {
     template <typename L, typename R, std::size_t NDIM>
     Function<TENSOR_RESULT_TYPE(L,R), NDIM>
     operator+(const Function<L,NDIM>& left, const Function<R,NDIM>& right) {
-		std::cout<<__func__<<" ghaly!"<<std::endl;
         if (VERIFY_TREE) left.verify_tree();
         if (VERIFY_TREE) right.verify_tree();
 
