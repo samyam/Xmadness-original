@@ -75,13 +75,32 @@
 
 using namespace madness;
 
-static const double L = 20;     // Half box size
-static const long k = 8;        // wavelet order
-static const double thresh = 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
-static const double c = 2.0;       //
-static const double tstep = 0.1;
-static const double alpha = 1.9; // Exponent
-static const double VVV = 0.2;  // Vp constant value
+static const double L		= 20;     // Half box size
+static const long	k		= 8;        // wavelet order
+static const double thresh	= 1e-12; // precision   // w/o diff. and 1e-12 -> 64 x 64
+static const double c		= 2.0;       //
+static const double tstep	= 0.1;
+static const double alpha	= 1.9; // Exponent
+static const double VVV		= 0.2;  // Vp constant value
+
+#define PI 3.1415926535897932385
+#define LO 0.0000000000
+#define HI 4.0000000000
+
+static double sin_amp		= 1.0;
+static double cos_amp		= 1.0;
+static double sin_freq		= 1.0;
+static double cos_freq		= 1.0;
+static double sigma_x		= 1.0;
+static double sigma_y		= 1.0;
+static double sigma_z		= 1.0;
+static double center_x		= 0.0;
+static double center_y		= 0.0;
+static double center_z		= 0.0;
+static double gaussian_amp	= 1.0;
+static double sigma_sq_x	= sigma_x*sigma_x;
+static double sigma_sq_y	= sigma_y*sigma_y;
+static double sigma_sq_z	= sigma_z*sigma_z;
 
 #define FUNC_SIZE	64
 #define FUNC_SIZE_M	64
@@ -104,12 +123,55 @@ static double uinitial1(const coord_3d& r) {
     return exp(-alpha*(2*x*x+1.4*y*y+z*z))*pow(constants::pi/alpha,-1.5);
 };
 
+static double random_function(const coord_3d& r) {
+	const double x=r[0], y=r[1], z=r[2];
+
+	const double dx = x - center_x;
+	const double dy = y - center_y;
+	const double dz = z - center_z;
+
+	const double periodic_part = sin_amp * sin(sin_freq*(dx+dy+dz)) 
+									+ cos_amp * cos(cos_freq*(dx+dy+dz));
+
+	const double x_comp = dx*dx/sigma_sq_x;
+	const double y_comp = dy*dy/sigma_sq_y;
+	const double z_comp = dz*dz/sigma_sq_z;
+
+	const double gaussian_part = -gaussian_amp/exp(sqrt(x_comp+y_comp+z_comp));
+
+	return gaussian_part*gaussian_part;
+}
+
+static double get_rand() {
+	double r3 = LO + static_cast<double>(rand())/(static_cast<double>(RAND_MAX/(HI-LO)));
+	return r3;
+}
+
+static void randomizer()
+{
+	sin_amp = get_rand();
+	cos_amp = get_rand();
+	sin_freq = get_rand();
+	cos_freq = get_rand();
+	sigma_x = get_rand();
+	sigma_y = get_rand();
+	sigma_z = get_rand();
+	center_x = get_rand()*L/(2.0*HI);
+	center_y = get_rand()*L/(2.0*HI);
+	center_z = get_rand()*L/(2.0*HI);
+	gaussian_amp = get_rand();
+	sigma_sq_x = sigma_x*sigma_x;
+	sigma_sq_y = sigma_y*sigma_y;
+	sigma_sq_z = sigma_z*sigma_z;
+}
+
 static double ghaly(const coord_3d& r) {
 	std::srand(time(NULL));
 	const double randVal = std::rand()/1000000000.0;
     const double x=r[0], y=r[1], z=r[2];
     return 3.0*exp(-2.0*sqrt(x*x + randVal*randVal + y*y + z*z + 1e-4));
 }
+
 static double Vp(const coord_3d& r) {
     return VVV;
 }
@@ -192,7 +254,9 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE; i++) 
 	{
-		h[i]				= real_factory_3d(world).f(ghaly);
+		randomizer();
+		h[i]				= real_factory_3d(world).f(random_function);
+		//h[i]				= real_factory_3d(world).f(ghaly);
 		//h[i]				= real_factory_3d(world).f(uinitial);
 		temp_factory_h[i]	= real_factory_3d(world);
 		temp_h[i]			= new real_function_3d(temp_factory_h[i]);
@@ -200,7 +264,9 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE_M; i++)
 	{
-		g[i]				= real_factory_3d(world).f(ghaly);
+		randomizer();
+		g[i]				= real_factory_3d(world).f(random_function);
+		//g[i]				= real_factory_3d(world).f(ghaly);
 		//g[i]				= real_factory_3d(world).f(uinitial2);
 		temp_factory_g[i]	= real_factory_3d(world);
 		temp_g[i]			= new real_function_3d(temp_factory_g[i]);

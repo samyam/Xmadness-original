@@ -111,7 +111,8 @@ class FuseT_VCoeffT : public Base<T>
 public:
 	std::vector<coeffT> value;
 
-	FuseT_VCoeffT() { }
+	FuseT_VCoeffT() { value = std::vector<coeffT>(); } 
+	FuseT_VCoeffT(int size) { value = std::vector<coeffT>(size); }
 	FuseT_VCoeffT(const FuseT_VCoeffT& other) : value (other.value) { }
 	FuseT_VCoeffT(std::vector<coeffT> &v) { value = v; }
 	~FuseT_VCoeffT() { }
@@ -129,9 +130,10 @@ class FuseT_VParameter : public Base<T>
 public:
 	std::vector<FuseTContainer<T>> value;
 
-	FuseT_VParameter() { }
+	FuseT_VParameter() { value = std::vector<FuseTContainer<T>>(); }
+	FuseT_VParameter(int size) { value = std::vector<FuseTContainer<T>>(size); }
 	FuseT_VParameter(const FuseT_VParameter& other) : value (other.value) { }
-	FuseT_VParameter(std::vector<FuseTContainer <T>> &v) { value = v; }
+	FuseT_VParameter(std::vector<FuseTContainer<T> > &v) { value = v; }
 	~FuseT_VParameter() { }
 	FuseTContainer<T> operator[](int i){return value[i];}
 	WHAT_AM_I what() const { return WhatAmI<FuseT_VParameter>::t; };	
@@ -264,7 +266,7 @@ namespace madness
 	namespace archive
 	{
 		template <class Archive, typename T>
-		struct ArchiveStoreImpl<Archive, FuseTContainer<T>>
+		struct ArchiveStoreImpl<Archive, FuseTContainer<T> >
 		{
 			static void store(const Archive& ar, const FuseTContainer<T>& w)
 			{
@@ -273,7 +275,7 @@ namespace madness
 		};
 
 		template <class Archive, typename T>
-		struct ArchiveLoadImpl<Archive, FuseTContainer<T>>
+		struct ArchiveLoadImpl<Archive, FuseTContainer<T> >
 		{
 			static void load(const Archive& ar, FuseTContainer<T>& w)
 			{

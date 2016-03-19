@@ -53,9 +53,8 @@ namespace madness
 		bool isDone(const keyT& key) const;
 		bool isPre() const { return true; }
 		bool needsParameter() const { return false; }
-		void reduce(World& world);
 	public:	// for Addddd Product (specific)
-		T _sum;
+		void do_add();
 
 	private:
 		//!Points to operand trees
@@ -90,7 +89,6 @@ namespace madness
 		, _coeffs_right(i2->get_impl()->get_coeffs())
 		, _coeffs_target(output->get_impl()->get_coeffs())
 		, _k(i1->get_impl()->get_k())
-		, _sum(0.0)
 	{
 
 	    // output is itself.
@@ -120,8 +118,8 @@ namespace madness
 		TensorArgs	targs2	= this->_targs;
 		bool		isLeft	= _coeffs_left.probe(key);
 		bool		isRight	= _coeffs_right.probe(key);
-		T alpha = 1.0;
-		T beta	= 1.0;
+		T			alpha	= 1.0;
+		T			beta	= 1.0;
 		
 		if (isLeft == true)
 		{	// Left has a node with the key
@@ -180,12 +178,6 @@ namespace madness
 		return isLeaf2;
     }
     
-    // Reduction
-    template<typename T, std::size_t NDIM>
-	void  
-	AdddddOp<T,NDIM>::reduce(World& world){
-	    world.gop.sum(_sum);	
-    }
 }; /*fuset*/
 
 #endif /* __fuset_AdddddOp_h__ */

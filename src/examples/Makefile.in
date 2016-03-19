@@ -52,7 +52,7 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	siam_example$(EXEEXT) gaussian$(EXEEXT) copyEx$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
-	$(am__EXEEXT_1)
+	multiplyEx$(EXEEXT) $(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -210,6 +210,9 @@ am_mp2_OBJECTS = mp2.$(OBJEXT)
 mp2_OBJECTS = $(am_mp2_OBJECTS)
 mp2_LDADD = $(LDADD)
 mp2_DEPENDENCIES = $(LIBCHEM) $(MRALIBS)
+am_multiplyEx_OBJECTS = FuseTExamples/MultiplyEx.$(OBJEXT)
+multiplyEx_OBJECTS = $(am_multiplyEx_OBJECTS)
+multiplyEx_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
 am_nemo_OBJECTS = nemo.$(OBJEXT)
 nemo_OBJECTS = $(am_nemo_OBJECTS)
 nemo_LDADD = $(LDADD)
@@ -303,9 +306,9 @@ SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
 	$(heat2_SOURCES) $(hedft_SOURCES) $(hefxc_SOURCES) \
 	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(mp2_SOURCES) $(nemo_SOURCES) \
-	$(newsolver_SOURCES) $(nonlinschro_SOURCES) $(oep_SOURCES) \
-	$(pno_SOURCES) $(reconstructEx_SOURCES) \
+	$(innerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
+	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
+	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -321,9 +324,9 @@ DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
 	$(heat2_SOURCES) $(hedft_SOURCES) $(am__hefxc_SOURCES_DIST) \
 	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(mp2_SOURCES) $(nemo_SOURCES) \
-	$(newsolver_SOURCES) $(nonlinschro_SOURCES) $(oep_SOURCES) \
-	$(pno_SOURCES) $(reconstructEx_SOURCES) \
+	$(innerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
+	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
+	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -548,6 +551,8 @@ reconstructEx_SOURCES = FuseTExamples/ReconstructEx.cc
 reconstructEx_LDADD = $(LIBWORLD) $(MRALIBS)
 innerEx_SOURCES = FuseTExamples/InnerEx.cc
 innerEx_LDADD = $(LIBWORLD) $(MRALIBS)
+multiplyEx_SOURCES = FuseTExamples/MultiplyEx.cc
+multiplyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 addEx_SOURCES = FuseTExamples/AddEx.cc
 addEx_LDADD = $(LIBWORLD) $(MRALIBS)
 fusedEx_SOURCES = FuseTExamples/FusedEx.cc
@@ -746,6 +751,11 @@ innerEx$(EXEEXT): $(innerEx_OBJECTS) $(innerEx_DEPENDENCIES)
 mp2$(EXEEXT): $(mp2_OBJECTS) $(mp2_DEPENDENCIES) 
 	@rm -f mp2$(EXEEXT)
 	$(CXXLINK) $(mp2_OBJECTS) $(mp2_LDADD) $(LIBS)
+FuseTExamples/MultiplyEx.$(OBJEXT): FuseTExamples/$(am__dirstamp) \
+	FuseTExamples/$(DEPDIR)/$(am__dirstamp)
+multiplyEx$(EXEEXT): $(multiplyEx_OBJECTS) $(multiplyEx_DEPENDENCIES) 
+	@rm -f multiplyEx$(EXEEXT)
+	$(CXXLINK) $(multiplyEx_OBJECTS) $(multiplyEx_LDADD) $(LIBS)
 nemo$(EXEEXT): $(nemo_OBJECTS) $(nemo_DEPENDENCIES) 
 	@rm -f nemo$(EXEEXT)
 	$(CXXLINK) $(nemo_OBJECTS) $(nemo_LDADD) $(LIBS)
@@ -811,6 +821,7 @@ mostlyclean-compile:
 	-rm -f FuseTExamples/CopyEx.$(OBJEXT)
 	-rm -f FuseTExamples/FusedEx.$(OBJEXT)
 	-rm -f FuseTExamples/InnerEx.$(OBJEXT)
+	-rm -f FuseTExamples/MultiplyEx.$(OBJEXT)
 	-rm -f FuseTExamples/ReconstructEx.$(OBJEXT)
 	-rm -f FuseTExamples/Test_FusedEx.$(OBJEXT)
 	-rm -f FuseTExamples/compress.$(OBJEXT)
@@ -862,6 +873,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/CopyEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/FusedEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/InnerEx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/MultiplyEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/ReconstructEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/Test_FusedEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/compress.Po@am__quote@

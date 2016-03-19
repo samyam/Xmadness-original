@@ -8,7 +8,7 @@ GITREV="MADNESS_GITREVISION=\"`git --git-dir=$(top_srcdir)/.git rev-parse HEAD`\
 AM_CPPFLAGS += -D$(GITREV)
 
 
-noinst_PROGRAMS = CopyEx CompressEx InnerEx Test_FusedEx FusedEx ReconstructEx InnerExWeak
+noinst_PROGRAMS = CopyEx CompressEx InnerEx Test_FusedEx FusedEx ReconstructEx InnerExWeak multiplyEx
  
 thisincludedir = $(includedir)/examples/FuseTExamples/
 thisinclude_HEADERS = molecularmask.h  nonlinsol.h spectralprop.h
