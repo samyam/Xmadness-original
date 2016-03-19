@@ -1,90 +1,175 @@
-#ifndef __fuset_AddOp_h__
-#define __fuset_AddOp_h__
+//
+// Ghaly
+//
+// Compresses the function, transforming into wavelet basis. 
+// Possible non-blocking comm.
+//
+// By default fence=true meaning that this oepration completes before returning,
+// othewise if fence=false it returns without fencing and the user must invoke 
+// workd.gop.fence() to assure global completion before using the function
+// for other purposes.
+//
+// Noop if already compressed or if not initialized.
+//
+// Since reconstruction/compression do not discard information we define them
+// as const ... "logical constness" not "bitwise contness".
+//
+#ifndef __MADNESS_MRA_FUSET_INNER_OP__INCLUDED__
+#define __MADNESS_MRA_FUSET_INNER_OP__INCLUDED__
 
 #include "PrimitiveOp.h"
+#include "../mra.h"
+#include "../function_common_data.h"
+#include "../../world/MADworld.h"
+#include "../../tensor/tensor.h"
+#include "../../tensor/gentensor.h"
 
-namespace fuset {
+namespace madness 
+{
+	template<typename T, std::size_t NDIM>
+	class AddOp : public PrimitiveOp<T,NDIM> 
+	{
+		typedef Function<T,NDIM> KTREE;
+		typedef FunctionNode<T,NDIM> KNODE;	// identical to nodeT
+		typedef FunctionImpl<T,NDIM> implT;
+		typedef Key<NDIM> keyT;
+		typedef WorldContainer<Key<NDIM>,FunctionNode<T,NDIM>> dcT;
+		typedef WorldObject<FunctionImpl<T,NDIM>> woT;	///< Base class world object type
+		typedef GenTensor<T> coeffT;	//Type of tensor used to hold coeffs
+		typedef Tensor<T> tensorT;
+	    
+    public:
+		AddOp(string opName, KTREE* output, const KTREE* i1, const KTREE*i2);
+		FuseTContainer<T> compute(const keyT& key, const FuseTContainer<T> &s);
 
-  template<typename Type>
-  class AddOp : public PrimitiveOp<Type>{
-    typedef KaryTree<Type> KTREE;
-    typedef Node<Type> KNODE;
+		bool notEmpty(map<int,bool>& notEmptyMap) const{
+		    unsigned long treeID = _i1->get_impl()->id().get_obj_id();
+		    unsigned long treeID2 = _i2->get_impl()->id().get_obj_id();
+		    return  notEmptyMap[treeID2] && notEmptyMap[treeID];
+		}
 
-  public:
-    /*!Adds trees i1 and i2 and creates result tree*/
-    AddOp(string name, KTREE *result, const KTREE *i1, const KTREE *i2);    
+		//
+		bool isDone(const keyT& key) const;
+		bool isPre() const { return true; }
+		bool needsParameter() const { return false; }
+		void reduce(World& world) { }
+	public:	// for Add Product (specific)
+		//void do_add() { }
+
+	private:
+		//!Points to operand trees
+		const KTREE* _i1, *_i2, *_result;
     
-    /*!Adds two nodes from i1 and i2. 
-      If one exists and another is empty, the it just replaces the values at the result node with data from the node that exists*/
-    void compute(int n, TRANS l);
+		//!Points to operand nodes of the tree
+		KNODE *_t1, *_t2;
 
-    /*!Checks to see if the add operation needs to recurse further down*/
-    bool isDone(int n, TRANS l) const;
+		//!Variables for CompressOp
+		dcT& _coeffs_left;
+		dcT& _coeffs_right;
+		dcT& _coeffs_target;
+		const FunctionCommonData<T,NDIM>& _cdata; 
+		TensorArgs _targs;	
 
-    bool isPre() const { return true; }
+		// Wavelet order	
+		int _k;
+    };
 
-    bool notEmpty(map<int,bool> &emptyMap) const{
-	bool retValue = (emptyMap[_i1->_treeID] || emptyMap[_i2->_treeID]);
-	//cout<<"Add Not Empty : "<<retValue<<endl;
-	return retValue;
+		
+	// Constructor
+	// World is needed for communication in the "compute" function
+    template<typename T, std::size_t NDIM>
+	AddOp<T,NDIM>::AddOp(string opName, KTREE* output, const KTREE* i1, const KTREE* i2)
+	: PrimitiveOp<T,NDIM>(opName, output, false,true)
+		, _i1(i1)
+	    , _i2(i2)
+		, _result(output)
+		, _cdata(FunctionCommonData<T,NDIM>::get(i1->k()))
+		, _targs(i1->get_impl()->get_tensor_args())
+		, _coeffs_left(i1->get_impl()->get_coeffs())
+		, _coeffs_right(i2->get_impl()->get_coeffs())
+		, _coeffs_target(output->get_impl()->get_coeffs())
+		, _k(i1->get_impl()->get_k())
+	{
+	    //dependnecy Info PSI, ALPHA, DELTA,SIGMA, ID
+	    this->_OpID = output->get_impl()->id().get_obj_id();
+	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(i1,true,false,false,false));
+	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(i2,true,false,false,false));
+	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,false,false,false));
+	    
+		woT(i1->world());
+	}
+
+	//
+	template<typename T, std::size_t NDIM>
+	FuseTContainer<T>
+	AddOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
+	{
+		// other is node
+		KNODE*		target_node;
+		TensorArgs	targs2	= this->_targs;
+		bool		isLeft	= _coeffs_left.probe(key);
+		bool		isRight	= _coeffs_right.probe(key);
+		T			alpha	= 1.0;
+		T			beta	= 1.0;
+		coeffT		target_coeff = coeffT();
+	
+		if (isLeft == true)
+		{	// Left has a node with the key
+			const KNODE& node_left	= _coeffs_left.find(key).get()->second;
+			coeffT coeff_left = node_left.coeff().full_tensor_copy();
+			//target_coeff.copy(coeff_left);
+
+			if (isRight == true)
+			{	// Right also has a node with the key
+				const KNODE& node_right = _coeffs_right.find(key).get()->second;
+				coeffT coeff_right = node_right.coeff().full_tensor_copy();
+				target_coeff = coeff_left + coeff_right;	// can I use "+" operator directly??
+				target_node = new KNODE(target_coeff, true);
+			}
+			else
+			{	// Only Left has a node with the key
+				target_node = new KNODE(coeff_left, true);
+			}
+		}
+		else
+		{
+			if (isRight == true)
+			{
+				// only Right has a node with the key
+				const KNODE& node_right = _coeffs_right.find(key).get()->second;
+				coeffT coeff_right = node_right.coeff().full_tensor_copy();
+				target_node = new KNODE(coeff_right, true);
+			}
+			else
+			{
+				std::cout<<"ERROR!!!! should not be happend"<<std::endl;
+			}
+		}
+
+		this->_result->get_impl()->get_coeffs().replace(key, *target_node);
+
+		FuseTContainer<T> result;
+		return result;
+	}
+
+    // isDone
+    template<typename T, std::size_t NDIM>
+	bool 
+	AddOp<T,NDIM>::isDone(const keyT& key) const 
+	{
+		bool isE1 = _i1->get_impl()->get_coeffs().probe(key);
+		if(!isE1)	return isE1;
+
+		bool isE2 = _i2->get_impl()->get_coeffs().probe(key);
+		if(!isE2)	return isE2;
+
+		bool isLeaf = !_i1->get_impl()->get_coeffs().find(key).get()->second.has_children();
+		if (isLeaf)	return isLeaf;
+
+		bool isLeaf2 = !_i2->get_impl()->get_coeffs().find(key).get()->second.has_children();
+		return isLeaf2;
     }
-  private:
-    //!Points to operand trees
-    const KTREE *_i1, *_i2;
     
-    //!Points to operand nodes of the tree
-    KNODE *_t1, *_t2;
-  };
-
-  template<typename Type>
-      AddOp<Type>::AddOp(string name, KTREE *output, const KTREE *i1, const KTREE *i2)
-      : PrimitiveOp<Type>(name, output,false),
-      _i1(i1),
-      _i2(i2)
-  {   
-      //dependnecy Info PSI, ALPHA, DELTA,SIGMA, ID
-      this->_OpID = output->_treeID;
-      this->_dInfoVec.push_back(DependencyInfo<Type>(i1,true,false,false,false));
-      this->_dInfoVec.push_back(DependencyInfo<Type>(i2,true,false,false,false));
-  }
-    
-  template<typename Type>
-  void 
-  AddOp<Type>::compute(int n, TRANS l) {
-    //    std::cout<<"Entering n : "<<n<<" l : "<<l<<std::endl;
-    bool isE1, isE2;
-    _t1 = _i1->getNode(n,l,isE1);
-    _t2 = _i2->getNode(n,l,isE2);
-    //    std::cout<<"Before if n : "<<n<<" l : "<<l<<std::endl;
-    if(!isE1 || !isE2){
-      KNODE* t3 = this->_result->createNode(n,l);
-      t3->setZero();
-      if(!isE1)
-        for(int i =0; i< _t1->getLength(); i++)
-          t3->getData()[i] += _t1->getData()[i];
-      //	std::cout<<"Before isE2 n : "<<n<<" l : "<<l<<std::endl;
-      if(!isE2)
-        for(int i =0; i< _t2->getLength(); i++)
-          t3->getData()[i] += _t2->getData()[i];
-      //	std::cout<<"Before isDone n : "<<n<<" l : "<<l<<std::endl;
-      if(isDone(n,l))
-        t3->setType(LEAF);
-      //	std::cout<<"After isDone n : "<<n<<" l : "<<l<<std::endl;
-    }
-    //    std::cout<<"Exiting n : "<<n<<" l : "<<l<<std::endl;
-    _t1->deleteEmptyNode();
-    _t2->deleteEmptyNode();
-  }
-
-  template<typename Type>
-  bool
-  AddOp<Type>::isDone(int n, TRANS l) const {
-    if(_t1->getType() !=INTERIOR
-       && _t2->getType() != INTERIOR)
-      return true;	
-    return false;
-  }
-
 }; /*fuset*/
 
 #endif /* __fuset_AddOp_h__ */

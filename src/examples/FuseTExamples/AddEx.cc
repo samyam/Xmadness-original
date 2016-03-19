@@ -36,7 +36,7 @@
 #include <madness/constants.h>
 #include <madness/mra/FuseT/CopyOp.h>
 #include <madness/mra/FuseT/CompressOp.h>
-#include <madness/mra/FuseT/AdddddOp.h>
+#include <madness/mra/FuseT/AddOp.h>
 #include <madness/mra/FuseT/FuseT.h>
 #include <madness/mra/FuseT/FusedExecutor.h>
 #include <madness/mra/FuseT/OpExecutor.h>
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     if (world.rank() == 0) print("Initial Result norm", result_init_norm,"trace", result_init_trace);
     world.gop.fence();
 
-	AdddddOp<double,3> op1("Add",&result,&u0,&u1);
+	AddOp<double,3> op1("Add",&result,&u0,&u1);
     OpExecutor<double,3> exe(world);
     exe.execute(&op1, false);
     world.gop.fence();

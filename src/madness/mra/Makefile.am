@@ -48,7 +48,7 @@ thisinclude_HEADERS = adquad.h  funcimpl.h  indexit.h  legendre.h  operator.h  v
 					  FuseT/PrimitiveOp.h FuseT/CompressOp.h FuseT/CopyOp.h \
 					  FuseT/FusedExecutor.h FuseT/FuseTContainer.h \
 					  FuseT/InnerOp.h FuseT/OpExecutor.h FuseT/ReconstructOp.h \
-					  FuseT/FuseT.h FuseT/AdddddOp.h
+					  FuseT/FuseT.h FuseT/AddOp.h
 
 LDADD = libMADmra.la $(LIBLINALG) $(LIBTENSOR) $(LIBMISC) $(LIBMUPARSER) $(LIBWORLD)
 
