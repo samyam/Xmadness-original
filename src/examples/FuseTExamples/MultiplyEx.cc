@@ -51,7 +51,8 @@
 #include <madness/mra/FuseT/CompressOp.h>
 #include <madness/mra/FuseT/ReconstructOp.h>
 #include <madness/mra/FuseT/NothingOp.h>
-
+#include <madness/mra/FuseT/FuseT.h>
+#include <madness/mra/FuseT/FusedExecutor.h>
 #include <madness/mra/FuseT/MultiplyOp.h>
 #include <madness/mra/FuseT/OpExecutor.h>
 
@@ -110,14 +111,28 @@ int main(int argc, char** argv)
 
   real_function_3d result_factory = real_factory_3d(world);
   real_function_3d result_fuset(result_factory);
+  real_function_3d result_factory1 = real_factory_3d(world);
+  real_function_3d result_fuset1(result_factory);
 
   MultiplyOp<double,3> op1("Multiply",&result_fuset, &u0, &u1, 0.0);
+  MultiplyOp<double,3> op2("Multiply",&result_fuset1, &u0, &u1, 0.0);
   OpExecutor<double,3> exe(world);
   exe.execute(&op1, false);
 
+  vector<PrimitiveOp<double,3>*> sequence;
+  sequence.push_back(&op2);
+  FuseT<double,3> odag(sequence);
+  FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
+  FusedExecutor<double,3> fexecuter(world, &fsequence);
+  fexecuter.execute();
+
+
   double result_fuset_norm	= result_fuset.norm2();
   double result_fuset_trace	= result_fuset.trace();
+  double result_fuset1_norm	= result_fuset1.norm2();
+  double result_fuset1_trace= result_fuset1.trace();
   if (world.rank() == 0) print("[Result Fuset] Norm", result_fuset_norm,"trace", result_fuset_trace);
+  if (world.rank() == 0) print("[Result Fuset] Norm", result_fuset1_norm,"trace", result_fuset1_trace);
 
   finalize();
   return 0;

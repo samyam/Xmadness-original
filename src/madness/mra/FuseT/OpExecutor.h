@@ -44,7 +44,6 @@ namespace madness
 	OpExecutor<T,NDIM>::traverseTree(const keyT key, const FuseTContainer<T> &s)
 	{
 		FuseTContainer<T> temp;
-		//std::cout<<__func__<<" - key: "<<key<<std::endl;
 
 		// Pre-Computation	
 		if (_pOp->isPre())
@@ -76,8 +75,13 @@ namespace madness
 		if (!_pOp->isPre())
 		{
 			Future<FuseTContainer<T>> returnVal = woT::task(_world.rank(), &OpExecutor<T,NDIM>::PostCompute, key, v);
+
+			if (!v.empty())
+			{
+				v.clear();
+			}
+
 			return returnVal;
-			//return woT::task(_world.rank(), &OpExecutor<T,NDIM>::PostCompute, key, v);	
 		}
 
 		// for Pre-Computation (temporal)
@@ -93,7 +97,6 @@ namespace madness
 	    vector<FuseTContainer <T> > temp;
 	    for(auto a: v)
 		temp.push_back(a.get());
-
 	    return _pOp->compute(key, FuseTContainer<T>(static_cast<Base<T>*>(new FuseT_VParameter<T>(temp))));
 	}
 

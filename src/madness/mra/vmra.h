@@ -488,6 +488,9 @@ namespace madness {
                 std::vector< Function<T,NDIM> > jvec(g.begin()+jlo, g.begin()+jhi);
 
                 Tensor<T> P = matrix_inner(A.get_world(),ivec,jvec);
+
+				//std::cout<< P <<std::endl;
+
                 A.copy_from_replicated_patch(ilo, ihi-1, jlo, jhi-1, P);
             }
         }
@@ -514,6 +517,7 @@ namespace madness {
         for (unsigned int i=0; i<f.size(); i++) left[i] = f[i].get_impl().get();
         for (unsigned int i=0; i<g.size(); i++) right[i]= g[i].get_impl().get();
 
+		//std::cout<<"calls inner_local, sym:"<<sym <<std::endl;
         Tensor< TENSOR_RESULT_TYPE(T,R) > r= FunctionImpl<T,NDIM>::inner_local(left, right, sym);
 
         world.gop.fence();

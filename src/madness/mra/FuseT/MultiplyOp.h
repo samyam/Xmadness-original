@@ -32,7 +32,7 @@ namespace madness
 		bool isDone(const keyT& key) const;
 		bool isPre() const { return true; }
 		bool needsParameter() const { return true; }
-                void reduce(World& world){}
+        void reduce(World& world){}
 	public:
 		std::vector<Slice> child_patch(const keyT& child) const;
 		void do_mul(const keyT& key, const Tensor<T>& left, const std::pair< keyT, Tensor<T> >& arg);
@@ -78,8 +78,13 @@ namespace madness
 	    if(s.get() == 0){
 		parameter = std::vector<coeffT>(2);
 		
-	    }else if (s.what() == WHAT_AM_I::FuseT_VCoeffT) 		      {
+	    }else if (s.what() == WHAT_AM_I::FuseT_VCoeffT) {
 		parameter = ((FuseT_VCoeffT<T>*)s.get())->value;
+		
+		delete (s.data);
+		
+		//printf ("target: %p vs. parameter: %p\n", &parameter, &(((FuseT_VCoeffT<T>*)s.get())->value));
+
 	    }else{
 		cerr<<"This should not have happenned"<<endl;
 	    }
@@ -137,13 +142,13 @@ namespace madness
 		rss = _i2->get_impl()->unfilter(rd);
 	    }
 
+			
+
 	    FuseT_VParameter<T>*  v_parameter = new FuseT_VParameter<T>();
 
 	    for (KeyChildIterator<NDIM> kit(key); kit; ++kit) {
 		const keyT& child = kit.key();
-
 		FuseT_VCoeffT<T>* tvec = new FuseT_VCoeffT<T>(2);
-
 		if (lc.size())
 		    tvec->value[0] = copy(lss(child_patch(child)));
 		if (rc.size())

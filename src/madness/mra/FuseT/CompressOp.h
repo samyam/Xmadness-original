@@ -43,15 +43,16 @@ namespace madness
 		FuseTContainer<T>			compute			(const keyT& key, const FuseTContainer<T> &s);
 		//Future<FuseTContainer<T>>	postCompute		(const keyT& key, const std::vector<Future<FuseTContainer<T>>> &s);
 
-		bool notEmpty(map<int,bool>& notEmptyMap) const{
-		    unsigned long treeID = _i1->get_impl()->id().get_obj_id();
+		bool notEmpty(map<int,bool>& notEmptyMap) const
+		{
+			unsigned long treeID = _i1->get_impl()->id().get_obj_id();
 		    //cout<<"Checking for treeID : "<<treeID<<" and result is "<<notEmptyMap[treeID]<<endl;
 		    return  notEmptyMap[treeID];
 		}
 		bool						isDone			(const keyT& key) const;
 		bool						isPre			() const { return false; } // false does not work. but It should be false.
 		bool						needsParameter	() const { return true; }
-                void reduce(World& world){}
+        void						reduce			(World& world){}
 	public:	// for CompressOp
 		coeffT						filter			(const coeffT& s) const;
 		std::vector<Slice>			child_patch		(const keyT& child) const;
@@ -69,7 +70,7 @@ namespace madness
 		const FunctionCommonData<T,NDIM>&	_cdata; 
 		TensorArgs							_targs;	
 
-		int									_k;				// Wavelet order	
+		int									_k;		// Wavelet order
 		bool								_nonstandard;
 		bool								_keepleaves;
 		bool								_redundant;
@@ -118,10 +119,9 @@ namespace madness
 		// get fetches remote data (here actually local)
 		FuseT_CoeffT<T>*		s_coeff;
 		FuseT_VParameter<T>*	v_parameter;
-		KNODE& node = _coeffs.find(key).get()->second;
+		KNODE&					node = _coeffs.find(key).get()->second;
 		if (node.has_children())
 		{
-			//std::cout<<"rank: "<<this->_i1->world().rank()<<std::endl;
 			// 
 			//	Intermediate Nodes
 			//
@@ -139,8 +139,11 @@ namespace madness
 			for (KeyChildIterator<NDIM> kit(key); kit; ++kit, ++i)
 			{
 				d(child_patch(kit.key())) += ((FuseT_CoeffT<T>*)((v_parameter->value[i].get())))->value.full_tensor_copy();
+				delete v_parameter->value[i].data;
 				temp.set_has_children_recursive(_coeffs_target, kit.key());	 // children
 			}
+
+
 			d = filter(d);
 
 			//this->_result->get_impl()->get_coeffs().replace(key,temp);

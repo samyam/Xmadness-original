@@ -635,6 +635,8 @@ int main(int argc, char** argv) {
 	if (world.rank()==0) print("error in the density: int(abs(rho-rho_hf)",error,error1);
 
 	if (world.rank()==0) print("<hf | oep>");
+
+
 	Tensor<double> S=matrix_inner(world,orbitals,hf.get_calc().amo);
 	print(S);
 

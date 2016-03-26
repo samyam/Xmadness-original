@@ -706,28 +706,28 @@ namespace madness {
 
     // this version is faster than the previous version on BG/Q
     distmatT SCF::kinetic_energy_matrix(World & world, const vecfuncT & v) const {
-        PROFILE_MEMBER_FUNC(SCF);
-         int n = v.size();
-         distmatT r = column_distributed_matrix<double>(world, n, n);
-         reconstruct(world, v);
-         vecfuncT dvx = apply(world, *(gradop[0]), v, false);
-         vecfuncT dvy = apply(world, *(gradop[1]), v, false);
-         vecfuncT dvz = apply(world, *(gradop[2]), v, false);
-         world.gop.fence();
-         compress(world,dvx,false);
-         compress(world,dvy,false);
-         compress(world,dvz,false);
-         world.gop.fence();
-         r += matrix_inner(r.distribution(), dvx, dvx, true);
-         r += matrix_inner(r.distribution(), dvy, dvy, true);
-         r += matrix_inner(r.distribution(), dvz, dvz, true);
-         r *= 0.5;
-         //tensorT p(v.size(),v.size());
-         //r.copy_to_replicated(p);
-         return r;
-     }
+		PROFILE_MEMBER_FUNC(SCF);
+		int n = v.size();
+		distmatT r = column_distributed_matrix<double>(world, n, n);
+		reconstruct(world, v);
+		vecfuncT dvx = apply(world, *(gradop[0]), v, false);
+		vecfuncT dvy = apply(world, *(gradop[1]), v, false);
+		vecfuncT dvz = apply(world, *(gradop[2]), v, false);
+		world.gop.fence();
+		compress(world,dvx,false);
+		compress(world,dvy,false);
+		compress(world,dvz,false);
+		world.gop.fence();
+		r += matrix_inner(r.distribution(), dvx, dvx, true);
+		r += matrix_inner(r.distribution(), dvy, dvy, true);
+		r += matrix_inner(r.distribution(), dvz, dvz, true);
+		r *= 0.5;
+		//tensorT p(v.size(),v.size());
+		//r.copy_to_replicated(p);
+		return r;
+	}
 
-     distmatT SCF::kinetic_energy_matrix(World & world, const vecfuncT & vbra, const vecfuncT & vket) const {
+	distmatT SCF::kinetic_energy_matrix(World & world, const vecfuncT & vbra, const vecfuncT & vket) const {
          PROFILE_MEMBER_FUNC(SCF);
          MADNESS_ASSERT(vbra.size() == vket.size());
          int n = vbra.size();

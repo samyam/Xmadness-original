@@ -78,12 +78,13 @@ namespace madness
 			s_coeff = new FuseT_CoeffT<T>();
 			if (s.what() == WHAT_AM_I::FuseT_CoeffT) 
 			{
-				s_coeff->value = ((FuseT_CoeffT<T>*)s.get())->value;
+				s_coeff->value = (((FuseT_CoeffT<T>*)s.get())->value).full_tensor_copy();
+				delete s.data;
 			}
 			else
 			{
 				cerr<<"This should not have happenned"<<endl;
-			}	
+			}
 		}
 
 		// for Root

@@ -14,8 +14,8 @@
 // Since reconstruction/compression do not discard information we define them
 // as const ... "logical constness" not "bitwise contness".
 //
-#ifndef __MADNESS_MRA_FUSET_INNER_OP__INCLUDED__
-#define __MADNESS_MRA_FUSET_INNER_OP__INCLUDED__
+#ifndef __MADNESS_MRA_FUSET_ADD_OP__INCLUDED__
+#define __MADNESS_MRA_FUSET_ADD_OP__INCLUDED__
 
 #include "PrimitiveOp.h"
 #include "../mra.h"
