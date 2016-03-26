@@ -1,3 +1,0 @@
-terminate called after throwing an instance of 'madness::MadnessException'
-  what():  ThreadPool::await() timeout
-Warning: Permanently added 'cn016,10.10.0.16' (RSA) to the list of known hosts.

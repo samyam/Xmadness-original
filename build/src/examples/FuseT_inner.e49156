@@ -1,3 +1,0 @@
-A madness exception occurred. Place a break point at madness::exception_break to debug.
-terminate called after throwing an instance of 'madness::MadnessException'
-  what():  MADNESS ASSERTION FAILED: "../../../src/madness/world/mem_func_wrapper.h"(226)
