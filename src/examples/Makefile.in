@@ -52,7 +52,7 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	siam_example$(EXEEXT) gaussian$(EXEEXT) copyEx$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
-	multiplyEx$(EXEEXT) $(am__EXEEXT_1)
+	multiplyEx$(EXEEXT) matrixInnerEx$(EXEEXT) $(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -206,6 +206,9 @@ hello_DEPENDENCIES = $(LIBCHEM) $(MRALIBS)
 am_innerEx_OBJECTS = FuseTExamples/InnerEx.$(OBJEXT)
 innerEx_OBJECTS = $(am_innerEx_OBJECTS)
 innerEx_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
+am_matrixInnerEx_OBJECTS = FuseTExamples/MatrixInnerEx.$(OBJEXT)
+matrixInnerEx_OBJECTS = $(am_matrixInnerEx_OBJECTS)
+matrixInnerEx_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
 am_mp2_OBJECTS = mp2.$(OBJEXT)
 mp2_OBJECTS = $(am_mp2_OBJECTS)
 mp2_LDADD = $(LDADD)
@@ -306,14 +309,15 @@ SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
 	$(heat2_SOURCES) $(hedft_SOURCES) $(hefxc_SOURCES) \
 	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
-	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
-	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
-	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
-	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
-	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
-	$(test_gmres_SOURCES) $(testsolver_SOURCES) \
-	$(testspectralprop_SOURCES) $(tiny_SOURCES) $(vnucso_SOURCES)
+	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
+	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
+	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
+	$(reconstructEx_SOURCES) $(sdf_shape_tester_SOURCES) \
+	$(siam_example_SOURCES) $(sininteg_SOURCES) $(tdhf_SOURCES) \
+	$(tdse1d_SOURCES) $(tdse_example_SOURCES) \
+	$(testFusedEx_SOURCES) $(test_gmres_SOURCES) \
+	$(testsolver_SOURCES) $(testspectralprop_SOURCES) \
+	$(tiny_SOURCES) $(vnucso_SOURCES)
 DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(binaryop_SOURCES) $(cc2_SOURCES) $(compressEx_SOURCES) \
 	$(copyEx_SOURCES) $(csqrt_SOURCES) $(dataloadbal_SOURCES) \
@@ -324,14 +328,15 @@ DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
 	$(heat2_SOURCES) $(hedft_SOURCES) $(am__hefxc_SOURCES_DIST) \
 	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
-	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
-	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
-	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
-	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
-	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
-	$(test_gmres_SOURCES) $(testsolver_SOURCES) \
-	$(testspectralprop_SOURCES) $(tiny_SOURCES) $(vnucso_SOURCES)
+	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
+	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
+	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
+	$(reconstructEx_SOURCES) $(sdf_shape_tester_SOURCES) \
+	$(siam_example_SOURCES) $(sininteg_SOURCES) $(tdhf_SOURCES) \
+	$(tdse1d_SOURCES) $(tdse_example_SOURCES) \
+	$(testFusedEx_SOURCES) $(test_gmres_SOURCES) \
+	$(testsolver_SOURCES) $(testspectralprop_SOURCES) \
+	$(tiny_SOURCES) $(vnucso_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -547,6 +552,8 @@ copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
 compressEx_LDADD = $(LIBWORLD) $(MRALIBS)
+matrixInnerEx_SOURCES = FuseTExamples/MatrixInnerEx.cc
+matrixInnerEx_LDADD = $(LIBWORLD) $(MRALIBS)
 reconstructEx_SOURCES = FuseTExamples/ReconstructEx.cc
 reconstructEx_LDADD = $(LIBWORLD) $(MRALIBS)
 innerEx_SOURCES = FuseTExamples/InnerEx.cc
@@ -748,6 +755,11 @@ FuseTExamples/InnerEx.$(OBJEXT): FuseTExamples/$(am__dirstamp) \
 innerEx$(EXEEXT): $(innerEx_OBJECTS) $(innerEx_DEPENDENCIES) 
 	@rm -f innerEx$(EXEEXT)
 	$(CXXLINK) $(innerEx_OBJECTS) $(innerEx_LDADD) $(LIBS)
+FuseTExamples/MatrixInnerEx.$(OBJEXT): FuseTExamples/$(am__dirstamp) \
+	FuseTExamples/$(DEPDIR)/$(am__dirstamp)
+matrixInnerEx$(EXEEXT): $(matrixInnerEx_OBJECTS) $(matrixInnerEx_DEPENDENCIES) 
+	@rm -f matrixInnerEx$(EXEEXT)
+	$(CXXLINK) $(matrixInnerEx_OBJECTS) $(matrixInnerEx_LDADD) $(LIBS)
 mp2$(EXEEXT): $(mp2_OBJECTS) $(mp2_DEPENDENCIES) 
 	@rm -f mp2$(EXEEXT)
 	$(CXXLINK) $(mp2_OBJECTS) $(mp2_LDADD) $(LIBS)
@@ -821,6 +833,7 @@ mostlyclean-compile:
 	-rm -f FuseTExamples/CopyEx.$(OBJEXT)
 	-rm -f FuseTExamples/FusedEx.$(OBJEXT)
 	-rm -f FuseTExamples/InnerEx.$(OBJEXT)
+	-rm -f FuseTExamples/MatrixInnerEx.$(OBJEXT)
 	-rm -f FuseTExamples/MultiplyEx.$(OBJEXT)
 	-rm -f FuseTExamples/ReconstructEx.$(OBJEXT)
 	-rm -f FuseTExamples/Test_FusedEx.$(OBJEXT)
@@ -873,6 +886,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/CopyEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/FusedEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/InnerEx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/MatrixInnerEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/MultiplyEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/ReconstructEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/Test_FusedEx.Po@am__quote@

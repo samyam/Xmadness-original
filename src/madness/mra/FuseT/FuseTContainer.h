@@ -24,6 +24,9 @@ template<typename T>
 class FuseT_Type;
 
 template<typename T>
+class FuseT_VType;
+
+template<typename T>
 class FuseT_CoeffT;
 
 template<typename T>
@@ -33,7 +36,7 @@ template<typename T>
 class FuseT_VCoeffT;
 
 // Map types to integers
-enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VParameter, FuseT_Type, EMPTY};
+enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VParameter, FuseT_Type, FuseT_VType, EMPTY};
 
 //
 //
@@ -43,6 +46,9 @@ struct WhatAmI {};
 
 template<typename T>
 struct WhatAmI<FuseT_Type<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_Type;};
+
+template<typename T>
+struct WhatAmI<FuseT_VType<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_VType;};
 
 template<typename T>
 struct WhatAmI<FuseT_CoeffT<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_CoeffT;};
@@ -80,6 +86,24 @@ public:
 
 	WHAT_AM_I what() const { return WhatAmI<FuseT_Type>::t; };
 
+	template<typename Archive>
+	void serialize(Archive& ar) { ar & value; }
+};
+
+template<typename T>
+class FuseT_VType: public Base<T>
+{
+public: 
+	std::vector<int> value;
+
+	FuseT_VType() { value = std::vector<int>(); }
+	FuseT_VType(int size) {value = std::vector<int>(size); }
+	FuseT_VType(const FuseT_VType& other) : value (other.value) { }
+	FuseT_VType(std::vector<int> &v) { value = v; }
+	~FuseT_VType() { }
+
+	WHAT_AM_I what() const { return WhatAmI<FuseT_VType>::t; };
+	
 	template<typename Archive>
 	void serialize(Archive& ar) { ar & value; }
 };
@@ -160,6 +184,8 @@ class FuseTContainer
 			data = static_cast<Base<T>*>(new FuseT_VParameter<T>);
 		else if (t == WHAT_AM_I::FuseT_Type)
 			data = static_cast<Base<T>*>(new FuseT_Type<T>);
+		else if (t == WHAT_AM_I::FuseT_VType)
+			data = static_cast<Base<T>*>(new FuseT_VType<T>);
 		else
 			data = 0;
 	}
@@ -174,6 +200,7 @@ public:
 	FuseTContainer<T>& operator=(FuseTContainer<T> other)
 	{
 		FuseT_Type<T>*			copiedFuseTType;
+		FuseT_VType<T>*			copiedFuseTVType;
 		FuseT_CoeffT<T>*		copiedFuseTCoeffT;
 		FuseT_VCoeffT<T>*		copiedFuseTVCoeffT;
 		FuseT_VParameter<T>*	copiedFuseTVParameter;
@@ -185,6 +212,12 @@ public:
 				copiedFuseTType			= new FuseT_Type<T>();
 				copiedFuseTType->value	= ((FuseT_Type<T>*)(other.data))->value;
 				this->data				= static_cast<Base<T>*>(copiedFuseTType);
+				break;
+			case WHAT_AM_I::FuseT_VType:
+				//std::cout<<"=Type"<<std::endl;
+				copiedFuseTVType		= new FuseT_VType<T>();
+				copiedFuseTVType->value	= ((FuseT_VType<T>*)(other.data))->value;
+				this->data				= static_cast<Base<T>*>(copiedFuseTVType);
 				break;
 			case WHAT_AM_I::FuseT_CoeffT:
 				//std::cout<<"=CoeffT"<<std::endl;
@@ -255,6 +288,7 @@ public:
 		else if (w.what() == WHAT_AM_I::FuseT_VCoeffT)		ar & *static_cast<FuseT_VCoeffT<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::FuseT_VParameter)	ar & *static_cast<FuseT_VParameter<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::FuseT_Type)			ar & *static_cast<FuseT_Type<T>*>(w.data);
+		else if (w.what() == WHAT_AM_I::FuseT_VType)		ar & *static_cast<FuseT_VType<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::EMPTY)				ar & *static_cast<Base<T>*>(w.data);
 		else	
 			std::cout<<__func__<<" wft"<<std::endl;

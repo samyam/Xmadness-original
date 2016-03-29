@@ -4935,9 +4935,11 @@ namespace madness {
                                     typename FunctionImpl<R,NDIM>::mapT* rmap_ptr,
                                     const bool sym,
                                     Tensor< TENSOR_RESULT_TYPE(T,R) >& result,
-                                    Mutex* mutex) {
+                                    Mutex* mutex) 
+		{
             Tensor< TENSOR_RESULT_TYPE(T,R) > r(result.dim(0),result.dim(1));
-            for (typename mapT::iterator lit=lstart; lit!=lend; ++lit) {
+            for (typename mapT::iterator lit=lstart; lit!=lend; ++lit) 
+			{
                 const keyT& key = lit->first;
                 typename FunctionImpl<R,NDIM>::mapT::iterator rit=rmap_ptr->find(key);
                 if (rit != rmap_ptr->end()) {
@@ -4945,6 +4947,8 @@ namespace madness {
                     const typename FunctionImpl<R,NDIM>::mapvecT& rightv =rit->second;
                     const int nleft = leftv.size();
                     const int nright= rightv.size();
+
+					//printf("nleft: %d, nright: %d\n", nleft, nright);
 
                     for (int iv=0; iv<nleft; iv++) {
                         const int i = leftv[iv].first;
@@ -4954,8 +4958,9 @@ namespace madness {
                             const int j = rightv[jv].first;
                             const GenTensor<R>* jptr = rightv[jv].second;
 
-                            if (!sym || (sym && i<=j))
+                            if (!sym || (sym && i<=j)) {
                                 r(i,j) += iptr->trace_conj(*jptr);
+							}
                         }
                     }
                 }
@@ -5007,7 +5012,7 @@ namespace madness {
 
             Tensor< TENSOR_RESULT_TYPE(T,R) > r(left.size(), right.size());
             Mutex mutex;
-
+			int count = 0;
             typename mapT::iterator lstart=lmap.begin();
             while (lstart != lmap.end()) {
                 typename mapT::iterator lend = lstart;

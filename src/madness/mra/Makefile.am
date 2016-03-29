@@ -48,7 +48,7 @@ thisinclude_HEADERS = adquad.h  funcimpl.h  indexit.h  legendre.h  operator.h  v
 					  FuseT/PrimitiveOp.h FuseT/CompressOp.h FuseT/CopyOp.h \
 					  FuseT/FusedExecutor.h FuseT/FuseTContainer.h \
 					  FuseT/InnerOp.h FuseT/OpExecutor.h FuseT/ReconstructOp.h \
-					  FuseT/FuseT.h FuseT/AddOp.h
+					  FuseT/FuseT.h FuseT/AddOp.h FuseT/MatrixInnerOp.h
 
 LDADD = libMADmra.la $(LIBLINALG) $(LIBTENSOR) $(LIBMISC) $(LIBMUPARSER) $(LIBWORLD)
 
@@ -56,7 +56,6 @@ libMADmra_la_SOURCES = mra1.cc mra2.cc mra3.cc mra4.cc mra5.cc mra6.cc \
                       startup.cc legendre.cc twoscale.cc qmprop.cc \
                       $(thisinclude_HEADERS)
 libMADmra_la_LDFLAGS = -version-info 0:0:0
-
 
 testsuite_mpi_SOURCES = testsuite.cc test_sepop.cc
 testperiodic_mpi_SOURCES = testperiodic.cc

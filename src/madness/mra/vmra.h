@@ -489,8 +489,6 @@ namespace madness {
 
                 Tensor<T> P = matrix_inner(A.get_world(),ivec,jvec);
 
-				//std::cout<< P <<std::endl;
-
                 A.copy_from_replicated_patch(ilo, ihi-1, jlo, jhi-1, P);
             }
         }
@@ -508,6 +506,7 @@ namespace madness {
                                                    const std::vector< Function<R,NDIM> >& g,
                                                    bool sym=false) 
     {
+		
         world.gop.fence();
         compress(world, f);
         if ((void*)(&f) != (void*)(&g)) compress(world, g);
@@ -517,8 +516,7 @@ namespace madness {
         for (unsigned int i=0; i<f.size(); i++) left[i] = f[i].get_impl().get();
         for (unsigned int i=0; i<g.size(); i++) right[i]= g[i].get_impl().get();
 
-		//std::cout<<"calls inner_local, sym:"<<sym <<std::endl;
-        Tensor< TENSOR_RESULT_TYPE(T,R) > r= FunctionImpl<T,NDIM>::inner_local(left, right, sym);
+		Tensor< TENSOR_RESULT_TYPE(T,R) > r= FunctionImpl<T,NDIM>::inner_local(left, right, sym);
 
         world.gop.fence();
         world.gop.sum(r.ptr(),f.size()*g.size());
@@ -540,6 +538,7 @@ namespace madness {
         long n=f.size(), m=g.size();
         Tensor< TENSOR_RESULT_TYPE(T,R) > r(n,m);
         if (sym) MADNESS_ASSERT(n==m);
+
 
         world.gop.fence();
         compress(world, f);
