@@ -278,8 +278,6 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
 			output[i*FUNC_SIZE + j] = h[i]*g[j];
-
-
 /*
 	for (i=0; i<FUNC_SIZE; i++) 
 		for (j=0; j<FUNC_SIZE_M; j++)
@@ -303,7 +301,6 @@ int main(int argc, char** argv)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time-- compress(): %f\n", clkend);
 	world.gop.fence();
-
 /*
 	for (i=0; i<FUNC_SIZE; i++)
 		h[i].compress();
@@ -336,7 +333,7 @@ int main(int argc, char** argv)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
@@ -345,6 +342,7 @@ int main(int argc, char** argv)
 		}
 
 	world.gop.fence();
+*/
 //
 //
 //
@@ -374,7 +372,6 @@ int main(int argc, char** argv)
 	//Tensor<double> ghaly = matrix_inner_old(world, v_f, v_g);
 
 /*
-
 	double resultInner[FUNC_SIZE][FUNC_SIZE_M] = {0.0, };
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
@@ -385,7 +382,8 @@ int main(int argc, char** argv)
 		clkend = rtclock() - clkbegin;
 		printf("Running Time: %f\n", clkend);
 	}
-	
+	world.gop.fence();
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
@@ -393,6 +391,7 @@ int main(int argc, char** argv)
 		}
 	}
 	world.gop.fence();
+*/
 //
 //
 //
