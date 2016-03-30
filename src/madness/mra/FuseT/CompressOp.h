@@ -253,7 +253,10 @@ namespace madness
 	bool CompressOp<T,NDIM>::isDone(const keyT& key) const 
 	{
 		bool isE1 = _i1->get_impl()->get_coeffs().probe(key);
-		if(!isE1) return isE1;
+		if(!isE1) {
+			printf ("possible?: %d\n", isE1);
+			return isE1;
+		}
 
 		bool isLeaf = !_i1->get_impl()->get_coeffs().find(key).get()->second.has_children();
 		return isLeaf;

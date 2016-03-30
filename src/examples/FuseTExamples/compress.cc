@@ -35,7 +35,7 @@
 #include <madness/mra/operator.h>
 #include <madness/constants.h>
 #include <madness/tensor/distributed_matrix.h>
-
+#include <madness/mra/FuseT/MatrixInnerOp.h>
 #include <madness/mra/FuseT/InnerOp.h>
 #include <madness/mra/FuseT/CompressOp.h>
 #include <madness/mra/FuseT/OpExecutor.h>
@@ -232,6 +232,7 @@ int main(int argc, char** argv)
     FunctionDefaults<3>::set_cubic_cell(-L, L);
 
 	FunctionDefaults<3>::set_max_refine_level(14);
+	//FunctionDefaults<3>::set_max_refine_level(8);
 
 
 	if (world.rank() == 0) print ("====================================================");
@@ -243,6 +244,7 @@ int main(int argc, char** argv)
 	// 2 * N Functions
 	real_function_3d  h[FUNC_SIZE];
 	real_function_3d  g[FUNC_SIZE_M];
+	real_function_3d  output[FUNC_SIZE*FUNC_SIZE_M];
 
 	real_function_3d  temp_factory_h[FUNC_SIZE];
 	real_function_3d  temp_factory_g[FUNC_SIZE_M];
@@ -269,111 +271,127 @@ int main(int argc, char** argv)
 	{
 		randomizer();
 		g[i]				= real_factory_3d(world).f(random_function);
-		temp_factory_g[i]	= real_factory_3d(world);
-		temp_g[i]			= new real_function_3d(temp_factory_g[i]);
+//		temp_factory_g[i]	= real_factory_3d(world);
+//		temp_g[i]			= new real_function_3d(temp_factory_g[i]);
 	}
 
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			output[i*FUNC_SIZE + j] = h[i]*g[j];
+/*
 	for (i=0; i<FUNC_SIZE; i++) 
-	{
 		for (j=0; j<FUNC_SIZE_M; j++)
 		{
 			temp_factory[i][j]	= real_factory_3d(world);
 			temp[i][j]			= new real_function_3d(temp_factory[i][j]);
 		}
-	}
-
-	for (i=0; i<FUNC_SIZE; i++)
-	{
-		h[i].truncate();
-	}
-
-	for (i=0; i<FUNC_SIZE_M; i++)
-	{
-		g[i].truncate();
-	}
-
+*/
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
-
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("==      FUSET-FUSED       ==========================");
+	if (world.rank() == 0) print ("==      FUSET-UNFUSED       ========================");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
+
 	clkbegin = rtclock();
-	//CompressOp<double,3>* c_op_h[FUNC_SIZE];
-	//CompressOp<double,3>* c_op_g[FUNC_SIZE_M];
-
-	//for (i=0; i<FUNC_SIZE; i++)
-	//	c_op_h[i] = new CompressOp<double,3>("Compress",temp_h[i],&h[i]);
-
-	//for (j=0; j<FUNC_SIZE_M; j++)
-	//	c_op_g[j] = new CompressOp<double,3>("Compress",temp_g[j],&g[j]);
-
-	InnerOp<double,3>* inner_op_ug[FUNC_SIZE][FUNC_SIZE_M];
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
-			inner_op_ug[i][j] = new InnerOp<double,3>("Inner",temp[i][j], &h[i], &g[j]);
+			output[i*FUNC_SIZE + j].compress();
 
-	vector<PrimitiveOp<double,3>*> sequence;
-	//for (i=0; i<FUNC_SIZE; i++)
-	//	sequence.push_back(c_op_h[i]);
-		
-	//for (j=0; j<FUNC_SIZE_M; j++)
-	//	sequence.push_back(c_op_g[j]);
-
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time-- compress(): %f\n", clkend);
+	world.gop.fence();
+/*
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
-			sequence.push_back(inner_op_ug[i][j]);
+		h[i].compress();
 
-	FuseT<double,3> odag(sequence);
-	odag.processSequence();
+	for (j=0; j<FUNC_SIZE_M; j++)
+		g[j].compress();
+*/
+	vecfuncT fs;
+	vecfuncT gs;
 
-	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
-	FusedExecutor<double,3> fexecuter(world, &fsequence);
-	fexecuter.execute();
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		fs.push_back(output[i]);
+
+	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
+		gs.push_back(output[i]);
+
+/*
+	for (i=0; i<FUNC_SIZE; i++)
+		fs.push_back(h[i]);
+
+	for (j=0; j<FUNC_SIZE_M; j++)
+		gs.push_back(g[j]);
+*/
+	clkbegin = rtclock();
+	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", temp_h[0], fs, gs, false);
+
+	OpExecutor<double,3> exe(world);
+	exe.execute(matrix_inner_op, false);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
-	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)	
-		{
-	//		if (world.rank() == 0) printf ("(%d,%d): %f\n", i, j, inner_op_ug[i][j]->_sum);
+/*
+	if (world.rank() == 0)
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
+		{	
+			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
 		}
+
 	world.gop.fence();
+*/
 //
 //
 //
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("==      MADNESS - matrix_inner  ====================");
+	if (world.rank() == 0) print ("==      MADNESS - individual inner      ============");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
 	vecfuncT v_f;
 	vecfuncT v_g;
-
-	for (i=0; i<FUNC_SIZE; i++)
-		h[i].compress();
-	for (i=0; i<FUNC_SIZE_M; i++)
-		g[i].compress();
-
-	clkbegin = rtclock();
+	
+/*
 	for (i=0; i<FUNC_SIZE; i++)
 		v_f.push_back(h[i]);
 
 	for (j=0; j<FUNC_SIZE_M; j++)
-		v_g.push_back(g[i]);
+		v_g.push_back(g[j]);
+*/
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		v_f.push_back(output[i]);
 
-	
-	Tensor<double> ghaly  = matrix_inner(world, v_f, v_g);
-	
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0){
+	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
+		v_g.push_back(output[i]);
+
+	clkbegin = rtclock();
+	Tensor<double> ghaly = matrix_inner(world, v_f, v_g);
+	//Tensor<double> ghaly = matrix_inner_old(world, v_f, v_g);
+
+/*
+	double resultInner[FUNC_SIZE][FUNC_SIZE_M] = {0.0, };
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			resultInner[i][j] = h[i].inner(g[j]);
+*/	
+
+	if (world.rank() == 0) { 
+		clkend = rtclock() - clkbegin;
 		printf("Running Time: %f\n", clkend);
-		//std::cout<< "r: "<<ghaly<<std::endl;
 	}
 	world.gop.fence();
+/*
+	if (world.rank() == 0)
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
+			printf ("matrix_inner_old: r(%d,%d): %f\n", i, j, ghaly(i, j));
+		}
+	}
+	world.gop.fence();
+*/
 //
 //
 //

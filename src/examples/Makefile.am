@@ -14,8 +14,14 @@ noinst_PROGRAMS = pno h2dft hedft hello hatom_energy h2 he tdse_example heat hea
 				  dataloadbal hatom_1d binaryop dielectric hehf 3dharmonic testsolver \
 				  testspectralprop dielectric_external_field mp2 tiny oep h2dynamic newsolver \
 				  tdhf cc2 nemo helium_exact density_smoothing siam_example gaussian \
+<<<<<<< HEAD
 				  copyEx compressEx reconstructEx innerEx fusedEx testFusedEx addEx multiplyEx derivativeEx
 
+=======
+				  copyEx compressEx reconstructEx innerEx fusedEx testFusedEx addEx multiplyEx \
+				  matrixInnerEx
+ 
+>>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
 if MADNESS_HAS_LIBXC
 noinst_PROGRAMS += hefxc
 endif
@@ -31,8 +37,13 @@ copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
 compressEx_LDADD = $(LIBWORLD) $(MRALIBS)
 
+<<<<<<< HEAD
 derivativeEx_SOURCES = FuseTExamples/DerivativeEx.cc
 derivativeEx_LDADD = $(LIBWORLD) $(MRALIBS)
+=======
+matrixInnerEx_SOURCES = FuseTExamples/MatrixInnerEx.cc
+matrixInnerEx_LDADD = $(LIBWORLD) $(MRALIBS)
+>>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
 
 reconstructEx_SOURCES = FuseTExamples/ReconstructEx.cc
 reconstructEx_LDADD = $(LIBWORLD) $(MRALIBS)

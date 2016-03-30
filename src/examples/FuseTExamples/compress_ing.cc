@@ -34,6 +34,8 @@
 #include <madness/mra/mra.h>
 #include <madness/mra/operator.h>
 #include <madness/constants.h>
+#include <madness/tensor/distributed_matrix.h>
+#include <madness/mra/FuseT/MatrixInnerOp.h>
 #include <madness/mra/FuseT/InnerOp.h>
 #include <madness/mra/FuseT/CompressOp.h>
 #include <madness/mra/FuseT/OpExecutor.h>
@@ -102,8 +104,8 @@ static double sigma_sq_x	= sigma_x*sigma_x;
 static double sigma_sq_y	= sigma_y*sigma_y;
 static double sigma_sq_z	= sigma_z*sigma_z;
 
-#define FUNC_SIZE	8
-#define FUNC_SIZE_M	8
+#define FUNC_SIZE	4
+#define FUNC_SIZE_M	4
 
 double rtclock();
 
@@ -201,7 +203,6 @@ public:
     }
 };
 
-
 // Functor to compute exp(f) where f is a madness function
 template<typename T, int NDIM>
 struct unaryexp {
@@ -211,6 +212,11 @@ struct unaryexp {
     template <typename Archive>
     void serialize(Archive& ar) {}
 };
+
+
+typedef DistributedMatrix<double> distmatT;
+typedef Function<double,3> functionT;
+typedef std::vector<functionT> vecfuncT;
 
 int main(int argc, char** argv) 
 {
@@ -224,7 +230,6 @@ int main(int argc, char** argv)
     FunctionDefaults<3>::set_refine(true);
     FunctionDefaults<3>::set_autorefine(false);
     FunctionDefaults<3>::set_cubic_cell(-L, L);
-
 
 	FunctionDefaults<3>::set_max_refine_level(14);
 
@@ -254,52 +259,37 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE; i++) 
 	{
-		randomizer();
-		h[i]				= real_factory_3d(world).f(random_function);
-		//h[i]				= real_factory_3d(world).f(ghaly);
-		//h[i]				= real_factory_3d(world).f(uinitial);
+//		randomizer();
+		//h[i]				= real_factory_3d(world).f(random_function);
+		h[i]				= real_factory_3d(world).f(uinitial);
 		temp_factory_h[i]	= real_factory_3d(world);
 		temp_h[i]			= new real_function_3d(temp_factory_h[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE_M; i++)
 	{
-		randomizer();
-		g[i]				= real_factory_3d(world).f(random_function);
-		//g[i]				= real_factory_3d(world).f(ghaly);
-		//g[i]				= real_factory_3d(world).f(uinitial2);
+//		randomizer();
+		//g[i]				= real_factory_3d(world).f(random_function);
+		g[i]				= real_factory_3d(world).f(uinitial1);
 		temp_factory_g[i]	= real_factory_3d(world);
 		temp_g[i]			= new real_function_3d(temp_factory_g[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE; i++) 
-	{
 		for (j=0; j<FUNC_SIZE_M; j++)
 		{
 			temp_factory[i][j]	= real_factory_3d(world);
 			temp[i][j]			= new real_function_3d(temp_factory[i][j]);
 		}
-	}
-
-	for (i=0; i<FUNC_SIZE; i++)
-	{
-		h[i].truncate();
-	}
-	for (i=0; i<FUNC_SIZE_M; i++)
-	{
-		g[i].truncate();
-	}
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
-
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("==      FUSET-FUSED       ==========================");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
 	clkbegin = rtclock();
-
 	CompressOp<double,3>* c_op_h[FUNC_SIZE];
 	CompressOp<double,3>* c_op_g[FUNC_SIZE_M];
 
@@ -309,23 +299,34 @@ int main(int argc, char** argv)
 	for (j=0; j<FUNC_SIZE_M; j++)
 		c_op_g[j] = new CompressOp<double,3>("Compress",temp_g[j],&g[j]);
 
-	InnerOp<double,3>* inner_op_ug[FUNC_SIZE][FUNC_SIZE_M];
+
+	/*InnerOp<double,3>* inner_op_ug[FUNC_SIZE][FUNC_SIZE_M];
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
-			inner_op_ug[i][j] = new InnerOp<double,3>("Inner",temp[i][j],temp_h[i],temp_g[j]);
+			inner_op_ug[i][j] = new InnerOp<double,3>("Inner",temp[i][j], temp_h[i], temp_g[j]);
+*/
+	vecfuncT fs;
+	vecfuncT gs;
+
+	for (i=0; i<FUNC_SIZE; i++)
+		fs.push_back(c_op_h[i]);
+
+	for (j=0; j<FUNC_SIZE_M; j++)
+		gs.push_back(c_op_g[j]);
+
+	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", fs, gs, false);
 
 	vector<PrimitiveOp<double,3>*> sequence;
-	
 	for (i=0; i<FUNC_SIZE; i++)
 		sequence.push_back(c_op_h[i]);
 		
 	for (j=0; j<FUNC_SIZE_M; j++)
 		sequence.push_back(c_op_g[j]);
-
+/*
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
 			sequence.push_back(inner_op_ug[i][j]);
-
+*/
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
 
@@ -340,12 +341,60 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)	
 		{
-			if (world.rank() == 0) printf ("%d:%d = %f\n", i, j, inner_op_ug[i][j]->_sum); 
+			if (world.rank() == 0) printf ("(%d,%d): %f\n", i, j, inner_op_ug[i][j]->_sum);
 		}
+	world.gop.fence();
 
 //
 //
 //
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("==      MADNESS - matrix_inner  ====================");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	vecfuncT v_f;
+	vecfuncT v_g;
+
+	for (i=0; i<FUNC_SIZE; i++)
+		h[i].compress();
+	for (i=0; i<FUNC_SIZE_M; i++)
+		g[i].compress();
+	
+	if (world.rank() == 0) print ("wtf");
+	
+	clkbegin = rtclock();
+	for (i=0; i<FUNC_SIZE; i++)
+		v_f.push_back(h[i]);
+
+	for (j=0; j<FUNC_SIZE_M; j++)
+		v_g.push_back(g[i]);
+
+	Tensor<double> ghaly  = matrix_inner_old(world, v_f, v_g);
+	//Tensor<double> ghaly  = matrix_inner(world, v_f, v_g);
+
+/*	double resultInner[FUNC_SIZE][FUNC_SIZE_M] = {0.0, };
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			resultInner[i][j] = h[i].inner(g[j]);
+*/	
+
+	if (world.rank() == 0) { 
+		clkend = rtclock() - clkbegin;
+		printf("Running Time: %f\n", clkend);
+	}
+
+	for (i=0; i<FUNC_SIZE; i++) {
+		for (j=0; j<FUNC_SIZE_M; j++){
+			printf ("matrix_inner: r(%d,%d): %f\n", i, j, ghaly(i, j));
+			//printf ("matrix_inner: r(%d,%d): %f\n", i, j, resultInner[i][j]);
+		}
+	}
+	world.gop.fence();
+//
+//
+//
+/*
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("==      MADNESS       ==============================");
 	if (world.rank() == 0) print ("====================================================");
@@ -366,22 +415,21 @@ int main(int argc, char** argv)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
-
+	
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)	
 		{
 			if (world.rank() == 0) printf ("%d:%d = %f\n", i, j, resultInner[i][j]); 
 		}
-
 	world.gop.fence();
-
+*/
     finalize();    
     return 0;
 }
 
 double rtclock()
-{struct timezone Tzp;
+{
+	struct timezone Tzp;
     struct timeval Tp;
     int stat;
     stat = gettimeofday (&Tp, &Tzp);

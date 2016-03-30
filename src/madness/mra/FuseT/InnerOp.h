@@ -135,9 +135,10 @@ namespace madness
 	InnerOp<T,NDIM>::isDone(const keyT& key) const 
 	{
 		bool isE1 = _i1->get_impl()->get_coeffs().probe(key);
-		if(!isE1) return isE1;
+		if(!isE1){ std::cout<<"ouch!"<<std::endl; return isE1;}
+
 		bool isE2 = _i2->get_impl()->get_coeffs().probe(key);
-		if(!isE2) return isE2;
+		if(!isE2) { std::cout<<"oops!" <<std::endl; return isE2; }
 
 		bool isLeaf = !_i1->get_impl()->get_coeffs().find(key).get()->second.has_children();
 		if (isLeaf)

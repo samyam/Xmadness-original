@@ -44,7 +44,8 @@ namespace madness
 /*The _OpID is used by the fusion compiler to analyze dependencies relating to this operation. 
   It "MUST" be set equal to the _treeID of the result tree. 
   In MADNESS, the tree ID of a Function is given by func->get_impl()->id().get_obj_id()*/
-    template<typename T, std::size_t NDIM> class PrimitiveOp { typedef Function<T,NDIM> KTREE; 
+    template<typename T, std::size_t NDIM> class PrimitiveOp { 
+	typedef Function<T,NDIM> KTREE; 
 	typedef FunctionNode<T,NDIM> KNODE; 
 	typedef Key<NDIM> keyT; 
 	typedef WorldContainer<Key<NDIM>, FunctionNode<T,NDIM> > dcT; 
@@ -52,11 +53,11 @@ namespace madness
 
     public:
     PrimitiveOp(string opName="Unknown",KTREE* result=NULL, bool isComplete=false, bool isReduce=false)  
-		: _opName(opName),
-		 _result(result),
-	    _isComplete(isComplete),
-	    _isReduce(isReduce)
-	    {}
+	:_opName(opName),
+	 _result(result),
+	 _isComplete(isComplete),
+     _isReduce(isReduce)
+    {}
 
 	virtual ~PrimitiveOp() {}
    
@@ -98,7 +99,6 @@ namespace madness
 	bool _isComplete;
 	std::vector< DependencyInfo <T, NDIM> > _dInfoVec;
 	bool _isReduce;
-
 
     };
 
