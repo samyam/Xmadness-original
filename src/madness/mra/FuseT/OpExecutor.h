@@ -31,6 +31,8 @@ namespace madness
 		FuseTContainer<T>			PostCompute		(const keyT key, const std::vector<Future<FuseTContainer<T>>> &v);
 		void						execute			(PrimitiveOp<T,NDIM>* pOp, bool isBlocking);
 
+		Future< FuseTContainer<T> > traverseTreeFuture(const keyT key, const FuseTContainer<T> &s, bool skipPre);
+
 	private:
 		World&					_world;
 		PrimitiveOp<T,NDIM>*	_pOp;
@@ -39,6 +41,11 @@ namespace madness
     };
 	
 	//
+
+
+
+
+
 	template<typename T, std::size_t NDIM>
 	Future< FuseTContainer<T> > 
 	OpExecutor<T,NDIM>::traverseTree(const keyT key, const FuseTContainer<T> &s)
@@ -89,6 +96,7 @@ namespace madness
 		return retValue;
 	}
 
+
 	//
 	template<typename T, std::size_t NDIM>
 	FuseTContainer<T>
@@ -99,6 +107,45 @@ namespace madness
 		temp.push_back(a.get());
 	    return _pOp->compute(key, FuseTContainer<T>(static_cast<Base<T>*>(new FuseT_VParameter<T>(temp))));
 	}
+
+
+	//implementation to handle only the derivative operator
+	template<typename T, std::size_t NDIM>
+	Future< FuseTContainer<T> > 
+	    OpExecutor<T,NDIM>::traverseTreeFuture(const keyT key, const FuseTContainer<T> &s, bool skipPre)
+	{
+		Future<FuseTContainer<T> > retPreCompute;
+		FuseTContainer<T> temp;
+		// Pre-Computation	
+		if (!skipPre){
+			retPreCompute = _pOp->computeFuture(key, s);
+			return woT::task(_world.rank(), &OpExecutor<T,NDIM>::traverseTreeFuture, key, retPreCompute, true);
+		}else{
+		    temp = s;
+		}
+
+
+		if (!_pOp->isDone(key))
+		{
+			int i = 0;
+			for (KeyChildIterator<NDIM> kit(key); kit; ++kit, ++i)
+			{
+				const keyT& child = kit.key();
+				
+				if (_pOp->needsParameter())
+				    woT::task(coeffs->owner(child), &OpExecutor<T,NDIM>::traverseTreeFuture, child, ((FuseT_VParameter<T>*)(temp.get()))->value[i],false);
+				else
+				    woT::task(coeffs->owner(child), &OpExecutor<T,NDIM>::traverseTreeFuture, child, temp,false);
+			}
+		}
+
+		// for Pre-Computation (temporal)
+		Future<FuseTContainer<T>> retValue(temp);
+		return retValue;
+	}
+
+
+
 
     //	execute with operators
     template<typename T, std::size_t NDIM>
@@ -111,8 +158,15 @@ namespace madness
 
 		if (_world.rank() == coeffs->owner(keyT(0)) )
 		{
+
 			FuseTContainer<T> initParameter;
-			FuseTContainer<T> root = traverseTree(keyT(0), initParameter);
+			FuseTContainer<T> root;
+
+			if(pOp->returnsFuture()){
+			    root = traverseTreeFuture(keyT(0), initParameter, false);
+			}else{
+			    root = traverseTree(keyT(0), initParameter);
+			}
 		}
 		
 		pOp->setComplete(true);

@@ -8,7 +8,7 @@
 #include <madness/world/MADworld.h>
 #include <madness/world/buffer_archive.h>
 #include <madness/tensor/gentensor.h>
-
+#define DIM 3
 using namespace madness;
 
 //
@@ -27,13 +27,16 @@ template<typename T>
 class FuseT_CoeffT;
 
 template<typename T>
+class FuseT_VArgT;
+
+template<typename T>
 class FuseT_VParameter;
 
 template<typename T>
 class FuseT_VCoeffT;
 
 // Map types to integers
-enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VParameter, FuseT_Type, EMPTY};
+enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VArgT, FuseT_VParameter, FuseT_Type, EMPTY};
 
 //
 //
@@ -49,6 +52,10 @@ struct WhatAmI<FuseT_CoeffT<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_Coeff
 
 template<typename T>
 struct WhatAmI<FuseT_VCoeffT<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_VCoeffT;};
+
+
+template<typename T>
+struct WhatAmI<FuseT_VArgT<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_VArgT;};
 
 template<typename T>
 struct WhatAmI<FuseT_VParameter<T>> {static const WHAT_AM_I t=WHAT_AM_I::FuseT_VParameter;};
@@ -115,7 +122,7 @@ public:
 	FuseT_VCoeffT(int size) { value = std::vector<coeffT>(size); }
 	FuseT_VCoeffT(const FuseT_VCoeffT& other) : value (other.value) { }
 	FuseT_VCoeffT(std::vector<coeffT> &v) { value = v; }
-	~FuseT_VCoeffT() { }
+	~FuseT_VCoeffT() { value.clear();}
 	
 	WHAT_AM_I what() const { return WhatAmI<FuseT_VCoeffT>::t; };	
 
@@ -123,7 +130,32 @@ public:
 	void serialize(Archive& ar) { ar & value; }
 };
 
-//
+//Operands to use for differentiation
+template<typename T>
+class FuseT_VArgT : public Base<T>
+{
+    
+	typedef GenTensor<T> coeffT;
+	typedef Key<DIM> keyT;
+	typedef std::pair<keyT,coeffT> argT;
+public:
+	std::vector<argT> value;
+
+	FuseT_VArgT() { value = std::vector<argT>(); } 
+	FuseT_VArgT(int size) { value = std::vector<argT>(size); }
+	FuseT_VArgT(const FuseT_VArgT& other) : value (other.value) { }
+	FuseT_VArgT(std::vector<argT> &v) { value = v; }
+	argT& operator[](int idx){return value[idx];}
+	~FuseT_VArgT() { value.clear();}
+	
+	WHAT_AM_I what() const { return WhatAmI<FuseT_VArgT>::t; };	
+
+	template<typename Archive>
+	void serialize(Archive& ar) { ar & value; }
+};
+
+
+//Parameter for Post Operands
 template<typename T>
 class FuseT_VParameter : public Base<T>
 {
@@ -134,15 +166,13 @@ public:
 	FuseT_VParameter(int size) { value = std::vector<FuseTContainer<T>>(size); }
 	FuseT_VParameter(const FuseT_VParameter& other) : value (other.value) { }
 	FuseT_VParameter(std::vector<FuseTContainer<T> > &v) { value = v; }
-	~FuseT_VParameter() { }
+	~FuseT_VParameter() { value.clear();}
 	FuseTContainer<T> operator[](int i){return value[i];}
 	WHAT_AM_I what() const { return WhatAmI<FuseT_VParameter>::t; };	
 
 	template<typename Archive>
 	void serialize(Archive& ar) { ar & value; }
 };
-
-
 
 //
 //	FuseTContainer
@@ -156,6 +186,8 @@ class FuseTContainer
 			data = static_cast<Base<T>*>(new FuseT_CoeffT<T>);
 		else if (t == WHAT_AM_I::FuseT_VCoeffT)
 			data = static_cast<Base<T>*>(new FuseT_VCoeffT<T>);
+		else if (t == WHAT_AM_I::FuseT_VArgT)
+			data = static_cast<Base<T>*>(new FuseT_VArgT<T>);
 		else if (t == WHAT_AM_I::FuseT_VParameter)
 			data = static_cast<Base<T>*>(new FuseT_VParameter<T>);
 		else if (t == WHAT_AM_I::FuseT_Type)
@@ -176,33 +208,40 @@ public:
 		FuseT_Type<T>*			copiedFuseTType;
 		FuseT_CoeffT<T>*		copiedFuseTCoeffT;
 		FuseT_VCoeffT<T>*		copiedFuseTVCoeffT;
+		FuseT_VArgT<T>*		copiedFuseTVArgT;
 		FuseT_VParameter<T>*	copiedFuseTVParameter;
 
 		switch(other.what())
 		{	
 			case WHAT_AM_I::FuseT_Type:
 				//std::cout<<"=Type"<<std::endl;
-				copiedFuseTType			= new FuseT_Type<T>();
+				copiedFuseTType	= new FuseT_Type<T>();
 				copiedFuseTType->value	= ((FuseT_Type<T>*)(other.data))->value;
-				this->data				= static_cast<Base<T>*>(copiedFuseTType);
+				this->data = static_cast<Base<T>*>(copiedFuseTType);
 				break;
 			case WHAT_AM_I::FuseT_CoeffT:
 				//std::cout<<"=CoeffT"<<std::endl;
-				copiedFuseTCoeffT			= new FuseT_CoeffT<T>();
-				copiedFuseTCoeffT->value	= ((FuseT_CoeffT<T>*)(other.data))->value;
-				this->data					= static_cast<Base<T>*>(copiedFuseTCoeffT);
+				copiedFuseTCoeffT = new FuseT_CoeffT<T>();
+				copiedFuseTCoeffT->value = ((FuseT_CoeffT<T>*)(other.data))->value;
+				this->data = static_cast<Base<T>*>(copiedFuseTCoeffT);
 				break;
 			case WHAT_AM_I::FuseT_VCoeffT:
 				//std::cout<<"=VCoeffT"<<std::endl;
-				copiedFuseTVCoeffT			= new FuseT_VCoeffT<T>();
-				copiedFuseTVCoeffT->value	= ((FuseT_VCoeffT<T>*)(other.data))->value;								
-				this->data					= static_cast<Base<T>*>(copiedFuseTVCoeffT);
+				copiedFuseTVCoeffT = new FuseT_VCoeffT<T>();
+				copiedFuseTVCoeffT->value = ((FuseT_VCoeffT<T>*)(other.data))->value;								
+				this->data = static_cast<Base<T>*>(copiedFuseTVCoeffT);
+				break;
+			case WHAT_AM_I::FuseT_VArgT:
+				//std::cout<<"=VCoeffT"<<std::endl;
+				copiedFuseTVArgT = new FuseT_VArgT<T>();
+				copiedFuseTVArgT->value	= ((FuseT_VArgT<T>*)(other.data))->value;								
+				this->data = static_cast<Base<T>*>(copiedFuseTVArgT);
 				break;
 			case WHAT_AM_I::FuseT_VParameter:
 				//std::cout<<"=VParameter"<<std::endl;
-				copiedFuseTVParameter			= new FuseT_VParameter<T>();
-			    copiedFuseTVParameter->value	= ((FuseT_VParameter<T>*)(other.data))->value;
-			    this->data						= static_cast<Base<T>*>(copiedFuseTVParameter);
+				copiedFuseTVParameter = new FuseT_VParameter<T>();
+				copiedFuseTVParameter->value = ((FuseT_VParameter<T>*)(other.data))->value;
+				this->data = static_cast<Base<T>*>(copiedFuseTVParameter);
 				break;
 			case WHAT_AM_I::EMPTY:
 				//std::cout<<"=EMPTY"<<std::endl;
@@ -253,6 +292,7 @@ public:
 
 		if (w.what() == WHAT_AM_I::FuseT_CoeffT)			ar & *static_cast<FuseT_CoeffT<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::FuseT_VCoeffT)		ar & *static_cast<FuseT_VCoeffT<T>*>(w.data);
+		else if (w.what() == WHAT_AM_I::FuseT_VArgT)		ar & *static_cast<FuseT_VArgT<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::FuseT_VParameter)	ar & *static_cast<FuseT_VParameter<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::FuseT_Type)			ar & *static_cast<FuseT_Type<T>*>(w.data);
 		else if (w.what() == WHAT_AM_I::EMPTY)				ar & *static_cast<Base<T>*>(w.data);
