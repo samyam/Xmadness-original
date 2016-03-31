@@ -52,11 +52,8 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	siam_example$(EXEEXT) gaussian$(EXEEXT) copyEx$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
-<<<<<<< HEAD
-	multiplyEx$(EXEEXT) derivativeEx$(EXEEXT) $(am__EXEEXT_1)
-=======
-	multiplyEx$(EXEEXT) matrixInnerEx$(EXEEXT) $(am__EXEEXT_1)
->>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
+	multiplyEx$(EXEEXT) derivativeEx$(EXEEXT) \
+	matrixInnerEx$(EXEEXT) $(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -309,7 +306,6 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(cc2_SOURCES) $(compressEx_SOURCES) $(copyEx_SOURCES) \
 	$(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-<<<<<<< HEAD
 	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
 	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
 	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
@@ -317,37 +313,7 @@ SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
 	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
 	$(hefxc_SOURCES) $(hehf_SOURCES) $(helium_exact_SOURCES) \
-	$(hello_SOURCES) $(innerEx_SOURCES) $(mp2_SOURCES) \
-=======
-	$(density_smoothing_SOURCES) $(dielectric_SOURCES) \
-	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
-	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
-	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
-	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
-	$(heat2_SOURCES) $(hedft_SOURCES) $(hefxc_SOURCES) \
-	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
->>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
-	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
-	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
-	$(reconstructEx_SOURCES) $(sdf_shape_tester_SOURCES) \
-	$(siam_example_SOURCES) $(sininteg_SOURCES) $(tdhf_SOURCES) \
-	$(tdse1d_SOURCES) $(tdse_example_SOURCES) \
-	$(testFusedEx_SOURCES) $(test_gmres_SOURCES) \
-	$(testsolver_SOURCES) $(testspectralprop_SOURCES) \
-	$(tiny_SOURCES) $(vnucso_SOURCES)
-DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
-	$(binaryop_SOURCES) $(cc2_SOURCES) $(compressEx_SOURCES) \
-	$(copyEx_SOURCES) $(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-<<<<<<< HEAD
-	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
-	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
-	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
-	$(h2_SOURCES) $(h2dft_SOURCES) $(h2dynamic_SOURCES) \
-	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
-	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
-	$(am__hefxc_SOURCES_DIST) $(hehf_SOURCES) \
-	$(helium_exact_SOURCES) $(hello_SOURCES) $(innerEx_SOURCES) \
+	$(hello_SOURCES) $(innerEx_SOURCES) $(matrixInnerEx_SOURCES) \
 	$(mp2_SOURCES) $(multiplyEx_SOURCES) $(nemo_SOURCES) \
 	$(newsolver_SOURCES) $(nonlinschro_SOURCES) $(oep_SOURCES) \
 	$(pno_SOURCES) $(reconstructEx_SOURCES) \
@@ -356,24 +322,25 @@ DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
 	$(test_gmres_SOURCES) $(testsolver_SOURCES) \
 	$(testspectralprop_SOURCES) $(tiny_SOURCES) $(vnucso_SOURCES)
-=======
-	$(density_smoothing_SOURCES) $(dielectric_SOURCES) \
-	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
-	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
-	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
-	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
-	$(heat2_SOURCES) $(hedft_SOURCES) $(am__hefxc_SOURCES_DIST) \
-	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
-	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
-	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
-	$(reconstructEx_SOURCES) $(sdf_shape_tester_SOURCES) \
-	$(siam_example_SOURCES) $(sininteg_SOURCES) $(tdhf_SOURCES) \
-	$(tdse1d_SOURCES) $(tdse_example_SOURCES) \
-	$(testFusedEx_SOURCES) $(test_gmres_SOURCES) \
-	$(testsolver_SOURCES) $(testspectralprop_SOURCES) \
-	$(tiny_SOURCES) $(vnucso_SOURCES)
->>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
+DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
+	$(binaryop_SOURCES) $(cc2_SOURCES) $(compressEx_SOURCES) \
+	$(copyEx_SOURCES) $(csqrt_SOURCES) $(dataloadbal_SOURCES) \
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
+	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
+	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
+	$(h2_SOURCES) $(h2dft_SOURCES) $(h2dynamic_SOURCES) \
+	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
+	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
+	$(am__hefxc_SOURCES_DIST) $(hehf_SOURCES) \
+	$(helium_exact_SOURCES) $(hello_SOURCES) $(innerEx_SOURCES) \
+	$(matrixInnerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
+	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
+	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
+	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
+	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
+	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
+	$(test_gmres_SOURCES) $(testsolver_SOURCES) \
+	$(testspectralprop_SOURCES) $(tiny_SOURCES) $(vnucso_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -589,13 +556,10 @@ copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
 compressEx_LDADD = $(LIBWORLD) $(MRALIBS)
-<<<<<<< HEAD
 derivativeEx_SOURCES = FuseTExamples/DerivativeEx.cc
 derivativeEx_LDADD = $(LIBWORLD) $(MRALIBS)
-=======
 matrixInnerEx_SOURCES = FuseTExamples/MatrixInnerEx.cc
 matrixInnerEx_LDADD = $(LIBWORLD) $(MRALIBS)
->>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
 reconstructEx_SOURCES = FuseTExamples/ReconstructEx.cc
 reconstructEx_LDADD = $(LIBWORLD) $(MRALIBS)
 innerEx_SOURCES = FuseTExamples/InnerEx.cc

@@ -206,7 +206,7 @@ double clkbegin, clkend;
   exe.execute(&derivative_op_0, false);
   exe.execute(&derivative_op_1, false);
   exe.execute(&derivative_op_2, false);
-  //world.gop.fence();
+  world.gop.fence();
 
   clkend = rtclock() - clkbegin;
   if (world.rank() == 0) printf("OpExecutor Running Time: %f\n", clkend);

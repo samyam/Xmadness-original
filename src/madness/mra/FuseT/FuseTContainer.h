@@ -39,11 +39,8 @@ template<typename T>
 class FuseT_VCoeffT;
 
 // Map types to integers
-<<<<<<< HEAD
-enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VArgT, FuseT_VParameter, FuseT_Type, EMPTY};
-=======
-enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VParameter, FuseT_Type, FuseT_VType, EMPTY};
->>>>>>> 37e305ac5da2d05b850e1c264c4282e3b26bf609
+    enum class WHAT_AM_I : int {FuseT_VCoeffT, FuseT_CoeffT, FuseT_VArgT, FuseT_VParameter, FuseT_Type, FuseT_VType, EMPTY};
+
 
 //
 //
