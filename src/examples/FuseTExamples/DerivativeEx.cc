@@ -62,7 +62,7 @@ static const long	k		= 8;
 static const double thresh	= 1e-12;
 static const double c		= 2.0;
 static const double alpha	= 1.9; // Exponent
-
+#define FUNC_SIZE 20
 #define PI 3.1415926535897932385
 #define LO 0.0000000000
 #define HI 4.0000000000
@@ -145,46 +145,146 @@ int main(int argc, char** argv)
   FunctionDefaults<3>::set_refine(true);
   FunctionDefaults<3>::set_autorefine(false);
   FunctionDefaults<3>::set_cubic_cell(-L, L);
-  FunctionDefaults<3>::set_max_refine_level(6);
 
-  real_function_3d f1 = real_factory_3d(world).f(random_function);
-
-  real_function_3d i0_factory = real_factory_3d(world);
-  real_function_3d i1_factory = real_factory_3d(world);
-  real_function_3d i2_factory = real_factory_3d(world);
-  real_function_3d i0(i0_factory);
-  real_function_3d i1(i1_factory);
-  real_function_3d i2(i2_factory);
-
-  f1.truncate();
-
-  real_derivative_3d D0 = free_space_derivative<double,3>(world, 0);
-  real_derivative_3d D1 = free_space_derivative<double,3>(world, 1);
-  real_derivative_3d D2 = free_space_derivative<double,3>(world, 2);
-  double norm2 = f1.norm2();
-  double trace  = f1.trace();
-  if (world.rank() == 0) print("[Input] Norm0 : ", norm2," Trace : ",trace);
+  FunctionDefaults<3>::set_max_refine_level(30);
 
 
-double clkbegin, clkend;
+	// 2 * N Functions
+	real_function_3d  f[FUNC_SIZE];
+	real_function_3d  fac0[FUNC_SIZE];
+	real_function_3d  fac1[FUNC_SIZE];
+	real_function_3d  fac2[FUNC_SIZE];
+	real_function_3d*  df0[FUNC_SIZE];
+	real_function_3d*  df1[FUNC_SIZE];
+	real_function_3d*  df2[FUNC_SIZE];
+	real_function_3d  dm0[FUNC_SIZE];
+	real_function_3d  dm1[FUNC_SIZE];
+	real_function_3d  dm2[FUNC_SIZE];
+
+	std::cout<<"Differentiation of "<<FUNC_SIZE<<" vector of functions"<<std::endl;
+
+
+	int i, j;
+	double clkbegin, clkend;
+	clkbegin = rtclock();
+
+	for (i=0; i<FUNC_SIZE; i++) 
+	{
+		randomizer();
+		f[i]				= real_factory_3d(world).f(random_function);
+
+		fac0[i]	= real_factory_3d(world);
+		fac1[i]	= real_factory_3d(world);
+		fac2[i]	= real_factory_3d(world);
+
+		df0[i]			= new real_function_3d(fac0[i]);
+		df1[i]			= new real_function_3d(fac1[i]);
+		df2[i]			= new real_function_3d(fac2[i]);
+	}
+
+	for (i=0; i<FUNC_SIZE; i++)
+	{
+		f[i].truncate();
+	}
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("==      FUSET-FUSED       ==========================");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	clkbegin = rtclock();
+
+	DerivativeOp<double,3>* op0[FUNC_SIZE];
+	DerivativeOp<double,3>* op1[FUNC_SIZE];
+	DerivativeOp<double,3>* op2[FUNC_SIZE];
+
+	real_derivative_3d D0 = free_space_derivative<double,3>(world, 0);
+	real_derivative_3d D1 = free_space_derivative<double,3>(world, 1);
+	real_derivative_3d D2 = free_space_derivative<double,3>(world, 2);
+
+	for (i=0; i<FUNC_SIZE; i++){
+	    op0[i] = new DerivativeOp<double,3>("Derivative0",df0[i],&f[i],world,&D0);
+	    op1[i] = new DerivativeOp<double,3>("Derivative1",df1[i],df0[i],world,&D1);
+	    op2[i] = new DerivativeOp<double,3>("Derivative2",df2[i],df1[i],world,&D2);
+
+	}
+
+	vector<PrimitiveOp<double,3>*> sequence;
+	
+	for (i=0; i<FUNC_SIZE; i++){
+		sequence.push_back(op0[i]);
+		sequence.push_back(op1[i]);
+		sequence.push_back(op2[i]);
+	}
+	FuseT<double,3> odag(sequence);
+	odag.processSequence();
+
+	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
+	FusedExecutor<double,3> fexecuter(world, &fsequence);
+	fexecuter.execute();
+
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+	world.gop.fence();
+
+
+
   if (world.rank() == 0) print ("=====================================================");
   if (world.rank() == 0) print ("   MADNESS                                           ");
   if (world.rank() == 0) print ("=====================================================");
 
   clkbegin = rtclock();
 
-  real_function_3d df0 = D0(f1);
-  real_function_3d df1 = D1(f1);
-  real_function_3d df2 = D2(f1);
+
+	for (i=0; i<FUNC_SIZE; i++){
+	    dm0[i] = D0(f[i],false);
+
+
+
+	}
+  world.gop.fence();
+	for (i=0; i<FUNC_SIZE; i++){
+
+	    dm1[i] = D1(dm0[i],false);
+
+
+	}
+  world.gop.fence();
+	for (i=0; i<FUNC_SIZE; i++){
+	    dm2[i] = D2(dm1[i],false);
+
+	}
+
   world.gop.fence();
 
   clkend = rtclock() - clkbegin;
   if (world.rank() == 0) printf("MADNESS Running Time: %f\n", clkend);
 
-  double MADnorm0 = df0.norm2();
-   double MADnorm1 = df1.norm2();
-  double MADnorm2 = df2.norm2();
+  double MADnorm0 = dm0[ FUNC_SIZE-1].norm2();
+   double MADnorm1 = dm1[FUNC_SIZE-1].norm2();
+  double MADnorm2 = dm2[ FUNC_SIZE-1].norm2();
 
+
+  double FuseTnorm0 = df0[FUNC_SIZE-1]->norm2();
+  double FuseTnorm1 = df1[FUNC_SIZE-1]->norm2();
+  double FuseTnorm2 = df2[FUNC_SIZE-1]->norm2();
+
+
+ if (world.rank() == 0) print("[Result MADNESS] Norm0 : ", MADnorm0 );
+  if (world.rank() == 0) print("[Result Fuset] Norm0 : ", FuseTnorm0);
+
+  if (world.rank() == 0) print("[Result MADNESS] Norm1 : ", MADnorm1);
+  if (world.rank() == 0) print("[Result Fuset] Norm1 : ", FuseTnorm1);
+
+  if (world.rank() == 0) print("[Result MADNESS] Norm2 : ", MADnorm2);
+  if (world.rank() == 0) print("[Result Fuset] Norm2 : ", FuseTnorm2);
+
+
+/*
   double MADtrace0 = df0.trace();
   double MADtrace1 = df1.trace();
  double MADtrace2 = df2.trace();
@@ -200,14 +300,38 @@ double clkbegin, clkend;
   DerivativeOp<double,3> derivative_op_0("Derivative",&i0,&f1,world,&D0);		// i5 <-- i1
   DerivativeOp<double,3> derivative_op_1("Derivative",&i1,&f1,world,&D1);		// i6 <-- f3
   DerivativeOp<double,3> derivative_op_2("Derivative",&i2,&f1,world,&D2);		// i7 <-- f4
+  bool fused =false;
 
+  if(fused){
 
-  OpExecutor<double,3> exe(world);
+  vector<PrimitiveOp<double,3>*> sequence;
+  sequence.push_back(&derivative_op_0);
+  sequence.push_back(&derivative_op_1);
+  sequence.push_back(&derivative_op_2);
+
+  FuseT<double,3> odag(sequence);
+  odag.processSequence();
+  FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
+  FusedExecutor<double,3>	fexecuter(world, &fsequence);
+  if (world.rank() == 0) print ("==before exe================================================");
+
+  clkbegin = rtclock();
+
+  fexecuter.execute();
+
+  clkend = rtclock() - clkbegin;
+  if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+
+  }else{
+
+ OpExecutor<double,3> exe(world);
+ clkbegin = rtclock();
+
   exe.execute(&derivative_op_0, false);
   exe.execute(&derivative_op_1, false);
   exe.execute(&derivative_op_2, false);
   world.gop.fence();
-
+  }
   clkend = rtclock() - clkbegin;
   if (world.rank() == 0) printf("OpExecutor Running Time: %f\n", clkend);
 
@@ -242,7 +366,7 @@ double clkbegin, clkend;
   if (world.rank() == 0) print("[Difference] Norm2 : ", Difnorm0);
   if (world.rank() == 0) print("[Difference] Norm2 : ", Difnorm1);
   if (world.rank() == 0) print("[Difference] Norm2 : ", Difnorm2);
-  
+*/  
 
   finalize();
   return 0;
