@@ -76,11 +76,11 @@ namespace madness
 	
 		std::map<keyT, bool>	checkKeyDoneLeft;
 		std::map<keyT, bool>	checkKeyDoneRight;
-		
-		std::map<keyT, int>		candidatesLeft;
-		std::map<keyT, int>		candidatesRight;	
 
-		int						_k;		// Wavelet order
+		bool										overallL;
+		bool										overallR;
+
+		int											_k;		// Wavelet order
     };
 		
 	// Constructor
@@ -123,159 +123,121 @@ namespace madness
 	FuseTContainer<T>
 	MatrixInnerOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
 	{
-		FuseT_VParameter<T>*	inheritedWhole;
-		FuseT_VType<T>*			inheritedLeft;
-		FuseT_VType<T>*			inheritedRight;
+		FuseT_VType<T>* possibleLists;
 		
 		// Processing for Paramter
 		if (s.get() == 0)
 		{
-			inheritedLeft	= new FuseT_VType<T>;
-			inheritedRight	= new FuseT_VType<T>;
-
-			for (unsigned int i=0; i<_left.size(); i++)
-				inheritedLeft->value.push_back(i);
-			for (unsigned int i=0; i<_right.size(); i++)
-				inheritedRight->value.push_back(i);
+			possibleLists = new FuseT_VType<T>;
+			for (int i=0; i<_left.size() + _right.size(); i++)
+				possibleLists->value.push_back(1);
 		}
 		else
 		{
-			inheritedWhole	= new FuseT_VParameter<T>( ((FuseT_VParameter<T>*)s.get())->value );
-
-			inheritedLeft	= new FuseT_VType<T>(((FuseT_VType<T>*)(((inheritedWhole->value[0]).get())))->value);
-			inheritedRight	= new FuseT_VType<T>(((FuseT_VType<T>*)(((inheritedWhole->value[1]).get())))->value);
+			possibleLists  = new FuseT_VType<T>( ((FuseT_VType<T>*)s.get())->value );
 		}		
 
-		FuseT_VType<T> whichNodesLeft;		// value = std::vector<int>
+		// Main --- O(M*N)
+		bool tempLeft;
+		bool tempRight;
+		bool overallLeft = true;
+		bool overallRight = true;
+		FuseT_VType<T> whichNodesLeft;
 		FuseT_VType<T> whichNodesRight;
-	
-		unsigned int indexLeft;
-		unsigned int indexRight;
-		unsigned int leftSize	= inheritedLeft->value.size();
-		unsigned int rightSize	= inheritedRight->value.size();
-
-		// The Pre-Computatio
-		// Assumption: the size of coefficient --> 16*16*16 = 4096
-		double* A = (double*)malloc(sizeof(double)*16*16*16*leftSize);
-		double* B = (double*)malloc(sizeof(double)*16*16*16*rightSize);
-		double* C = (double*)malloc(sizeof(double)*leftSize*rightSize);
-		unsigned int k,l,m;
-
-		//
-		for (unsigned int i=0; i<leftSize; i++)
+		for (int i=0; i<_left.size(); i++)
 		{
-			indexLeft = inheritedLeft->value[i];
-			const KNODE& fnode = _left_v_coeffs[indexLeft].find(key).get()->second;
-				
-			if (_left_v_coeffs[indexLeft].find(key).get()->second.has_children())
-				whichNodesLeft.value.push_back(indexLeft);
-
-			// 3D array to 1D array with i for fnode and j for gnode
-			if (fnode.has_coeff())
+			if (possibleLists->value[i] != 0) 
 			{
-				for (k=0; k<16; k++) 
-					for (l=0; l<16; l++) 
-						for (m=0; m<16; m++) 
-							A[i*16*16*16 + k*16*16 + l*16 + m] = (fnode.coeff())(k,l,m);	
+				const KNODE& fnode = _left_v_coeffs[i].find(key).get()->second;
+				tempLeft	= _left_v_coeffs[i].find(key).get()->second.has_children();
+				overallLeft = overallLeft && !tempLeft;
+
+				if (fnode.has_coeff())
+				{
+					for (int j=0; j<_right.size(); j++)
+					{
+						if (possibleLists->value[_left.size() + j] != 0)
+						{
+							if (i == 0)
+							{
+								tempRight = _right_v_coeffs[j].find(key).get()->second.has_children();
+								overallRight = overallRight && !tempRight;
+							}
+
+							const KNODE& gnode = _right_v_coeffs[j].find(key).get()->second;
+							if (gnode.has_coeff()) //{} 
+								(*this->_r)(i, j) += fnode.coeff().trace_conj(gnode.coeff());
+						}
+						else
+						{
+							if(i == 0)
+							{
+								tempRight = false;
+								overallRight = overallRight && true;
+							}
+						}
+						if (i == 0)
+							whichNodesRight.value.push_back(tempRight);	
+					}
+				}
+				else
+				{
+					if (i == 0) {
+						for (int j=0; j<_right.size(); j++)
+						{
+							if (possibleLists->value[_left.size() + j] != 0)
+							{
+								tempRight = _right_v_coeffs[j].find(key).get()->second.has_children();
+								overallRight = overallRight && !tempRight;	
+							}
+							else
+							{	
+								tempRight = false;
+								overallRight = overallRight && true;
+							}
+							whichNodesRight.value.push_back(tempRight);	
+						}
+					}
+				}
 			}
 			else
 			{
-				for (k=0; k<16; k++) 
-					for (l=0; l<16; l++) 
-						for (m=0; m<16; m++) 
-							A[i*16*16*16 + k*16*16 + l*16 + m] = 0.0;
+				tempLeft = false;
+				overallLeft = overallLeft && true;
+
+				if (i == 0)
+				{
+					for (int j=0; j<_right.size(); j++)
+					{
+						if (possibleLists->value[_left.size() + j] != 0)
+						{
+							tempRight = _right_v_coeffs[j].find(key).get()->second.has_children();
+							overallRight = overallRight && !tempRight;	
+						}
+						else
+						{	
+							tempRight = false;
+							overallRight = overallRight && true;
+						}
+						whichNodesRight.value.push_back(tempRight);	
+					}
+				}
 			}
+			whichNodesLeft.value.push_back(tempLeft);
 		}
+		checkKeyDoneLeft.insert( std::pair<keyT,bool>(key,overallLeft) );
+		checkKeyDoneRight.insert( std::pair<keyT,bool>(key,overallRight) );
 
-	
-		//
-		for (unsigned int i=0; i<rightSize; i++)
-		{
-			indexRight = inheritedRight->value[i];
-			const KNODE& gnode = _right_v_coeffs[indexRight].find(key).get()->second;
-
-			if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
-				whichNodesRight.value.push_back(indexRight);
-
-			// 3D array to 1D array with i for fnode and j for gnode
-			if (gnode.has_coeff())
-			{
-				for (k=0; k<16; k++) 
-					for (l=0; l<16; l++) 
-						for (m=0; m<16; m++) 
-							B[i*16*16*16 + k*16*16 + l*16 + m] = (gnode.coeff())(k,l,m);	
-			}
-			else
-			{
-				for (k=0; k<16; k++) 
-					for (l=0; l<16; l++) 
-						for (m=0; m<16; m++) 
-							B[i*16*16*16 + k*16*16 + l*16 + m] = 0.0;
-			}
-		}
-
-		// 
-		for (k=0; k<leftSize; k++)
-			for (l=0; l<rightSize; l++)
-				C[k*rightSize + l] = 0.0;
-
-		//	The Actual-Computation
-		//	Return: left.size() * right.size();
-		//
-		//	A [leftSize * 4096] 
-		//	B [rightSize * 4096] 
-		//	C [leftSize*rightSize]
-		//
-		//cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, 1, 1, 16*16*16, 1, A, 16*16*16, B, 16*16*16, 1, &C, 1);
-		cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, leftSize, rightSize, 16*16*16, 1, A, 16*16*16, B, 16*16*16, 1, C, leftSize);
-		//(*this->_r)(indexLeft, indexRight) += C;
-
-
-		// The Post-Computation
-		for (k=0; k<leftSize; k++)
-		{	
-			indexLeft = inheritedLeft->value[k];	
-			for (l=0; l<rightSize; l++)
-			{
-				indexRight = inheritedRight->value[l];
-				(*this->_r)(indexLeft, indexRight) += C[k + l*leftSize];	// k*rightSize + l --> row-major
-				//(*this->_r)(indexLeft, indexRight) += C[k*rightSize + l];	// k*rightSize + l --> row-major
-			}
-		}
-
-		delete A;
-		delete B;
-		delete C;
-
-
-
-		if (whichNodesLeft.value.size() == 0)
-			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,true));
-		else
-			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,false));
-
-		if (whichNodesRight.value.size() == 0)
-			checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true));
-		else
-			checkKeyDoneRight.insert(std::pair<keyT,bool>(key,false));
-
+		whichNodesLeft.value.insert(whichNodesLeft.value.end(), whichNodesRight.value.begin(), whichNodesRight.value.end());
 
 		// 
 		FuseT_VParameter<T> v_parameter;
-		FuseT_VParameter<T> inner_parameter;
-	
-		FuseTContainer<T>	candiParameter_L(static_cast<Base<T>*> (new FuseT_VType<T>(whichNodesLeft.value)));	
-		FuseTContainer<T>	candiParameter_R(static_cast<Base<T>*> (new FuseT_VType<T>(whichNodesRight.value)));	
-		inner_parameter.value.push_back(candiParameter_L);
-		inner_parameter.value.push_back(candiParameter_R);
-
 		for (KeyChildIterator<NDIM> kit(key); kit; ++kit)
 		{
-			FuseTContainer<T> wrapper(static_cast<Base<T>*>(new FuseT_VParameter<T>(inner_parameter.value)));
+			FuseTContainer<T> wrapper(static_cast<Base<T>*>(new FuseT_VType<T>(whichNodesLeft.value)));
 			v_parameter.value.push_back(wrapper);
 		}
 
-		// Return Parameters
 		FuseTContainer<T> targets(static_cast<Base<T>*>(new FuseT_VParameter<T>(v_parameter.value)));
 		return targets;
 	}
@@ -289,13 +251,13 @@ namespace madness
 		bool isE2;
 
 		// O(M + N)
- 		for (unsigned int i=0; i<_left.size(); i++)	
+ 		for (int i=0; i<_left.size(); i++)	
 		{
 			isE1 = _left[i]->get_coeffs().probe(key) || isE1;
 		}
 		if (!isE1) { std::cout<<key<<"!!!"<<std::endl; return isE1;}
 
-		for (unsigned int i=0; i<_right.size(); i++)
+		for (int i=0; i<_right.size(); i++)
 		{	
 			isE2 = _right[i]->get_coeffs().probe(key) || isE2;
 		}

@@ -1731,6 +1731,9 @@ namespace madness {
         template <class Q>
         TENSOR_RESULT_TYPE(T,Q) trace_conj(const Tensor<Q>& t) const {
             TENSOR_RESULT_TYPE(T,Q) result = 0;
+
+			// what is _p0 and _p1 
+			// 
             BINARY_OPTIMIZED_ITERATOR(const T,(*this),const Q,t,result += conditional_conj(*_p0)*(*_p1));
             return result;
         }
