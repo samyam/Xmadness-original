@@ -35,6 +35,7 @@
 #include <madness/mra/operator.h>
 #include <madness/constants.h>
 #include <madness/tensor/distributed_matrix.h>
+#include <madness/tensor/cblas.h>
 #include <madness/mra/FuseT/MatrixInnerOp.h>
 #include <madness/mra/FuseT/InnerOp.h>
 #include <madness/mra/FuseT/CompressOp.h>
@@ -333,16 +334,17 @@ int main(int argc, char** argv)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-/*
+
+
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
 		{	
+		//	printf ("(%d,%d): %.12f\n", i, j, (*matrix_inner_op->_r)(i, j));
 			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
 		}
-
 	world.gop.fence();
-*/
+
 //
 //
 //
@@ -353,7 +355,6 @@ int main(int argc, char** argv)
 
 	vecfuncT v_f;
 	vecfuncT v_g;
-	
 /*
 	for (i=0; i<FUNC_SIZE; i++)
 		v_f.push_back(h[i]);
@@ -383,15 +384,16 @@ int main(int argc, char** argv)
 		printf("Running Time: %f\n", clkend);
 	}
 	world.gop.fence();
-/*
+
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
+			//printf ("matrix_inner_old: r(%d,%d): %.12f\n", i, j, ghaly(i, j));
 			printf ("matrix_inner_old: r(%d,%d): %f\n", i, j, ghaly(i, j));
 		}
 	}
 	world.gop.fence();
-*/
+
 //
 //
 //
@@ -424,6 +426,51 @@ int main(int argc, char** argv)
 		}
 	world.gop.fence();
 */
+
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("==      GEMM          ==============================");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	double* A;
+	double* B;
+	double* C;
+
+	A = (double*)malloc(sizeof(double)*3*4);
+	B = (double*)malloc(sizeof(double)*4*4);
+	C = (double*)malloc(sizeof(double)*3*4);
+
+	//
+	for (i=0; i<4*3; i++)
+		A[i] = i*1.0;
+
+	//
+	for (i=0; i<4; i++)
+		B[i] = 1.0;
+
+	for (i=4; i<8; i++)
+		B[i] = 2.0;
+
+	for (i=8; i<12; i++)
+		B[i] = 3.0;
+
+	for (i=12; i<16; i++)
+		B[i] = 4.0;
+
+	//
+	for (i=0; i<3*4; i++)
+		C[i] = 0.0;
+
+	//
+	cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, 3, 4, 4, 1, A, 4, B, 4, 1, C, 3);
+
+	if (world.rank() == 0)
+	{
+		for (i=0; i<3*4; i++) {
+			printf ("%f ", C[i]);
+		}
+	}
+
     finalize();    
     return 0;
 }

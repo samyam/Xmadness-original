@@ -876,6 +876,7 @@ namespace madness {
 			typedef TENSOR_RESULT_TYPE(T,Q) resultT;
 
 			if (rhs.type()==TT_FULL) {
+				std::cout<<"overlap!"<<std::endl;
 				return rhs.ref_vector(0).trace(lhs.ref_vector(0));
 			}
 
@@ -897,7 +898,8 @@ namespace madness {
 			}
 
 			//	return weightMatrix;
-			const TENSOR_RESULT_TYPE(T,Q) overlap=weightMatrix.sum();
+			const TENSOR_RESULT_TYPE(T,Q) overlap=weightMatrix.sum();	
+			std::cout<<"overlap!"<<std::endl;
 			return overlap;
 		}
 
