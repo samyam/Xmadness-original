@@ -1043,6 +1043,7 @@ namespace madness {
             const keyT& key = it->first;
             const nodeT& node = it->second;
             if (node.has_coeff()) {
+		//std::cout<<"MADNESS Derivative Key :"<<key<<std::endl;
                 Future<argT> left  = D->find_neighbor(f, key,-1);
                 argT center(key,node.coeff());
                 Future<argT> right = D->find_neighbor(f, key, 1);
@@ -2525,7 +2526,7 @@ namespace madness {
             // In compressed form leaves should not have coeffs ... however the
             // transform op could leave the tree with leaves that do have coeffs
             // in which case we want something sensible to happen
-            //MADNESS_ASSERT(!node.has_coeff());
+            MADNESS_ASSERT(!node.has_coeff());
             if (node.has_coeff() && key.level()>1) {
                 double dnorm = node.coeff().normf();
                 if (dnorm < truncate_tol(tol,key)) {
@@ -2955,7 +2956,7 @@ namespace madness {
         double scale = pow(2.0,double(np-nc));
         for (int mu=0; mu<cdata.npt; ++mu) {
             double xmu = scale*(cdata.quad_x(mu)+lc) - lp;
-            MADNESS_ASSERT(xmu>-1e-15 && xmu<(1+1e-15));
+	    //MADNESS_ASSERT(xmu>-1e-15 && xmu<(1+1e-15));
             legendre_scaling_functions(xmu,cdata.k,p);
             for (int i=0; i<k; ++i) phi(i,mu) = p[i];
         }

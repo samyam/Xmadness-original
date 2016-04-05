@@ -41,7 +41,7 @@
 #include <madness/mra/FuseT/ReconstructOp.h>
 #include <madness/mra/FuseT/FusedExecutor.h>
 #include <madness/mra/FuseT/OpExecutor.h>
-
+#include <madness/mra/FuseT/DerivativeOp.h>
 #include <madness/mra/FuseT/FuseT.h>
 
 

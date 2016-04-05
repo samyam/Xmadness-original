@@ -427,7 +427,7 @@ top_srcdir = @top_srcdir@
 #AM_CPPFLAGS += -DMRA_DATA_DIR="\"`pwd`\""
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
 	-I$(top_srcdir)/src/apps -DMRA_DATA_DIR=\"$(abs_srcdir)\"
-@LINK_ALL_STATIC_TRUE@AM_LDFLAGS = -all-static
+@LINK_ALL_STATIC_TRUE@AM_LDFLAGS = -static
 
 # Define directories holding libraries and variables for corresponding libraries
 LIBGTESTDIR = $(top_builddir)/src/madness/external/gtest
@@ -480,7 +480,8 @@ thisinclude_HEADERS = adquad.h  funcimpl.h  indexit.h  legendre.h  operator.h  v
 					  FuseT/PrimitiveOp.h FuseT/CompressOp.h FuseT/CopyOp.h \
 					  FuseT/FusedExecutor.h FuseT/FuseTContainer.h \
 					  FuseT/InnerOp.h FuseT/OpExecutor.h FuseT/ReconstructOp.h \
-					  FuseT/FuseT.h FuseT/AddOp.h FuseT/MatrixInnerOp.h
+					  FuseT/FuseT.h FuseT/AddOp.h FuseT/DerivativeOp.h \
+					  FuseT/MultiplyOp.h FuseT/FuseT.h FuseT/MatrixInnerOp.h
 
 LDADD = libMADmra.la $(LIBLINALG) $(LIBTENSOR) $(LIBMISC) $(LIBMUPARSER) $(LIBWORLD)
 libMADmra_la_SOURCES = mra1.cc mra2.cc mra3.cc mra4.cc mra5.cc mra6.cc \

@@ -53,7 +53,7 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
 	multiplyEx$(EXEEXT) matrixInnerEx$(EXEEXT) scm1Ex$(EXEEXT) \
-	scm2Ex$(EXEEXT) \
+	scm2Ex$(EXEEXT) derivativeEx$(EXEEXT) \
 	$(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
@@ -134,6 +134,9 @@ am_density_smoothing_OBJECTS = density_smoothing.$(OBJEXT)
 density_smoothing_OBJECTS = $(am_density_smoothing_OBJECTS)
 density_smoothing_LDADD = $(LDADD)
 density_smoothing_DEPENDENCIES = $(LIBCHEM) $(MRALIBS)
+am_derivativeEx_OBJECTS = FuseTExamples/DerivativeEx.$(OBJEXT)
+derivativeEx_OBJECTS = $(am_derivativeEx_OBJECTS)
+derivativeEx_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
 am_dielectric_OBJECTS = dielectric.$(OBJEXT)
 dielectric_OBJECTS = $(am_dielectric_OBJECTS)
 dielectric_LDADD = $(LDADD)
@@ -310,7 +313,7 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(cc2_SOURCES) $(compressEx_SOURCES) $(copyEx_SOURCES) \
 	$(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-	$(density_smoothing_SOURCES) $(dielectric_SOURCES) \
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) $(dielectric_SOURCES) \
 	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
 	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
 	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
@@ -330,7 +333,7 @@ SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(binaryop_SOURCES) $(cc2_SOURCES) $(compressEx_SOURCES) \
 	$(copyEx_SOURCES) $(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-	$(density_smoothing_SOURCES) $(dielectric_SOURCES) \
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) $(dielectric_SOURCES) \
 	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
 	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
 	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
@@ -523,7 +526,7 @@ top_srcdir = @top_srcdir@
 # default location for basis sets etc
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
 	-I$(top_srcdir)/src/apps -D$(GITREV)
-@LINK_ALL_STATIC_TRUE@AM_LDFLAGS = -all-static
+@LINK_ALL_STATIC_TRUE@AM_LDFLAGS = -static
 
 # Define directories holding libraries and variables for corresponding libraries
 LIBGTESTDIR = $(top_builddir)/src/madness/external/gtest
@@ -566,6 +569,8 @@ copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
 compressEx_LDADD = $(LIBWORLD) $(MRALIBS)
+derivativeEx_SOURCES = FuseTExamples/DerivativeEx.cc
+derivativeEx_LDADD = $(LIBWORLD) $(MRALIBS)
 matrixInnerEx_SOURCES = FuseTExamples/MatrixInnerEx.cc
 matrixInnerEx_LDADD = $(LIBWORLD) $(MRALIBS)
 reconstructEx_SOURCES = FuseTExamples/ReconstructEx.cc
@@ -708,6 +713,11 @@ dataloadbal$(EXEEXT): $(dataloadbal_OBJECTS) $(dataloadbal_DEPENDENCIES)
 density_smoothing$(EXEEXT): $(density_smoothing_OBJECTS) $(density_smoothing_DEPENDENCIES) 
 	@rm -f density_smoothing$(EXEEXT)
 	$(CXXLINK) $(density_smoothing_OBJECTS) $(density_smoothing_LDADD) $(LIBS)
+FuseTExamples/DerivativeEx.$(OBJEXT): FuseTExamples/$(am__dirstamp) \
+	FuseTExamples/$(DEPDIR)/$(am__dirstamp)
+derivativeEx$(EXEEXT): $(derivativeEx_OBJECTS) $(derivativeEx_DEPENDENCIES) 
+	@rm -f derivativeEx$(EXEEXT)
+	$(CXXLINK) $(derivativeEx_OBJECTS) $(derivativeEx_LDADD) $(LIBS)
 dielectric$(EXEEXT): $(dielectric_OBJECTS) $(dielectric_DEPENDENCIES) 
 	@rm -f dielectric$(EXEEXT)
 	$(CXXLINK) $(dielectric_OBJECTS) $(dielectric_LDADD) $(LIBS)
@@ -863,6 +873,7 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f FuseTExamples/AddEx.$(OBJEXT)
 	-rm -f FuseTExamples/CopyEx.$(OBJEXT)
+	-rm -f FuseTExamples/DerivativeEx.$(OBJEXT)
 	-rm -f FuseTExamples/FusedEx.$(OBJEXT)
 	-rm -f FuseTExamples/InnerEx.$(OBJEXT)
 	-rm -f FuseTExamples/MatrixInnerEx.$(OBJEXT)
@@ -917,6 +928,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vnucso.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/AddEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/CopyEx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/DerivativeEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/FusedEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/InnerEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/MatrixInnerEx.Po@am__quote@
