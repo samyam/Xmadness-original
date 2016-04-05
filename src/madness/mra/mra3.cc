@@ -39,6 +39,7 @@
 #include <madness/mra/FuseT/OpExecutor.h>
 #include <madness/mra/FuseT/FusedExecutor.h>
 #include <madness/mra/FuseT/CopyOp.h>
+#include <madness/mra/FuseT/DerivativeOp.h>
 
 #ifdef FUNCTION_INSTANTIATE_3
 
@@ -63,6 +64,11 @@ namespace madness {
     template <> Spinlock WorldObject<WorldContainerImpl<Key<3>, FunctionNode<double, 3>, Hash<Key<3> > > >::pending_mutex(0);
     template <> volatile std::list<detail::PendingMsg> WorldObject<WorldContainerImpl<Key<3>, FunctionNode<std::complex<double>, 3>, Hash<Key<3> > > >::pending = std::list<detail::PendingMsg>();
     template <> Spinlock WorldObject<WorldContainerImpl<Key<3>, FunctionNode<std::complex<double>, 3>, Hash<Key<3> > > >::pending_mutex(0);
+
+    //For derivative Operator
+    typedef Future<std::pair<Key<3>, GenTensor<double> > > argT;
+    template <> volatile std::list<detail::PendingMsg> WorldObject<WorldContainerImpl<Key<3>, argT, Hash<Key<3> > > >::pending = std::list<detail::PendingMsg>();
+    template <> Spinlock WorldObject<WorldContainerImpl<Key<3>, argT, Hash<Key<3> > > >::pending_mutex(0);
 
     template <> volatile std::list<detail::PendingMsg> WorldObject<DerivativeBase<double,3> >::pending = std::list<detail::PendingMsg>();
     template <> Spinlock WorldObject<DerivativeBase<double,3> >::pending_mutex(0);
@@ -96,12 +102,17 @@ namespace madness {
     template <> volatile std::list<detail::PendingMsg> WorldObject<FusedExecutor<double,3> >::pending = std::list<detail::PendingMsg>();
     template <> Spinlock WorldObject<FusedExecutor<double,3> >::pending_mutex(0);
 
+    template <> volatile std::list<detail::PendingMsg> WorldObject<DerivativeOp<double,3> >::pending = std::list<detail::PendingMsg>();
+    template <> Spinlock WorldObject<DerivativeOp<double,3> >::pending_mutex(0);
+
     template class PrimitiveOp<double,3>;
     template class OpExecutor<double,3>;
     template class FusedExecutor<double,3>;
+    template class DerivativeOp<double,3>;
     template class CopyOp<double,3>;
     template class WorldObject<OpExecutor<double,3> >;
     template class WorldObject<FusedExecutor<double,3> >;
+    template class WorldObject<DerivativeOp<double,3> >;
 
 
     

@@ -334,7 +334,7 @@ top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
 	-I$(top_srcdir)/src/apps -DMRA_CHEMDATA_DIR=\"$(abs_srcdir)\" \
 	-D$(GITREV)
-@LINK_ALL_STATIC_TRUE@AM_LDFLAGS = -all-static
+@LINK_ALL_STATIC_TRUE@AM_LDFLAGS = -static
 
 # Define directories holding libraries and variables for corresponding libraries
 LIBGTESTDIR = $(top_builddir)/src/madness/external/gtest

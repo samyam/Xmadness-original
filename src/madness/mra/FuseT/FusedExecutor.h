@@ -27,7 +27,17 @@ namespace madness {
 	    void serialize(Archive& ar) { ar & _notEmpty & _postOperands & _preCompute & _postCompute; }
 	};
 
-    
+    /*The FusedExecutor takes a fusedOpSequence and computes it by
+     doing the appropriate traversal. The traversal is done using
+     fusedTraversal method. The fusedTraversal method is a wrapper
+     for continueTraversal that actually does the
+     work. ContinueTraversal consists of two parts :1) Self
+     Recusion : If an operator returns a future, then continue
+     traversal calls itself to wait for the future to be
+     available. It then continues from where it left off. 2) Calls
+     to FusedTraversal: After it computes all the preOps, it calls
+     the fusedTraversal at the children nodes.
+    */
     template<typename T, std::size_t NDIM>
 	class FusedExecutor:public WorldObject<FusedExecutor<T,NDIM> >{
     public:
@@ -43,6 +53,8 @@ namespace madness {
     private:
 	World& _world;
 	Future <paraMap> fusedTraversal(keyT key, const LocalFuseInfo<T,NDIM>& lInfo, paraMap& pmap); 
+	Future <paraMap> continueTraversal(keyT key, const LocalFuseInfo<T,NDIM>& lInfo, paraMap& pMap, LocalFuseInfo<T,NDIM>& newlInfo, vector<paraMap> &pMapVec, int lastIdx, FuseTContainer<T>& lastReturn);
+
 	FusedOpSequence<T,NDIM>* _fOps;
 	map<int,FuseTContainer<T> >  fusedPostCompute(keyT Key, const vector<int> postComputeOps, vector<Future<paraMap> >& v);
 	dcT _coeffs; 
@@ -101,23 +113,46 @@ namespace madness {
     //typedef map<int, FuseTContainer<T> > paraMap;
     template<typename T, std::size_t NDIM>
 	Future <map<int,FuseTContainer<T> > > 
-	FusedExecutor<T,NDIM>::fusedTraversal(keyT key, const LocalFuseInfo<T,NDIM>& lInfo, paraMap& pMap)
-    {
-	if(DEBUG1){ cout<<" Key : "<<key.level()<<" Translation : " ;
-	for(auto a : key.translation())
-	    cout<<a<<", ";
-	cout<<endl;
-	cout<<"PreCompute Size : "<<lInfo._preCompute.size()<<endl;
-	cout<<"postCompute Size : "<<lInfo._postCompute.size()<<endl;	
-	}
-	LocalFuseInfo<T,NDIM> newlInfo;
-	//will hold new parameters
-	paraMap* pMapVec = new paraMap[1<<NDIM];
-		
-	if(DEBUG) cout<<"Before PreCompute"<<endl;
-	for(int i: lInfo._preCompute)
-	{
+	FusedExecutor<T,NDIM>::continueTraversal(keyT key, const LocalFuseInfo<T,NDIM>& lInfo, paraMap& pMap, LocalFuseInfo<T,NDIM> &newlInfo, vector<paraMap> &pMapVec, int lastIdx, FuseTContainer<T>& lastReturn){
+
+	//process the preCompute Op that was computed before this call
+	if(lastIdx != -1){
+	    int i = lInfo._preCompute[lastIdx];	   
+
 	    PrimitiveOp<T,NDIM> *  preOp = _fOps->_sequence[i];
+	    //Control Code for identifying if this operator needs
+	    //to be executed in the next executive call	  
+	    if(!preOp->isDone(key)){
+		newlInfo._preCompute.push_back(i);
+
+		//creating parameters for the recursive call
+		//creates pMapVec[j][i] represents the parameters for operator i
+		//anf the jth child node
+		int j =0;
+		for (KeyChildIterator<NDIM> kit(key); kit; ++kit,j++)				
+		{
+		    //parameter must be passed so the return type of preOp must ne FuseT_VParameter
+		    if (preOp->needsParameter())
+			pMapVec[j][i] = ((FuseT_VParameter<T>*)lastReturn.get())->value[j];
+		    //parameter doesnt have to be passed so create an empty Container		
+		    else
+			pMapVec[j][i] = FuseTContainer<T>();
+		}
+	    }
+	}
+
+	    //process the remainder of the preCompute Operators
+	for(int idx = lastIdx+1; idx<lInfo._preCompute.size(); idx++)
+	{
+	    int i = lInfo._preCompute[idx];
+	    
+	    PrimitiveOp<T,NDIM> *  preOp = _fOps->_sequence[i];
+
+	    if(preOp->returnsFuture()){
+
+		Future<FuseTContainer <T> > temp = preOp->computeFuture(key,pMap[i]);
+		return woT::task(_world.rank(), &feT::continueTraversal, key, lInfo, pMap, newlInfo, pMapVec, idx, temp);
+	    }
 
 	    //Real Work
 	    FuseTContainer<T> temp;
@@ -214,6 +249,27 @@ namespace madness {
 	if(DEBUG) cout<<"No Post Compute . Exit"<<endl;
 	paraMap temp;
 	return Future<paraMap>(temp);	
+
+    }
+
+
+    //typedef map<int, FuseTContainer<T> > paraMap;
+    template<typename T, std::size_t NDIM>
+	Future <map<int,FuseTContainer<T> > > 
+	FusedExecutor<T,NDIM>::fusedTraversal(keyT key, const LocalFuseInfo<T,NDIM>& lInfo, paraMap& pMap)
+    {
+	if(DEBUG1){ cout<<" Key : "<<key.level()<<" Translation : " ;
+	for(auto a : key.translation())
+	    cout<<a<<", ";
+	cout<<endl;
+	cout<<"PreCompute Size : "<<lInfo._preCompute.size()<<endl;
+	cout<<"postCompute Size : "<<lInfo._postCompute.size()<<endl;	
+	}
+	LocalFuseInfo<T,NDIM> newlInfo;
+	//will hold new parameters
+	vector<paraMap> pMapVec = vector<paraMap>(1<<NDIM);
+	FuseTContainer<T> temp = FuseTContainer<T>();
+	return continueTraversal(key,lInfo,pMap,newlInfo,pMapVec, -1, temp);
     }
 
         template<typename T, std::size_t NDIM>

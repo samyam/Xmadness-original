@@ -61,12 +61,14 @@ namespace madness
 
 	virtual ~PrimitiveOp() {}
    
-	virtual FuseTContainer<T> compute (const keyT& key, const FuseTContainer<T> &s)	= 0; 
+	virtual FuseTContainer<T> compute (const keyT& key, const FuseTContainer<T> &s)	{ return FuseTContainer<T>();}
+	virtual Future< FuseTContainer<T> > computeFuture (const keyT& key, const FuseTContainer<T> &s) { return Future<FuseTContainer<T> >();} 
 
 	virtual bool isDone(const keyT& key) const = 0;
 	virtual bool isPre() const = 0;
 	virtual bool needsParameter() const = 0;
 	virtual void reduce(World& world) = 0;
+	virtual bool returnsFuture(){ return false;}
 
 	//!used for postCompute ops to see if it needs to be pushed to the compute stack or not
 	virtual bool notEmpty(map<int,bool>& notEmptyMap) const{return true;}

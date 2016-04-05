@@ -11,12 +11,12 @@ AM_CPPFLAGS += -D$(GITREV)
 
 noinst_PROGRAMS = pno h2dft hedft hello hatom_energy h2 he tdse_example heat heat2 csqrt \
 				  sdf_shape_tester test_gmres tdse1d vnucso nonlinschro sininteg functionio \
- 				  dataloadbal hatom_1d binaryop dielectric hehf 3dharmonic testsolver \
+				  dataloadbal hatom_1d binaryop dielectric hehf 3dharmonic testsolver \
 				  testspectralprop dielectric_external_field mp2 tiny oep h2dynamic newsolver \
 				  tdhf cc2 nemo helium_exact density_smoothing siam_example gaussian \
 				  copyEx compressEx reconstructEx innerEx fusedEx testFusedEx addEx multiplyEx \
-				  matrixInnerEx
- 
+				  derivativeEx  matrixInnerEx
+
 if MADNESS_HAS_LIBXC
 noinst_PROGRAMS += hefxc
 endif
@@ -32,8 +32,12 @@ copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
 compressEx_LDADD = $(LIBWORLD) $(MRALIBS)
 
+derivativeEx_SOURCES = FuseTExamples/DerivativeEx.cc
+derivativeEx_LDADD = $(LIBWORLD) $(MRALIBS)
+
 matrixInnerEx_SOURCES = FuseTExamples/MatrixInnerEx.cc
 matrixInnerEx_LDADD = $(LIBWORLD) $(MRALIBS)
+
 
 reconstructEx_SOURCES = FuseTExamples/ReconstructEx.cc
 reconstructEx_LDADD = $(LIBWORLD) $(MRALIBS)

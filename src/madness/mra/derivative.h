@@ -43,7 +43,7 @@
 
 #include <madness/mra/key.h>
 #include <madness/mra/funcdefaults.h>
-
+//#include <madness/mra/FuseT/DerivativeOp.h>
 
 /// \file mra/derivative.h
 /// \brief Declaration and initialization of tree traversal functions and generic derivative
@@ -57,6 +57,8 @@ namespace madness {
     template<typename T, std::size_t NDIM>
     class Function;
 
+    template<typename T, std::size_t NDIM>
+	class DerivativeOp;
 }
 
 
@@ -103,6 +105,8 @@ namespace madness {
 
         virtual ~DerivativeBase() { }
 
+
+
         void forward_do_diff1(const implT* f, implT* df, const keyT& key,
                               const argT& left,
                               const argT& center,
@@ -138,6 +142,7 @@ namespace madness {
                         this, f, key, left, center, right, TaskAttributes::hipri());
             }
         }
+
 
         void do_diff1(const implT* f, implT* df, const keyT& key,
                       const argT& left,
@@ -291,10 +296,17 @@ namespace madness {
         Tensor<double> right_r0t, right_rpt; ///< Blocks of the derivative for the right boundary
         Tensor<double> bv_left, bv_right ; ///< Blocks of the derivative operator for the boundary contribution
 
+    public:
+	const std::size_t get_axis() const{
+	    return this->axis;
+	}
+
         void do_diff2b(const implT* f, implT* df, const keyT& key,
                        const argT& left,
                        const argT& center,
                        const argT& right) const {
+
+	    // std::cout<<"Border "<<key<<" Left : "<<left.first<<" Center : "<<center.first<<" Right : "<<right.first<<std::endl;
             Vector<Translation,NDIM> l = key.translation();
             double lev   = (double) key.level();
 
@@ -401,6 +413,8 @@ namespace madness {
 //            df->get_coeffs().replace(key,nodeT(d,false));
 //
 //#else
+	    //std::cout<<"Interior "<<key<<" Left : "<<left.first<<" Center : "<<center.first<<" Right : "<<right.first<<std::endl;
+	    //std::cout<<"MADNESS interior "<<key<<std::endl;
             coeffT tensor_left=df->parent_to_child(left.second, left.first, this->neighbor(key,-1));
             coeffT tensor_center=df->parent_to_child(center.second, center.first, key);
             coeffT tensor_right=df->parent_to_child(right.second, right.first, this->neighbor(key,1));
@@ -416,7 +430,7 @@ namespace madness {
 //#endif
 
         }
-
+    private:
         void initCoefficients()  {
             r0 = Tensor<double>(this->k,this->k);
             rp = Tensor<double>(this->k,this->k);
