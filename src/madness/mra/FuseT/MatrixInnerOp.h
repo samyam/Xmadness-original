@@ -226,10 +226,7 @@ namespace madness
 		//	B [rightSize * 4096] 
 		//	C [leftSize*rightSize]
 		//
-		//cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, 1, 1, 16*16*16, 1, A, 16*16*16, B, 16*16*16, 1, &C, 1);
 		cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, leftSize, rightSize, 16*16*16, 1, A, 16*16*16, B, 16*16*16, 1, C, leftSize);
-		//(*this->_r)(indexLeft, indexRight) += C;
-
 
 		// The Post-Computation
 		for (k=0; k<leftSize; k++)
@@ -239,7 +236,6 @@ namespace madness
 			{
 				indexRight = inheritedRight->value[l];
 				(*this->_r)(indexLeft, indexRight) += C[k + l*leftSize];	// k*rightSize + l --> row-major
-				//(*this->_r)(indexLeft, indexRight) += C[k*rightSize + l];	// k*rightSize + l --> row-major
 			}
 		}
 
