@@ -15,7 +15,7 @@ noinst_PROGRAMS = pno h2dft hedft hello hatom_energy h2 he tdse_example heat hea
 				  testspectralprop dielectric_external_field mp2 tiny oep h2dynamic newsolver \
 				  tdhf cc2 nemo helium_exact density_smoothing siam_example gaussian \
 				  copyEx compressEx reconstructEx innerEx fusedEx testFusedEx addEx multiplyEx \
-				  matrixInnerEx
+				  matrixInnerEx scm1Ex scm2Ex
  
 if MADNESS_HAS_LIBXC
 noinst_PROGRAMS += hefxc
@@ -25,6 +25,12 @@ thisincludedir = $(includedir)/examples
 thisinclude_HEADERS = molecularmask.h  nonlinsol.h spectralprop.h
 
 AUTOMAKE_OPTIONS = subdir-objects
+
+scm1Ex_SOURCES = FuseTExamples/SC2016/sc_m1.cc
+scm1Ex_LDADD = $(LIBWORLD) $(MRALIBS)
+
+scm2Ex_SOURCES = FuseTExamples/SC2016/sc_m2.cc
+scm2Ex_LDADD = $(LIBWORLD) $(MRALIBS)
 
 copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
