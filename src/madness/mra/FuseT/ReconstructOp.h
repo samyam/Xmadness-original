@@ -30,7 +30,7 @@ namespace madness
 		bool				isDone			(const keyT& key) const;
 		bool				isPre			() const { return true; }
 		bool				needsParameter	() const { return true; }
-                void reduce(World& world){}
+        void reduce(World& world){}
 	public:
 		std::vector<Slice>			child_patch		(const keyT& child) const;
 
@@ -64,11 +64,9 @@ namespace madness
 	FuseTContainer<T> 
 	ReconstructOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s) 
 	{
-		//cout<<"["<<__func__<<"] "<<key<<endl;
 		FuseT_CoeffT<T>* s_coeff;
-
 		if (s.get() == 0) 
-		{	
+		{
 			// it should be called initially
             s_coeff = new FuseT_CoeffT<T>();
 			s_coeff->value = coeffT();
@@ -106,43 +104,46 @@ namespace madness
 		// to children but may leave interior nodes without coefficients
 		// ... but they still need to sum down so just give them zeros
 		KNODE&		node = it->second;	// source 
-		KNODE		temp;				// target (if target is initially copied from source, it should be perfect.)
+		KNODE		targetNode;				// target (if target is initially copied from source, it should be perfect.)
 		FuseTContainer<T>	returnP;
 		if (node.has_children() && !node.has_coeff())
 		{
-			temp.set_coeff(coeffT(_cdata.v2k, _targs));
-			this->_result->get_impl()->get_coeffs().replace(key,temp);
+			targetNode.set_coeff(coeffT(_cdata.v2k, _targs));
+			this->_result->get_impl()->get_coeffs().replace(key,targetNode);
 		}
 
 		if (node.has_children() || node.has_coeff())
 		{
 			coeffT d = copy(node.coeff());
 		
-			if (!d.has_data()) 	d = coeffT(_cdata.v2k, _targs);
+			if (!d.has_data()) {
+				d = coeffT(_cdata.v2k, _targs);
+			}
 			if (key.level() > 0) 
-			{	
+			{
 				d(_cdata.s0) += s_coeff->value; // this is the problem!!!
 			}
 			delete s_coeff;		
-	
+
 			if (d.dim(0) == 2*(_i1->get_impl()->get_k()))
 			{
 				FuseT_VParameter<T>		v_parameter;
 
 				d = _i1->get_impl()->unfilter(d);
-				temp.clear_coeff();
-				temp.set_has_children(true);
-				this->_result->get_impl()->get_coeffs().replace(key, temp);
+				targetNode.clear_coeff();
+				targetNode.set_has_children(true);
+				this->_result->get_impl()->get_coeffs().replace(key, targetNode);
+	
 				for (KeyChildIterator<NDIM> kit(key); kit; ++kit) 
 				{
-					FuseT_CoeffT<T>		s_coeff;
+					FuseT_CoeffT<T>		s_coeff_s;
 
 					const keyT& child = kit.key();
 					coeffT ss = copy(d(child_patch(child)));
 					ss.reduce_rank(_i1->thresh());
-					s_coeff.value = ss;
+					s_coeff_s.value = ss;
 
-					FuseTContainer<T> wrapper(static_cast<Base<T>*>(new FuseT_CoeffT<T>(s_coeff.value)));
+					FuseTContainer<T> wrapper(static_cast<Base<T>*>(new FuseT_CoeffT<T>(s_coeff_s.value)));
 					v_parameter.value.push_back(wrapper);
 				}
 
@@ -152,9 +153,9 @@ namespace madness
 			}
 			else
 			{
-				MADNESS_ASSERT(temp.is_leaf());	//???
-				temp.coeff().reduce_rank(_targs.thresh);
-				this->_result->get_impl()->get_coeffs().replace(key, temp);
+				MADNESS_ASSERT(node.is_leaf());	//???
+				targetNode.coeff().reduce_rank(_targs.thresh);
+				this->_result->get_impl()->get_coeffs().replace(key, targetNode);
 			}
 		}
 		else
@@ -167,14 +168,14 @@ namespace madness
 			
 			if (key.level())
 			{
-				temp.set_coeff(copy(ss));
-				this->_result->get_impl()->get_coeffs().replace(key, temp);
+				targetNode.set_coeff(copy(ss));
+				this->_result->get_impl()->get_coeffs().replace(key, targetNode);
 			}
 			else
 			{
 				// my example--ReconstructEx does visit this else statement.
-				temp.set_coeff(ss);
-				this->_result->get_impl()->get_coeffs().replace(key, temp);
+				targetNode.set_coeff(ss);
+				this->_result->get_impl()->get_coeffs().replace(key, targetNode);
 			}
 		}
 		//

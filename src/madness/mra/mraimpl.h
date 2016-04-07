@@ -1449,7 +1449,9 @@ namespace madness {
         MADNESS_ASSERT(not is_redundant());
         nonstandard = compressed = redundant = false;
         if (world.rank() == coeffs.owner(cdata.key0))
+		{
             woT::task(world.rank(), &implT::reconstruct_op, cdata.key0,coeffT());
+		}
         if (fence)
             world.gop.fence();
     }
@@ -2004,8 +2006,8 @@ namespace madness {
 
         if (node.has_children() || node.has_coeff()) { // Must allow for inconsistent state from transform, etc.
             coeffT d = node.coeff();
-            if (!d.has_data()) d = coeffT(cdata.v2k,targs);
-            if (key.level() > 0) d(cdata.s0) += s; // -- note accumulate for NS summation
+            if (!d.has_data())		d = coeffT(cdata.v2k,targs);
+            if (key.level() > 0)	d(cdata.s0) += s; // -- note accumulate for NS summation
             if (d.dim(0)==2*get_k()) {              // d might be pre-truncated if it's a leaf
                 d = unfilter(d);
                 node.clear_coeff();

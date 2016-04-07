@@ -41,15 +41,11 @@ namespace madness
     };
 	
 	//
-
-
-
-
-
 	template<typename T, std::size_t NDIM>
 	Future< FuseTContainer<T> > 
 	OpExecutor<T,NDIM>::traverseTree(const keyT key, const FuseTContainer<T> &s)
 	{
+	//	std::cout<<__func__<<", key: "<<key<<std::endl;
 		FuseTContainer<T> temp;
 
 		// Pre-Computation	
@@ -158,7 +154,6 @@ namespace madness
 
 		if (_world.rank() == coeffs->owner(keyT(0)) )
 		{
-
 			FuseTContainer<T> initParameter;
 			FuseTContainer<T> root;
 

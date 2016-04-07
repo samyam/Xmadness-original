@@ -27,32 +27,41 @@
   email: harrisonrj@ornl.gov
   tel:   865-241-3937
   fax:   865-572-0680
-
-  $Id$
 */
-//#define WORLD_INSTANTIATE_STATIC_TEMPLATES
+
+
+/// \file examples/hello.cc
+/// \brief Simplest example program for MADNESS
+/// \defgroup hellowworldmad Hello world MADNESS style
+/// \ingroup examples
+///
+/// Simplest program that initializes the MADNESS parallel runtime
+/// using initialize(), makes a madness::World object, prints
+/// a greeting, and then cleans up.
+///
+/// To initialize the MADNESS numerical environment you also need
+/// \c startup(world,argc,argv) and should include mra/mra.h rather
+/// than world/MADworld.h .
+
 #include <madness/mra/mra.h>
 #include <madness/mra/operator.h>
 #include <madness/constants.h>
-#include <madness/tensor/distributed_matrix.h>
-#include <madness/tensor/cblas.h>
-#include <madness/mra/FuseT/MatrixInnerOp.h>
 #include <madness/mra/FuseT/InnerOp.h>
+#include <madness/mra/FuseT/AddOp.h>
+#include <madness/mra/FuseT/MultiplyOp.h>
 #include <madness/mra/FuseT/CompressOp.h>
-#include <madness/mra/FuseT/OpExecutor.h>
-#include <madness/mra/FuseT/FusedExecutor.h>
+#include <madness/mra/FuseT/DerivativeOp.h>
 #include <madness/mra/FuseT/FuseT.h>
+#include <madness/mra/FuseT/FusedExecutor.h>
+#include <madness/mra/FuseT/OpExecutor.h>
 
-using namespace madness;
+using namespace madness;;
 
-static const double L		= 20;     // Half box size
-static const long	k		= 8;        // wavelet order
-//static const double thresh	= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
-static const double c		= 2.0;       //
-static const double tstep	= 0.1;
+static const double L		= 20;
+static const long	k		= 8;
+//static const double thresh	= 1e-12;
+static const double c		= 2.0;
 static const double alpha	= 1.9; // Exponent
-static const double VVV		= 0.2;  // Vp constant value
-
 #define PI 3.1415926535897932385
 #define LO 0.0000000000
 #define HI 4.0000000000
@@ -74,7 +83,14 @@ static double sigma_sq_z	= sigma_z*sigma_z;
 
 double rtclock();
 
-static double random_function(const coord_3d& r) {
+static double uinitial(const coord_3d& r) 
+{
+	const double x=r[0], y=r[1], z=r[2];
+    return -2.0/(sqrt(x*x+y*y+z*z+1e-8));
+}
+
+static double random_function(const coord_3d& r) 
+{
 	const double x=r[0], y=r[1], z=r[2];
 
 	const double dx = x - center_x;
@@ -116,56 +132,15 @@ static void randomizer()
 	sigma_sq_z = sigma_z*sigma_z;
 }
 
-class alpha_functor : public FunctionFunctorInterface<double,3> {
-private:
-    double coeff;
-public:
-    alpha_functor(double coeff=1.0) : coeff(coeff) {}
-
-    virtual double operator()(const coord_3d& r) const {
-        const double x=r[0], y=r[1], z=r[2];
-        return (coeff * (x*x + y*y + z*z) * sin(x*x + y*y + z*z));
-    }
-};
-// Exact solution at time t
-class uexact : public FunctionFunctorInterface<double,3> {
-    double t;
-public:
-    uexact(double t) : t(t) {}
-
-    double operator()(const coord_3d& r) const {
-        const double x=r[0], y=r[1], z=r[2];
-        double rsq = (x*x+y*y+z*z);
-
-        return exp(VVV*t)*exp(-rsq*alpha/(1.0+4.0*alpha*t*c)) * pow(alpha/((1+4*alpha*t*c)*constants::pi),1.5);
-    }
-};
-
-// Functor to compute exp(f) where f is a madness function
-template<typename T, int NDIM>
-struct unaryexp {
-    void operator()(const Key<NDIM>& key, Tensor<T>& t) const {
-        UNARY_OPTIMIZED_ITERATOR(T, t, *_p0 = exp(*_p0););
-    }
-    template <typename Archive>
-    void serialize(Archive& ar) {}
-};
-
-typedef Function<double,3> functionT;
-typedef std::vector<functionT> vecfuncT;
-
 int main(int argc, char** argv) 
 {
-	// input
-	// (1) M			-- M and M functions
-	// (2) thresh		-- threshold
-	// (3) max-refine	-- max-refine-level
-	// (4) type			-- 0: all, 1: FuseT, 2: vmra, 3: OpExecutor
+	initialize(argc,argv);
+	World world(SafeMPI::COMM_WORLD);
 
-	// m2. Sequence of Derivative Ops : FuseT vs MADNESS (The code is already in DerivativeEx.c )
-	int		max_refine_level	= 14;
-	double	thresh				= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
-	int		FUNC_SIZE			= 32;	
+	// m2. Sequence of Derivative Ops : FuseT vs MADNESS
+	int		max_refine_level	= 30;
+	double	thresh				= 1e-12; // precision   // w/o diff. and 1e-12 -> 64 x 64
+	int		FUNC_SIZE			= 20;	
 	int		FUNC_SIZE_M			= 32;
 	int		type				= 0;
 
@@ -178,39 +153,36 @@ int main(int argc, char** argv)
 		type				= atoi(argv[4]);
 	}
 
-    initialize(argc, argv);
-    World world(SafeMPI::COMM_WORLD);
-
-    startup(world, argc, argv);
-
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) printf("  Micro Benchmark #2 \n");
-	if (world.rank() == 0) printf("  %d functions based on %d and %d random functions\n", FUNC_SIZE*FUNC_SIZE_M, FUNC_SIZE, FUNC_SIZE_M);
+	if (world.rank() == 0) printf("  Micro Benchmark #1 \n");
+	if (world.rank() == 0) printf("  %d functions\n", FUNC_SIZE);
 	if (world.rank() == 0) printf("  threshold: %13.4g, max_refine_level: %d\n", thresh, max_refine_level);
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
-	// Setting FunctionDefaults
-    FunctionDefaults<3>::set_k(k);
-    FunctionDefaults<3>::set_thresh(thresh);
-    FunctionDefaults<3>::set_refine(true);
-    FunctionDefaults<3>::set_autorefine(false);
-    FunctionDefaults<3>::set_cubic_cell(-L, L);
+	startup(world, argc, argv);
+
+	FunctionDefaults<3>::set_k(k);
+	FunctionDefaults<3>::set_thresh(thresh);
+	FunctionDefaults<3>::set_refine(true);
+	FunctionDefaults<3>::set_autorefine(false);
+	FunctionDefaults<3>::set_cubic_cell(-L, L);
 	FunctionDefaults<3>::set_max_refine_level(max_refine_level);
 
-
-	if (world.rank() == 0) print ("====================================================");
-    if (world.rank() == 0) print ("==   Initializing Functions   ======================");
-	if (world.rank() == 0) print ("====================================================");
-    world.gop.fence();
-
 	// 2 * N Functions
-	real_function_3d  h[FUNC_SIZE];
-	real_function_3d  g[FUNC_SIZE_M];
-	real_function_3d  output[FUNC_SIZE*FUNC_SIZE_M];
+	real_function_3d  f[FUNC_SIZE];
+	real_function_3d  fac0[FUNC_SIZE];
+	real_function_3d  fac1[FUNC_SIZE];
+	real_function_3d  fac2[FUNC_SIZE];
+	real_function_3d*  df0[FUNC_SIZE];
+	real_function_3d*  df1[FUNC_SIZE];
+	real_function_3d*  df2[FUNC_SIZE];
+	real_function_3d  dm0[FUNC_SIZE];
+	real_function_3d  dm1[FUNC_SIZE];
+	real_function_3d  dm2[FUNC_SIZE];
 
-	real_function_3d  result_factory(world);
-	real_function_3d  result(result_factory);
+	std::cout<<"Differentiation of "<<FUNC_SIZE<<" vector of functions"<<std::endl;
+
 
 	int i, j;
 	double clkbegin, clkend;
@@ -219,123 +191,54 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE; i++) 
 	{
 		randomizer();
-		h[i]				= real_factory_3d(world).f(random_function);
-	}
+		f[i]				= real_factory_3d(world).f(random_function);
 
-	for (i=0; i<FUNC_SIZE_M; i++)
-	{
-		randomizer();
-		g[i]				= real_factory_3d(world).f(random_function);
+		fac0[i]	= real_factory_3d(world);
+		fac1[i]	= real_factory_3d(world);
+		fac2[i]	= real_factory_3d(world);
+
+		df0[i]			= new real_function_3d(fac0[i]);
+		df1[i]			= new real_function_3d(fac1[i]);
+		df2[i]			= new real_function_3d(fac2[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
-			output[i*FUNC_SIZE + j] = h[i]*g[j];
+	{
+		f[i].truncate();
+	}
 
-	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 
-	clkbegin = rtclock();
-	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
-			output[i*FUNC_SIZE + j].compress();
-
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0) printf("Running Time-- compress(): %f\n", clkend);
-	world.gop.fence();
-
-
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("=== MatrixInnerOp-DGEMM (OpExecutor) ===============");
+	if (world.rank() == 0) print ("==      FUSET-FUSED       ==========================");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
-
-	vecfuncT fs;
-	vecfuncT gs;
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		fs.push_back(output[i]);
-
-	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
-		gs.push_back(output[i]);
 
 	clkbegin = rtclock();
-	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
 
-	OpExecutor<double,3> exe(world);
-	exe.execute(matrix_inner_op, false);
+	DerivativeOp<double,3>* op0[FUNC_SIZE];
+	DerivativeOp<double,3>* op1[FUNC_SIZE];
+	DerivativeOp<double,3>* op2[FUNC_SIZE];
 
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
-	world.gop.fence();
+	real_derivative_3d D0 = free_space_derivative<double,3>(world, 0);
+	real_derivative_3d D1 = free_space_derivative<double,3>(world, 1);
+	real_derivative_3d D2 = free_space_derivative<double,3>(world, 2);
 
-/*
-	if (world.rank() == 0)
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
-		{	
-			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
-		}
-	world.gop.fence();
-*/
-//
-//
-//
+	for (i=0; i<FUNC_SIZE; i++){
+		op0[i] = new DerivativeOp<double,3>("Derivative0",df0[i],&f[i],world,&D0);
+		op1[i] = new DerivativeOp<double,3>("Derivative1",df1[i],df0[i],world,&D1);
+		op2[i] = new DerivativeOp<double,3>("Derivative2",df2[i],df1[i],world,&D2);
 
-	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
-	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("=== MatrixInner-MADNESS (vmra.h) ===================");
-	if (world.rank() == 0) print ("====================================================");
-	world.gop.fence();
-
-	vecfuncT v_f;
-	vecfuncT v_g;
-
-	clkbegin = rtclock();
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		v_f.push_back(output[i]);
-
-	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
-		v_g.push_back(output[i]);
-
-	Tensor<double> ghaly = matrix_inner(world, v_f, v_g);
-
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
-	world.gop.fence();
-
-/*
-	if (world.rank() == 0)
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
-			printf ("matrix_inner_old: r(%d,%d): %f\n", i, j, ghaly(i, j));
-		}
 	}
-	world.gop.fence();
-*/
-//
-//
-//
-	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
-	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("=== MatrixInner using InnerOp (FusedExecutor) ======");
-	if (world.rank() == 0) print ("====================================================");
-	world.gop.fence();
 
-	clkbegin = rtclock();
-	InnerOp<double,3>*	inner_op_ug[FUNC_SIZE*FUNC_SIZE_M/2][FUNC_SIZE_M*FUNC_SIZE/2];
+	vector<PrimitiveOp<double,3>*> sequence;
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++)
-			inner_op_ug[i][j] = new InnerOp<double,3>("Inner",&result,&output[i],&output[(FUNC_SIZE*FUNC_SIZE_M/2) + j]);
-
-	vector<PrimitiveOp<double,3>*>	sequence;
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++)
-			sequence.push_back(inner_op_ug[i][j]);
-
+	for (i=0; i<FUNC_SIZE; i++){
+		sequence.push_back(op0[i]);
+		sequence.push_back(op1[i]);
+		sequence.push_back(op2[i]);
+	}
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
 
@@ -343,58 +246,67 @@ int main(int argc, char** argv)
 	FusedExecutor<double,3> fexecuter(world, &fsequence);
 	fexecuter.execute();
 
+
 	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
+	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
-/*
-	if (world.rank() == 0)
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
-			printf ("inner fused: r(%d,%d): %f\n", i, j, inner_op_ug[i][j]->_sum);
-		}
-	}
-	world.gop.fence();
-*/
 
-	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
-	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("=== MatrixInner using funcimpl.inner (MADNESS) =====");
-	if (world.rank() == 0) print ("====================================================");
-	world.gop.fence();
 
-	double resultInner[FUNC_SIZE*FUNC_SIZE_M/2][FUNC_SIZE_M*FUNC_SIZE/2] = {0.0, };
+	if (world.rank() == 0) print ("=====================================================");
+	if (world.rank() == 0) print ("   MADNESS                                           ");
+	if (world.rank() == 0) print ("=====================================================");
+
 	clkbegin = rtclock();
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++) 
-			resultInner[i][j] = output[i].inner(output[(FUNC_SIZE*FUNC_SIZE_M/2) + j]); 
-
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
-	world.gop.fence();
-
-/*
-	if (world.rank() == 0)
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
-			printf ("inner: r(%d,%d): %f\n", i, j, resultInner[i][j]);
-		}
+	for (i=0; i<FUNC_SIZE; i++){
+	    dm0[i] = D0(f[i],false);
 	}
 	world.gop.fence();
-*/
-    finalize();    
-    return 0;
+
+	for (i=0; i<FUNC_SIZE; i++){
+	    dm1[i] = D1(dm0[i],false);
+	}
+	world.gop.fence();
+
+	for (i=0; i<FUNC_SIZE; i++){
+	    dm2[i] = D2(dm1[i],false);
+	}
+	world.gop.fence();
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("MADNESS Running Time: %f\n", clkend);
+
+	double MADnorm0 = dm0[ FUNC_SIZE-1].norm2();
+	double MADnorm1 = dm1[FUNC_SIZE-1].norm2();
+	double MADnorm2 = dm2[ FUNC_SIZE-1].norm2();
+
+	double FuseTnorm0 = df0[FUNC_SIZE-1]->norm2();
+	double FuseTnorm1 = df1[FUNC_SIZE-1]->norm2();
+	double FuseTnorm2 = df2[FUNC_SIZE-1]->norm2();
+
+
+	if (world.rank() == 0) print("[Result MADNESS] Norm0 : ", MADnorm0 );
+	if (world.rank() == 0) print("[Result Fuset] Norm0 : ", FuseTnorm0);
+
+	if (world.rank() == 0) print("[Result MADNESS] Norm1 : ", MADnorm1);
+	if (world.rank() == 0) print("[Result Fuset] Norm1 : ", FuseTnorm1);
+
+	if (world.rank() == 0) print("[Result MADNESS] Norm2 : ", MADnorm2);
+	if (world.rank() == 0) print("[Result Fuset] Norm2 : ", FuseTnorm2);
+
+	finalize();
+	return 0;
 }
 
 double rtclock()
 {
 	struct timezone Tzp;
-    struct timeval Tp;
-    int stat;
-    stat = gettimeofday (&Tp, &Tzp);
-    if (stat != 0)
+	struct timeval Tp;
+	int stat;
+	stat = gettimeofday (&Tp, &Tzp);
+	if (stat != 0)
 	printf("Error return from gettimeofday: %d", stat);
-    return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
+	return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
 }
 

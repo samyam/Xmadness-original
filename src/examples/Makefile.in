@@ -53,7 +53,7 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
 	multiplyEx$(EXEEXT) matrixInnerEx$(EXEEXT) scm1Ex$(EXEEXT) \
-	scm2Ex$(EXEEXT) derivativeEx$(EXEEXT) \
+	scm2Ex$(EXEEXT) derivativeEx$(EXEEXT) scM1Ex$(EXEEXT) \
 	$(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
@@ -250,6 +250,9 @@ scm1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
 am_scm2Ex_OBJECTS = FuseTExamples/SC2016/sc_m2.$(OBJEXT)
 scm2Ex_OBJECTS = $(am_scm2Ex_OBJECTS)
 scm2Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
+am_scM1Ex_OBJECTS = FuseTExamples/SC2016/sc_M1.$(OBJEXT)
+scM1Ex_OBJECTS = $(am_scM1Ex_OBJECTS)
+scM1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
 am_sdf_shape_tester_OBJECTS = sdf_shape_tester.$(OBJEXT)
 sdf_shape_tester_OBJECTS = $(am_sdf_shape_tester_OBJECTS)
 sdf_shape_tester_LDADD = $(LDADD)
@@ -324,7 +327,7 @@ SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
 	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
 	$(reconstructEx_SOURCES) $(scm1Ex_SOURCES) \
-	$(scm2Ex_SOURCES) \
+	$(scm2Ex_SOURCES) $(scM1Ex_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -344,7 +347,7 @@ DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
 	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
 	$(reconstructEx_SOURCES) $(scm1Ex_SOURCES) \
-	$(scm2Ex_SOURCES) \
+	$(scm2Ex_SOURCES) $(scM1Ex_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -565,6 +568,8 @@ scm1Ex_SOURCES = FuseTExamples/SC2016/sc_m1.cc
 scm1Ex_LDADD = $(LIBWORLD) $(MRALIBS)
 scm2Ex_SOURCES = FuseTExamples/SC2016/sc_m2.cc
 scm2Ex_LDADD = $(LIBWORLD) $(MRALIBS)
+scM1Ex_SOURCES = FuseTExamples/SC2016/sc_M1.cc
+scM1Ex_LDADD = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
 copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
@@ -830,6 +835,12 @@ FuseTExamples/SC2016/sc_m2.$(OBJEXT):  \
 scm2Ex$(EXEEXT): $(scm2Ex_OBJECTS) $(scm2Ex_DEPENDENCIES) 
 	@rm -f scm2Ex$(EXEEXT)
 	$(CXXLINK) $(scm2Ex_OBJECTS) $(scm2Ex_LDADD) $(LIBS)
+FuseTExamples/SC2016/sc_M1.$(OBJEXT):  \
+	FuseTExamples/SC2016/$(am__dirstamp) \
+	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+scM1Ex$(EXEEXT): $(scM1Ex_OBJECTS) $(scM1Ex_DEPENDENCIES) 
+	@rm -f scM1Ex$(EXEEXT)
+	$(CXXLINK) $(scM1Ex_OBJECTS) $(scM1Ex_LDADD) $(LIBS)
 sdf_shape_tester$(EXEEXT): $(sdf_shape_tester_OBJECTS) $(sdf_shape_tester_DEPENDENCIES) 
 	@rm -f sdf_shape_tester$(EXEEXT)
 	$(CXXLINK) $(sdf_shape_tester_OBJECTS) $(sdf_shape_tester_LDADD) $(LIBS)
