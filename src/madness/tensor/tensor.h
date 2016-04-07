@@ -1730,6 +1730,7 @@ namespace madness {
         /// Return the trace of two tensors with complex conjugate of the leftmost (i.e., this)
         template <class Q>
         TENSOR_RESULT_TYPE(T,Q) trace_conj(const Tensor<Q>& t) const {
+	    std::cout<<"Trace Conj  Line 1733 tensor.h"<<std::endl;
             TENSOR_RESULT_TYPE(T,Q) result = 0;
             BINARY_OPTIMIZED_ITERATOR(const T,(*this),const Q,t,result += conditional_conj(*_p0)*(*_p1));
             return result;
