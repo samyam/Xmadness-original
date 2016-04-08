@@ -136,9 +136,9 @@ namespace madness {
 	  for each operator or opNode in the OpDag.
 	  /////////////////////////////////////////////////////////////////////
 	  ///////////////////////////////////////////////////////////////////
-	  //////////////////////////////////////////////////////////////////////*/
+	  //////////////////////////////////////////////////////////////////////
 	
-	/*! for each operator this stores that validOpDagID that it belongs to
+	! for each operator this stores that validOpDagID that it belongs to
 	  this is redundant information, that can be obtained from _validOpDags, 
 	  stored just for convienence in isPreOp and isPostOp methods*/
 	vector<int> _idValidOpDAG;

@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	int		max_refine_level	= 14; //
-	double	thresh				= 1e-06; // precision   // w/o diff. and 1e-12 -> 64 x 64
+	double	thresh				= 1e-12; // precision   // w/o diff. and 1e-12 -> 64 x 64
 	int		FUNC_SIZE			= 4;
 	int		FUNC_SIZE_M			= 4;
 	int		type				= 0;
@@ -393,19 +393,13 @@ int main(int argc, char** argv)
 	real_function_3d  compress_factory_g_y[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d  compress_factory_g_z[FUNC_SIZE*FUNC_SIZE_M/2];
 
-	real_function_3d  compress_h_x[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d  compress_h_y[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d  compress_h_z[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d  compress_g_x[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d  compress_g_y[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d  compress_g_z[FUNC_SIZE*FUNC_SIZE_M/2];
-	/*real_function_3d* compress_h_x[FUNC_SIZE*FUNC_SIZE_M/2];
+	real_function_3d* compress_h_x[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d* compress_h_y[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d* compress_h_z[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d* compress_g_x[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d* compress_g_y[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d* compress_g_z[FUNC_SIZE*FUNC_SIZE_M/2];
-*/
+
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		compress_factory_h_x[i] = real_factory_3d(world);
@@ -415,12 +409,12 @@ int main(int argc, char** argv)
 		compress_factory_g_y[i] = real_factory_3d(world);
 		compress_factory_g_z[i] = real_factory_3d(world);
 
-		compress_h_x[i] = real_function_3d(compress_factory_h_x[i]);
-		compress_h_y[i] = real_function_3d(compress_factory_h_y[i]);
-		compress_h_z[i] = real_function_3d(compress_factory_h_z[i]);
-		compress_g_x[i] = real_function_3d(compress_factory_g_x[i]);
-		compress_g_y[i] = real_function_3d(compress_factory_g_y[i]);
-		compress_g_z[i] = real_function_3d(compress_factory_g_z[i]);
+		compress_h_x[i] = new real_function_3d(compress_factory_h_x[i]);
+		compress_h_y[i] = new real_function_3d(compress_factory_h_y[i]);
+		compress_h_z[i] = new real_function_3d(compress_factory_h_z[i]);
+		compress_g_x[i] = new real_function_3d(compress_factory_g_x[i]);
+		compress_g_y[i] = new real_function_3d(compress_factory_g_y[i]);
+		compress_g_z[i] = new real_function_3d(compress_factory_g_z[i]);
 	}
 
 	// Results for MatrixInnerOp
@@ -486,12 +480,12 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
-		compress_op_x_b[i] = new CompressOp<double,3>("CompressOp",&compress_h_x[i],derivative_h_x[i]);
-		compress_op_y_b[i] = new CompressOp<double,3>("CompressOp",&compress_h_y[i],derivative_h_y[i]);
-		compress_op_z_b[i] = new CompressOp<double,3>("CompressOp",&compress_h_z[i],derivative_h_z[i]);
-		compress_op_x_k[i] = new CompressOp<double,3>("CompressOp",&compress_g_x[i],derivative_g_x[i]);
-		compress_op_y_k[i] = new CompressOp<double,3>("CompressOp",&compress_g_y[i],derivative_g_y[i]);
-		compress_op_z_k[i] = new CompressOp<double,3>("CompressOp",&compress_g_z[i],derivative_g_z[i]);
+		compress_op_x_b[i] = new CompressOp<double,3>("CompressOp",compress_h_x[i],derivative_h_x[i]);
+		compress_op_y_b[i] = new CompressOp<double,3>("CompressOp",compress_h_y[i],derivative_h_y[i]);
+		compress_op_z_b[i] = new CompressOp<double,3>("CompressOp",compress_h_z[i],derivative_h_z[i]);
+		compress_op_x_k[i] = new CompressOp<double,3>("CompressOp",compress_g_x[i],derivative_g_x[i]);
+		compress_op_y_k[i] = new CompressOp<double,3>("CompressOp",compress_g_y[i],derivative_g_y[i]);
+		compress_op_z_k[i] = new CompressOp<double,3>("CompressOp",compress_g_z[i],derivative_g_z[i]);
 	}
 
 /*
@@ -510,6 +504,19 @@ int main(int argc, char** argv)
 	vecfuncT g_y;
 	vecfuncT g_z;
 
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
+		h_x.push_back(*compress_h_x[i]);	
+		h_y.push_back(*compress_h_y[i]);	
+		h_z.push_back(*compress_h_z[i]);	
+		g_x.push_back(*compress_g_x[i]);	
+		g_y.push_back(*compress_g_y[i]);	
+		g_z.push_back(*compress_g_z[i]);	
+	}
+
+	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true);
+	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true);
+	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
@@ -530,17 +537,19 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		sequence.push_back(derivative_op_x_k[i]);
+		//sequence.push_back(derivative_op_x_b[i]);
+	}
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
 		sequence.push_back(derivative_op_y_k[i]);
 		sequence.push_back(derivative_op_z_k[i]);
 	}
-
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
-		sequence.push_back(derivative_op_x_b[i]);
-		sequence.push_back(derivative_op_y_b[i]);
-		sequence.push_back(derivative_op_z_b[i]);
+		//sequence.push_back(derivative_op_y_b[i]);
+		//sequence.push_back(derivative_op_z_b[i]);
 	}
-
+/*
 	// Pushing CompressOp
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_x_b[i]);
@@ -555,25 +564,15 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_z_k[i]);
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		h_x.push_back(compress_h_x[i]);	
-		h_y.push_back(compress_h_y[i]);	
-		h_z.push_back(compress_h_z[i]);	
-		g_x.push_back(compress_g_x[i]);	
-		g_y.push_back(compress_g_y[i]);	
-		g_z.push_back(compress_g_z[i]);	
-	}
-
-	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true);
-	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true);
-	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
-
 	// Pushing MatrixInnerOp
-	//sequence.push_back(matrixinner_op_a);
-	//sequence.push_back(matrixinner_op_b);
-	//sequence.push_back(matrixinner_op_c);
+	//MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true);
+	//MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true);
+	//MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
 
+	sequence.push_back(matrixinner_op_a);
+	sequence.push_back(matrixinner_op_b);
+	sequence.push_back(matrixinner_op_c);
+*/
 
 
 	// Processing a sequence of Operators
