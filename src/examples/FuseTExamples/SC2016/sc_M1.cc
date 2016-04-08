@@ -211,11 +211,11 @@ int main(int argc, char** argv)
 	// (4) type			-- 0: all, 1: FuseT, 2: vmra, 3: OpExecutor
 
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
-	int		max_refine_level	= 14; //
+	int		max_refine_level	= 30; //
 	double	thresh				= 1e-06; // precision   // w/o diff. and 1e-12 -> 64 x 64
-	int		FUNC_SIZE			= 32;
-	int		FUNC_SIZE_M			= 32;
-	int		type				= 1;
+	int		FUNC_SIZE			= 2;
+	int		FUNC_SIZE_M			= 2;
+	int		type				= 0;
 
 	if (argc == 5)
 	{
@@ -291,8 +291,6 @@ int main(int argc, char** argv)
 			output2[i*FUNC_SIZE_M + j].compress();
 		}
 
-if (type == 0)
-{
 
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	if (world.rank() == 0) print ("====================================================");
@@ -305,16 +303,21 @@ if (type == 0)
 	vecfuncT v_f;
 	vecfuncT v_g;
 
-    write_test_input test_input;
-	SCF temp(world,test_input.filename().c_str());
+	if (world.rank() == 0) print ("=1==================================================");
 
-	clkbegin = rtclock();
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		v_f.push_back(output2[i]);
 
 	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
 		v_g.push_back(output2[i]);
+	if (world.rank() == 0) print ("=2==================================================");
 
+    write_test_input test_input;
+	if (world.rank() == 0) print ("=3==================================================", test_input.filename().c_str());
+	SCF temp(world,test_input.filename().c_str());
+
+	if (world.rank() == 0) print ("=4==================================================");
+	clkbegin = rtclock();
 	r_1 = temp.kinetic_energy_matrix(world, v_f, v_g);
 
 	clkend = rtclock() - clkbegin;
@@ -327,9 +330,6 @@ if (type == 0)
 			for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
 				printf ("r(%d,%d): %f\n", i, j, (r_1.data())(i,j));	
 	}
-}
-else
-{
 //
 //
 //
@@ -340,6 +340,7 @@ else
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
+	clkbegin = rtclock();
 
 	Tensor<TENSOR_RESULT_TYPE(double,double)> r= Tensor<TENSOR_RESULT_TYPE(double,double)>(FUNC_SIZE*FUNC_SIZE_M/2, FUNC_SIZE*FUNC_SIZE_M/2);
 
@@ -392,9 +393,9 @@ else
 	real_derivative_3d D_h_x	= free_space_derivative<double,3>(world,0);
 	real_derivative_3d D_h_y	= free_space_derivative<double,3>(world,1);
 	real_derivative_3d D_h_z	= free_space_derivative<double,3>(world,2);
-	//real_derivative_3d D_g_x	= free_space_derivative<double,3>(world,0);
-	//real_derivative_3d D_g_y	= free_space_derivative<double,3>(world,1);
-	//real_derivative_3d D_g_z	= free_space_derivative<double,3>(world,2);
+	real_derivative_3d D_g_x	= free_space_derivative<double,3>(world,0);
+	real_derivative_3d D_g_y	= free_space_derivative<double,3>(world,1);
+	real_derivative_3d D_g_z	= free_space_derivative<double,3>(world,2);
 
 	// Results for CompressOp
 	real_function_3d  compress_factory_h_x[FUNC_SIZE*FUNC_SIZE_M/2];
@@ -465,9 +466,9 @@ else
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
-		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_h_x);
-		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_h_y);
-		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_h_z);
+		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
+		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
+		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
 	}
 
 
@@ -504,7 +505,7 @@ else
 	world.gop.fence();
 //
 //
-	clkbegin = rtclock();
+	//clkbegin = rtclock();
 	vector<PrimitiveOp<double,3>*>	sequence;
 
 	// Pushing ReconstructOp
@@ -566,11 +567,12 @@ else
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
 
-	clkbegin = rtclock();
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecuter(world, &fsequence);
+	clkbegin = rtclock();
 	fexecuter.execute();
 
+	clkend = rtclock() - clkbegin;
 	r += (*matrixinner_op_a->_r);
 	r += (*matrixinner_op_b->_r);
 	r += (*matrixinner_op_c->_r);
@@ -579,7 +581,6 @@ else
 	//matrix_inner_op_a->_r
 
 		
-	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf ("Done!\n");
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
@@ -591,8 +592,6 @@ else
 		}
 	}
 	world.gop.fence();
-
-}
 
 //
 //
