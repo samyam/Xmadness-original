@@ -57,7 +57,7 @@ static const double tstep	= 0.1;
 static const double alpha	= 1.9; // Exponent
 static const double VVV		= 0.2;  // Vp constant value
 
-#define VMRA_1
+#define VMRA
 #define PI 3.1415926535897932385
 #define LO 0.0000000000
 #define HI 4.0000000000
@@ -213,9 +213,9 @@ int main(int argc, char** argv)
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	int		max_refine_level	= 14; //
 	double	thresh				= 1e-06; // precision   // w/o diff. and 1e-12 -> 64 x 64
-	int		FUNC_SIZE			= 4;
-	int		FUNC_SIZE_M			= 4;
-	int		type				= 0;
+	int		FUNC_SIZE			= 32;
+	int		FUNC_SIZE_M			= 32;
+	int		type				= 1;
 
 	if (argc == 5)
 	{
@@ -256,6 +256,7 @@ int main(int argc, char** argv)
 	real_function_3d  h[FUNC_SIZE];
 	real_function_3d  g[FUNC_SIZE_M];
 	real_function_3d  output[FUNC_SIZE*FUNC_SIZE_M];
+	real_function_3d  output2[FUNC_SIZE*FUNC_SIZE_M];
 
 	real_function_3d  result_factory(world);
 	real_function_3d  result(result_factory);
@@ -278,15 +279,21 @@ int main(int argc, char** argv)
 
 	// M*N functions
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
+		for (j=0; j<FUNC_SIZE_M; j++) {
 			output[i*FUNC_SIZE_M + j] = h[i]*g[j];
+			output2[i*FUNC_SIZE_M + j] = h[i]*g[j];
+		}
 
 	// compressing M*N functions
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
+		for (j=0; j<FUNC_SIZE_M; j++) {
 			output[i*FUNC_SIZE_M + j].compress();
+			output2[i*FUNC_SIZE_M + j].compress();
+		}
 
-#ifdef VMRA
+if (type == 0)
+{
+
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("=== Kinetic Energy Matrix Calculation ==============");
@@ -294,7 +301,7 @@ int main(int argc, char** argv)
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
-	distmatT r;
+	distmatT r_1;
 	vecfuncT v_f;
 	vecfuncT v_g;
 
@@ -303,35 +310,39 @@ int main(int argc, char** argv)
 
 	clkbegin = rtclock();
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		v_f.push_back(output[i]);
+		v_f.push_back(output2[i]);
 
 	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
-		v_g.push_back(output[i]);
+		v_g.push_back(output2[i]);
 
-	r = temp.kinetic_energy_matrix(world, v_f, v_g);
+	r_1 = temp.kinetic_energy_matrix(world, v_f, v_g);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-#endif
+
+	if (world.rank() == 0)
+	{
+		for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+			for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
+				printf ("r(%d,%d): %f\n", i, j, (r_1.data())(i,j));	
+	}
+}
+else
+{
 //
 //
 //
+
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("=== FusedExecutor (Reconstruct + Derivative + ======");
 	if (world.rank() == 0) print ("===                Compress + MatrixInner)    ======");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
-/*
-	distmatT SCF::kinetic_energy_matrix(World & world, const vecfuncT & vbra, const vecfuncT & vket) const {
-         PROFILE_MEMBER_FUNC(SCF);
-         MADNESS_ASSERT(vbra.size() == vket.size());
-         int n = vbra.size();
-         distmatT r = column_distributed_matrix<double>(world, n, n);
-         reconstruct(world, vbra);
-         reconstruct(world, vket);
-     }
-*/
+
+
+	Tensor<TENSOR_RESULT_TYPE(double,double)> r= Tensor<TENSOR_RESULT_TYPE(double,double)>(FUNC_SIZE*FUNC_SIZE_M/2, FUNC_SIZE*FUNC_SIZE_M/2);
+
 	// Results for ReconstructOp
 	real_function_3d  reconstruct_factory_h[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d  reconstruct_factory_g[FUNC_SIZE_M*FUNC_SIZE/2];
@@ -399,13 +410,7 @@ int main(int argc, char** argv)
 	real_function_3d  compress_g_x[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d  compress_g_y[FUNC_SIZE*FUNC_SIZE_M/2];
 	real_function_3d  compress_g_z[FUNC_SIZE*FUNC_SIZE_M/2];
-	/*real_function_3d* compress_h_x[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* compress_h_y[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* compress_h_z[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* compress_g_x[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* compress_g_y[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* compress_g_z[FUNC_SIZE*FUNC_SIZE_M/2];
-*/
+
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		compress_factory_h_x[i] = real_factory_3d(world);
@@ -431,7 +436,6 @@ int main(int argc, char** argv)
 	real_function_3d  matrixinner_y(matrixinner_factory_y);
 	real_function_3d  matrixinner_z(matrixinner_factory_z);
 
-	clkbegin = rtclock();
 
 	// Reconstruct Op
 	ReconstructOp<double,3>* reconstruct_op_h[FUNC_SIZE*FUNC_SIZE_M/2];	// vbra
@@ -442,16 +446,7 @@ int main(int argc, char** argv)
 		reconstruct_op_h[i]	= new ReconstructOp<double,3>("ReconstructOp", reconstruct_h[i], &output[i]);
 		reconstruct_op_g[i]	= new ReconstructOp<double,3>("ReconstructOp", reconstruct_g[i], &output[i + (FUNC_SIZE*FUNC_SIZE_M/2)]);
 	}
-	
-/*
-	vecfuncT dvx_bra = apply(world, *(gradop[0]), vbra, false);
-	vecfuncT dvy_bra = apply(world, *(gradop[1]), vbra, false);
-	vecfuncT dvz_bra = apply(world, *(gradop[2]), vbra, false);
-	vecfuncT dvx_ket = apply(world, *(gradop[0]), vket, false);
-	vecfuncT dvy_ket = apply(world, *(gradop[1]), vket, false);
-	vecfuncT dvz_ket = apply(world, *(gradop[2]), vket, false);
-	world.gop.fence();
-*/
+
 
 	// Derivative Op
 	DerivativeOp<double,3>* derivative_op_x_b[FUNC_SIZE*FUNC_SIZE_M/2];
@@ -494,13 +489,6 @@ int main(int argc, char** argv)
 		compress_op_z_k[i] = new CompressOp<double,3>("CompressOp",&compress_g_z[i],derivative_g_z[i]);
 	}
 
-/*
-	r += matrix_inner(r.distribution(), dvx_bra, dvx_ket, true);
-	r += matrix_inner(r.distribution(), dvy_bra, dvy_ket, true);
-	r += matrix_inner(r.distribution(), dvz_bra, dvz_ket, true);
-	r *= 0.5;
-	return r;
-*/
 	
 	// MatrixInner Op
 	vecfuncT h_x;
@@ -570,33 +558,46 @@ int main(int argc, char** argv)
 	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
 
 	// Pushing MatrixInnerOp
-	//sequence.push_back(matrixinner_op_a);
-	//sequence.push_back(matrixinner_op_b);
-	//sequence.push_back(matrixinner_op_c);
-
-
+	sequence.push_back(matrixinner_op_a);
+	sequence.push_back(matrixinner_op_b);
+	sequence.push_back(matrixinner_op_c);
 
 	// Processing a sequence of Operators
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
 
+	clkbegin = rtclock();
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecuter(world, &fsequence);
 	fexecuter.execute();
+
+	r += (*matrixinner_op_a->_r);
+	r += (*matrixinner_op_b->_r);
+	r += (*matrixinner_op_c->_r);
+	r *= 0.5;
+
+	//matrix_inner_op_a->_r
+
 		
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf ("Done!\n");
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-/*
+
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
-			printf ("inner fused: r(%d,%d): %f\n", i, j, inner_op_ug[i][j]->_sum);
+			printf ("(%d,%d): %f\n", i, j, r(i, j));
 		}
 	}
 	world.gop.fence();
-*/
+
+}
+
+//
+//
+//
+
 
     finalize();    
     return 0;

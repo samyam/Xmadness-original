@@ -224,10 +224,10 @@ int main(int argc, char** argv)
 
 	// M*N output functions for compress operator
 	real_function_3d  comp_factory_h[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d comp_h[FUNC_SIZE*FUNC_SIZE_M/2];
+	real_function_3d* comp_h[FUNC_SIZE*FUNC_SIZE_M/2];
 
 	real_function_3d  comp_factory_g[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d comp_g[FUNC_SIZE*FUNC_SIZE_M/2];
+	real_function_3d* comp_g[FUNC_SIZE*FUNC_SIZE_M/2];
 
 	// Matrix_inner
     real_function_3d result_factory = real_factory_3d(world);
@@ -263,13 +263,13 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		comp_factory_h[i]	= real_factory_3d(world);
-		comp_h[i]			= real_function_3d(comp_factory_h[i]);
+		comp_h[i]			= new real_function_3d(comp_factory_h[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		comp_factory_g[i]	= real_factory_3d(world);
-		comp_g[i]			= real_function_3d(comp_factory_g[i]);
+		comp_g[i]			= new real_function_3d(comp_factory_g[i]);
 	}
 
 //
@@ -291,8 +291,8 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
-		compress_op_h[i] = new CompressOp<double,3>("Compress",&comp_h[i],&output[i]);
-		compress_op_g[i] = new CompressOp<double,3>("Compress",&comp_g[i],&output[i+(FUNC_SIZE*FUNC_SIZE_M/2)]);
+		compress_op_h[i] = new CompressOp<double,3>("Compress",comp_h[i],&output[i]);
+		compress_op_g[i] = new CompressOp<double,3>("Compress",comp_g[i],&output[i+(FUNC_SIZE*FUNC_SIZE_M/2)]);
 	}
 
 	// OpExecutor
@@ -337,29 +337,19 @@ int main(int argc, char** argv)
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
 
-<<<<<<< HEAD
-	if (world.rank() == 0)
-	{
-		odag.printOpsAndTrees();
-        odag.printValidSequences();
-=======
 	if(world.rank() == 0){
 	  odag.printOpsAndTrees();
 	  odag.printValidSequences();
->>>>>>> 60e412db83fd9ac1bb37f2c0ae5ae530b5c10525
 	}
 
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecutor(world, &fsequence);
 	fexecutor.execute();
 
-<<<<<<< HEAD
-=======
 	
 	// OpExecutor
 	//OpExecutor<double,3> exe(world);
 	//exe.execute(matrix_inner_op, false);
->>>>>>> 60e412db83fd9ac1bb37f2c0ae5ae530b5c10525
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
