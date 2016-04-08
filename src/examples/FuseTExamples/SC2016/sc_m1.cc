@@ -42,45 +42,12 @@
 #include <madness/mra/FuseT/OpExecutor.h>
 #include <madness/mra/FuseT/FusedExecutor.h>
 #include <madness/mra/FuseT/FuseT.h>
-/*!
-  \file heat2.cc
-  \brief Example Green function for the 3D heat equation with a linear term
-  \defgroup heatex2 Evolve in time 3D heat equation with a linear term
-  \ingroup examples
-
-  The source is <a href=http://code.google.com/p/m-a-d-n-e-s-s/source/browse/local/trunk/src/apps/examples/heat2.cc>here</a>.
-
-  \par Points of interest
-  - application of a function of a function to exponentiate the potential
-  - use of a functor to compute the solution at an arbitrary future time
-  - convolution with the Green's function
-
-
-  \par Background
-
-  This adds to the complexity of the other \ref exampleheat "heat equation example"
-  by including a linear term.  Specifically, we solve
-  \f[
-  \frac{\partial u(x,t)}{\partial t} = c \nabla^2 u(x,t) + V_p(x,t) u(x,t)
-  \f]
-  If \f$ V_p = 0 \f$ time evolution operator is
-  \f[
-  G_0(x,t) = \frac{1}{\sqrt{4 \pi c t}} \exp \frac{-x^2}{4 c t}
-  \f]
-  For non-zero \f$ V_p \f$ the time evolution is performed using the Trotter splitting
-  \f[
-  G(x,t) = G_0(x,t/2) * \exp(V_p t) * G_0(x,t/2) + O(t^3)
-  \f]
-  In order to form an exact solution for testing, we choose \f$ V_p(x,t)=\mbox{constant} \f$
-  but the solution method is not limited to this choice.
-
-*/
 
 using namespace madness;
 
 static const double L		= 20;     // Half box size
 static const long	k		= 8;        // wavelet order
-static const double thresh	= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
+//static const double thresh	= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
 static const double c		= 2.0;       //
 static const double tstep	= 0.1;
 static const double alpha	= 1.9; // Exponent
@@ -105,12 +72,8 @@ static double sigma_sq_x	= sigma_x*sigma_x;
 static double sigma_sq_y	= sigma_y*sigma_y;
 static double sigma_sq_z	= sigma_z*sigma_z;
 
-#define FUNC_SIZE	4
-#define FUNC_SIZE_M	4
-
 double rtclock();
 
-// Initial Gaussian with exponent alpha
 static double random_function(const coord_3d& r) {
 	const double x=r[0], y=r[1], z=r[2];
 
@@ -188,49 +151,66 @@ struct unaryexp {
     void serialize(Archive& ar) {}
 };
 
-
 typedef Function<double,3> functionT;
 typedef std::vector<functionT> vecfuncT;
 
 int main(int argc, char** argv) 
 {
+	// input
+	// (1) M			-- M and M functions
+	// (2) thresh		-- threshold
+	// (3) max-refine	-- max-refine-level
+	// (4) type			-- 0: all, 1: FuseT, 2: vmra, 3: OpExecutor
+
+	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
+	int		max_refine_level	= 30;
+	double	thresh				= 1e-12; // precision   // w/o diff. and 1e-12 -> 64 x 64
+	int		FUNC_SIZE			= 4;
+	int		FUNC_SIZE_M			= 4;
+	int		type				= 0;
+
+	if (argc == 5)
+	{
+		FUNC_SIZE			= atoi(argv[1]);
+		FUNC_SIZE_M			= FUNC_SIZE;
+		max_refine_level	= atoi(argv[3]);
+		thresh				= atof(argv[2]);
+		type				= atoi(argv[4]);
+	}
+
     initialize(argc, argv);
     World world(SafeMPI::COMM_WORLD);
 
     startup(world, argc, argv);
 
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) printf("  Micro Benchmark #1 \n");
+	if (world.rank() == 0) printf("  %d functions based on %d and %d random functions\n", FUNC_SIZE*FUNC_SIZE_M, FUNC_SIZE, FUNC_SIZE_M);
+	if (world.rank() == 0) printf("  threshold: %13.4g, max_refine_level: %d\n", thresh, max_refine_level);
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	// Setting FunctionDefaults
     FunctionDefaults<3>::set_k(k);
     FunctionDefaults<3>::set_thresh(thresh);
     FunctionDefaults<3>::set_refine(true);
     FunctionDefaults<3>::set_autorefine(false);
     FunctionDefaults<3>::set_cubic_cell(-L, L);
+	FunctionDefaults<3>::set_max_refine_level(max_refine_level);
 
-	FunctionDefaults<3>::set_max_refine_level(14);
-	//FunctionDefaults<3>::set_max_refine_level(8);
 
 	if (world.rank() == 0) print ("====================================================");
-    if (world.rank() == 0) printf("   Initializing Functions\n");
-    if (world.rank() == 0) printf("     %d Functions, %d Functions\n", FUNC_SIZE, FUNC_SIZE_M);
+    if (world.rank() == 0) print ("==   Initializing Functions   ======================");
 	if (world.rank() == 0) print ("====================================================");
     world.gop.fence();
 
-	// M and N functions	(i.e., 32 and 32 functions.)
+	// 2 * N Functions
 	real_function_3d  h[FUNC_SIZE];
 	real_function_3d  g[FUNC_SIZE_M];
-
-	// M*N functions		(i.e., 1024 functions.)
 	real_function_3d  output[FUNC_SIZE*FUNC_SIZE_M];
 
-	// M*N output functions for compress operator
-	real_function_3d  comp_factory_h[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* comp_h[FUNC_SIZE*FUNC_SIZE_M/2];
-
-	real_function_3d  comp_factory_g[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* comp_g[FUNC_SIZE*FUNC_SIZE_M/2];
-
-	// Matrix_inner
-    real_function_3d result_factory = real_factory_3d(world);
-    real_function_3d result(result_factory);
+	real_function_3d  result_factory(world);
+	real_function_3d  result(result_factory);
 
 	int i, j;
 	double clkbegin, clkend;
@@ -252,79 +232,45 @@ int main(int argc, char** argv)
 		for (j=0; j<FUNC_SIZE_M; j++)
 			output[i*FUNC_SIZE + j] = h[i]*g[j];
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		comp_factory_h[i]	= real_factory_3d(world);
-		comp_h[i]			= new real_function_3d(comp_factory_h[i]);
-	}
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		comp_factory_g[i]	= real_factory_3d(world);
-		comp_g[i]			= new real_function_3d(comp_factory_g[i]);
-	}
-
-//
-//
-//
+	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+
+	clkbegin = rtclock();
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			output[i*FUNC_SIZE + j].compress();
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time-- compress(): %f\n", clkend);
+	world.gop.fence();
+
+
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("==      FUSET-FUSED         ========================");
+	if (world.rank() == 0) print ("=== MatrixInnerOp-DGEMM (OpExecutor) ===============");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
-	clkbegin = rtclock();
-
-	// Creating Compress Operators
-	CompressOp<double,3>* compress_op_h[FUNC_SIZE*FUNC_SIZE_M/2];
-	CompressOp<double,3>* compress_op_g[FUNC_SIZE*FUNC_SIZE_M/2];
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		compress_op_h[i] = new CompressOp<double,3>("Compress",comp_h[i],&output[i]);
-		compress_op_g[i] = new CompressOp<double,3>("Compress",comp_g[i],&output[i+(FUNC_SIZE*FUNC_SIZE_M/2)]);
-	}
-
-	// Creating Matrix-Inner Operator
-/*	vecfuncT fs;
+	vecfuncT fs;
 	vecfuncT gs;
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		fs.push_back(*comp_h[i]);
+		fs.push_back(output[i]);
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		gs.push_back(*comp_g[i]);
+	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
+		gs.push_back(output[i]);
 
+	clkbegin = rtclock();
 	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
-*/
-	// FuseT
-	vector<PrimitiveOp<double,3>*> sequence;
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		sequence.push_back(compress_op_h[i]);
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		sequence.push_back(compress_op_g[i]);
-
-	//sequence.push_back(matrix_inner_op);	
-
-	FuseT<double,3> odag(sequence);
-	odag.processSequence();
-
-	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
-	FusedExecutor<double,3> fexecutor(world, &fsequence);
-	fexecutor.execute();
-
-	// OpExecutor
-	//OpExecutor<double,3> exe(world);
-	//exe.execute(matrix_inner_op, false);
+	OpExecutor<double,3> exe(world);
+	exe.execute(matrix_inner_op, false);
 
 	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
-#ifdef DEBUG_OUTPUT
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
@@ -332,25 +278,21 @@ int main(int argc, char** argv)
 			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
 		}
 	world.gop.fence();
-#endif
+*/
 //
 //
 //
+
+	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("==      MADNESS					       ============");
+	if (world.rank() == 0) print ("=== MatrixInner-MADNESS (vmra.h) ===================");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
-
-	clkbegin = rtclock();
-	
-	// Compress Operations -- M*N
-	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
-			output[i*FUNC_SIZE + j].compress();
 
 	vecfuncT v_f;
 	vecfuncT v_g;
 
+	clkbegin = rtclock();
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		v_f.push_back(output[i]);
 
@@ -358,16 +300,12 @@ int main(int argc, char** argv)
 		v_g.push_back(output[i]);
 
 	Tensor<double> ghaly = matrix_inner(world, v_f, v_g);
-	//Tensor<double> ghaly = matrix_inner_old(world, v_f, v_g);
 
-	if (world.rank() == 0) 
-	{ 
-		clkend = rtclock() - clkbegin;
-		printf("Running Time: %f\n", clkend);
-	}
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
-#ifdef DEBUG_OUTPUT
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
@@ -375,8 +313,76 @@ int main(int argc, char** argv)
 		}
 	}
 	world.gop.fence();
-#endif
+*/
+//
+//
+//
+	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("=== MatrixInner using InnerOp (FusedExecutor) ======");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
 
+	clkbegin = rtclock();
+	InnerOp<double,3>*	inner_op_ug[FUNC_SIZE*FUNC_SIZE_M/2][FUNC_SIZE_M*FUNC_SIZE/2];
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++)
+			inner_op_ug[i][j] = new InnerOp<double,3>("Inner",&result,&output[i],&output[(FUNC_SIZE*FUNC_SIZE_M/2) + j]);
+
+	vector<PrimitiveOp<double,3>*>	sequence;
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++)
+			sequence.push_back(inner_op_ug[i][j]);
+
+	FuseT<double,3> odag(sequence);
+	odag.processSequence();
+
+	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
+	FusedExecutor<double,3> fexecuter(world, &fsequence);
+	fexecuter.execute();
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
+	world.gop.fence();
+
+/*
+	if (world.rank() == 0)
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
+			printf ("inner fused: r(%d,%d): %f\n", i, j, inner_op_ug[i][j]->_sum);
+		}
+	}
+	world.gop.fence();
+*/
+
+	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("=== MatrixInner using funcimpl.inner (MADNESS) =====");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	double resultInner[FUNC_SIZE*FUNC_SIZE_M/2][FUNC_SIZE_M*FUNC_SIZE/2] = {0.0, };
+	clkbegin = rtclock();
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++) 
+			resultInner[i][j] = output[i].inner(output[(FUNC_SIZE*FUNC_SIZE_M/2) + j]); 
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
+	world.gop.fence();
+
+/*
+	if (world.rank() == 0)
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
+			printf ("inner: r(%d,%d): %f\n", i, j, resultInner[i][j]);
+		}
+	}
+	world.gop.fence();
+*/
     finalize();    
     return 0;
 }

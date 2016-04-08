@@ -105,12 +105,27 @@ static double sigma_sq_x	= sigma_x*sigma_x;
 static double sigma_sq_y	= sigma_y*sigma_y;
 static double sigma_sq_z	= sigma_z*sigma_z;
 
-#define FUNC_SIZE	4
-#define FUNC_SIZE_M	4
+#define FUNC_SIZE	32
+#define FUNC_SIZE_M	32
 
 double rtclock();
 
 // Initial Gaussian with exponent alpha
+static double uinitial(const coord_3d& r) {
+    const double x=r[0], y=r[1], z=r[2];
+    return exp(-alpha*(2*x*3.2*x+y*y+1.7*z*z))*pow(constants::pi/alpha,-1.5);
+}
+
+static double uinitial2(const coord_3d& r) {
+    const double x=r[0], y=r[1], z=r[2];
+	srand(time(0));
+    return exp(-alpha*(5*x*x+y*y+z*z))*pow(constants::pi/alpha,-1.5);
+}
+static double uinitial1(const coord_3d& r) {
+    const double x=r[0], y=r[1], z=r[2];
+    return exp(-alpha*(2*x*x+1.4*y*y+z*z))*pow(constants::pi/alpha,-1.5);
+};
+
 static double random_function(const coord_3d& r) {
 	const double x=r[0], y=r[1], z=r[2];
 
@@ -153,6 +168,17 @@ static void randomizer()
 	sigma_sq_z = sigma_z*sigma_z;
 }
 
+static double ghaly(const coord_3d& r) {
+	std::srand(time(NULL));
+	const double randVal = std::rand()/1000000000.0;
+    const double x=r[0], y=r[1], z=r[2];
+    return 3.0*exp(-2.0*sqrt(x*x + randVal*randVal + y*y + z*z + 1e-4));
+}
+
+static double Vp(const coord_3d& r) {
+    return VVV;
+}
+
 class alpha_functor : public FunctionFunctorInterface<double,3> {
 private:
     double coeff;
@@ -189,6 +215,7 @@ struct unaryexp {
 };
 
 
+typedef DistributedMatrix<double> distmatT;
 typedef Function<double,3> functionT;
 typedef std::vector<functionT> vecfuncT;
 
@@ -208,29 +235,26 @@ int main(int argc, char** argv)
 	FunctionDefaults<3>::set_max_refine_level(14);
 	//FunctionDefaults<3>::set_max_refine_level(8);
 
+
 	if (world.rank() == 0) print ("====================================================");
     if (world.rank() == 0) printf("   Initializing Functions\n");
     if (world.rank() == 0) printf("     %d Functions, %d Functions\n", FUNC_SIZE, FUNC_SIZE_M);
 	if (world.rank() == 0) print ("====================================================");
     world.gop.fence();
 
-	// M and N functions	(i.e., 32 and 32 functions.)
+	// 2 * N Functions
 	real_function_3d  h[FUNC_SIZE];
 	real_function_3d  g[FUNC_SIZE_M];
-
-	// M*N functions		(i.e., 1024 functions.)
 	real_function_3d  output[FUNC_SIZE*FUNC_SIZE_M];
 
-	// M*N output functions for compress operator
-	real_function_3d  comp_factory_h[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* comp_h[FUNC_SIZE*FUNC_SIZE_M/2];
+	real_function_3d  temp_factory_h[FUNC_SIZE];
+	real_function_3d  temp_factory_g[FUNC_SIZE_M];
+	real_function_3d* temp_h[FUNC_SIZE];
+	real_function_3d* temp_g[FUNC_SIZE_M];
 
-	real_function_3d  comp_factory_g[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* comp_g[FUNC_SIZE*FUNC_SIZE_M/2];
-
-	// Matrix_inner
-    real_function_3d result_factory = real_factory_3d(world);
-    real_function_3d result(result_factory);
+	// N * N Results Functions by Inner-Product
+	real_function_3d  temp_factory[FUNC_SIZE][FUNC_SIZE_M];
+	real_function_3d* temp[FUNC_SIZE][FUNC_SIZE_M];
 
 	int i, j;
 	double clkbegin, clkend;
@@ -240,142 +264,212 @@ int main(int argc, char** argv)
 	{
 		randomizer();
 		h[i]				= real_factory_3d(world).f(random_function);
+		temp_factory_h[i]	= real_factory_3d(world);
+		temp_h[i]			= new real_function_3d(temp_factory_h[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE_M; i++)
 	{
 		randomizer();
 		g[i]				= real_factory_3d(world).f(random_function);
+//		temp_factory_g[i]	= real_factory_3d(world);
+//		temp_g[i]			= new real_function_3d(temp_factory_g[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
 			output[i*FUNC_SIZE + j] = h[i]*g[j];
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		comp_factory_h[i]	= real_factory_3d(world);
-		comp_h[i]			= new real_function_3d(comp_factory_h[i]);
-	}
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		comp_factory_g[i]	= real_factory_3d(world);
-		comp_g[i]			= new real_function_3d(comp_factory_g[i]);
-	}
-
-//
-//
-//
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
-	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("==      FUSET-FUSED         ========================");
-	if (world.rank() == 0) print ("====================================================");
-	world.gop.fence();
-
-	clkbegin = rtclock();
-
-	// Creating Compress Operators
-	CompressOp<double,3>* compress_op_h[FUNC_SIZE*FUNC_SIZE_M/2];
-	CompressOp<double,3>* compress_op_g[FUNC_SIZE*FUNC_SIZE_M/2];
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		compress_op_h[i] = new CompressOp<double,3>("Compress",comp_h[i],&output[i]);
-		compress_op_g[i] = new CompressOp<double,3>("Compress",comp_g[i],&output[i+(FUNC_SIZE*FUNC_SIZE_M/2)]);
-	}
-
-	// Creating Matrix-Inner Operator
-/*	vecfuncT fs;
-	vecfuncT gs;
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		fs.push_back(*comp_h[i]);
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		gs.push_back(*comp_g[i]);
-
-	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
-*/
-	// FuseT
-	vector<PrimitiveOp<double,3>*> sequence;
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		sequence.push_back(compress_op_h[i]);
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		sequence.push_back(compress_op_g[i]);
-
-	//sequence.push_back(matrix_inner_op);	
-
-	FuseT<double,3> odag(sequence);
-	odag.processSequence();
-
-	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
-	FusedExecutor<double,3> fexecutor(world, &fsequence);
-	fexecutor.execute();
-
-	// OpExecutor
-	//OpExecutor<double,3> exe(world);
-	//exe.execute(matrix_inner_op, false);
-
-	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
-	world.gop.fence();
-
-#ifdef DEBUG_OUTPUT
-	if (world.rank() == 0)
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
-		{	
-			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
+/*
+	for (i=0; i<FUNC_SIZE; i++) 
+		for (j=0; j<FUNC_SIZE_M; j++)
+		{
+			temp_factory[i][j]	= real_factory_3d(world);
+			temp[i][j]			= new real_function_3d(temp_factory[i][j]);
 		}
-	world.gop.fence();
-#endif
-//
-//
-//
+*/
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) print ("==      MADNESS					       ============");
+	if (world.rank() == 0) print ("==      FUSET-UNFUSED       ========================");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
 	clkbegin = rtclock();
-	
-	// Compress Operations -- M*N
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
 			output[i*FUNC_SIZE + j].compress();
 
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time-- compress(): %f\n", clkend);
+	world.gop.fence();
+/*
+	for (i=0; i<FUNC_SIZE; i++)
+		h[i].compress();
+
+	for (j=0; j<FUNC_SIZE_M; j++)
+		g[j].compress();
+*/
+	vecfuncT fs;
+	vecfuncT gs;
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		fs.push_back(output[i]);
+
+	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
+		gs.push_back(output[i]);
+
+/*
+	for (i=0; i<FUNC_SIZE; i++)
+		fs.push_back(h[i]);
+
+	for (j=0; j<FUNC_SIZE_M; j++)
+		gs.push_back(g[j]);
+*/
+	clkbegin = rtclock();
+	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", temp_h[0], fs, gs, false);
+
+	OpExecutor<double,3> exe(world);
+	exe.execute(matrix_inner_op, false);
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+	world.gop.fence();
+
+
+	if (world.rank() == 0)
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
+		{	
+		//	printf ("(%d,%d): %.12f\n", i, j, (*matrix_inner_op->_r)(i, j));
+			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
+		}
+	world.gop.fence();
+
+//
+//
+//
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("==      MADNESS - individual inner      ============");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
 	vecfuncT v_f;
 	vecfuncT v_g;
+/*
+	for (i=0; i<FUNC_SIZE; i++)
+		v_f.push_back(h[i]);
 
+	for (j=0; j<FUNC_SIZE_M; j++)
+		v_g.push_back(g[j]);
+*/
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		v_f.push_back(output[i]);
 
 	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
 		v_g.push_back(output[i]);
 
+	clkbegin = rtclock();
 	Tensor<double> ghaly = matrix_inner(world, v_f, v_g);
 	//Tensor<double> ghaly = matrix_inner_old(world, v_f, v_g);
 
-	if (world.rank() == 0) 
-	{ 
+/*
+	double resultInner[FUNC_SIZE][FUNC_SIZE_M] = {0.0, };
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			resultInner[i][j] = h[i].inner(g[j]);
+*/	
+
+	if (world.rank() == 0) { 
 		clkend = rtclock() - clkbegin;
 		printf("Running Time: %f\n", clkend);
 	}
 	world.gop.fence();
 
-#ifdef DEBUG_OUTPUT
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
+			//printf ("matrix_inner_old: r(%d,%d): %.12f\n", i, j, ghaly(i, j));
 			printf ("matrix_inner_old: r(%d,%d): %f\n", i, j, ghaly(i, j));
 		}
 	}
 	world.gop.fence();
-#endif
+
+//
+//
+//
+/*
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("==      MADNESS       ==============================");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	clkbegin = rtclock();
+	double resultInner[FUNC_SIZE][FUNC_SIZE_M] = {0.0,};
+	
+	for (i=0; i<FUNC_SIZE; i++)
+		h[i].compress();
+	for (i=0; i<FUNC_SIZE_M; i++)
+		g[i].compress();
+
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			resultInner[i][j] = h[i].inner(g[j]);
+
+	clkend = rtclock() - clkbegin;
+	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
+	world.gop.fence();
+	
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)	
+		{
+			if (world.rank() == 0) printf ("%d:%d = %f\n", i, j, resultInner[i][j]); 
+		}
+	world.gop.fence();
+*/
+
+	if (world.rank() == 0) print ("====================================================");
+	if (world.rank() == 0) print ("==      GEMM          ==============================");
+	if (world.rank() == 0) print ("====================================================");
+	world.gop.fence();
+
+	double* A;
+	double* B;
+	double* C;
+
+	A = (double*)malloc(sizeof(double)*3*4);
+	B = (double*)malloc(sizeof(double)*4*4);
+	C = (double*)malloc(sizeof(double)*3*4);
+
+	//
+	for (i=0; i<4*3; i++)
+		A[i] = i*1.0;
+
+	//
+	for (i=0; i<4; i++)
+		B[i] = 1.0;
+
+	for (i=4; i<8; i++)
+		B[i] = 2.0;
+
+	for (i=8; i<12; i++)
+		B[i] = 3.0;
+
+	for (i=12; i<16; i++)
+		B[i] = 4.0;
+
+	//
+	for (i=0; i<3*4; i++)
+		C[i] = 0.0;
+
+	//
+	cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, 3, 4, 4, 1, A, 4, B, 4, 1, C, 3);
+
+	if (world.rank() == 0)
+	{
+		for (i=0; i<3*4; i++) {
+			printf ("%f ", C[i]);
+		}
+	}
 
     finalize();    
     return 0;

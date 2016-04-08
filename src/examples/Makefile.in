@@ -52,8 +52,9 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	siam_example$(EXEEXT) gaussian$(EXEEXT) copyEx$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
-	multiplyEx$(EXEEXT) derivativeEx$(EXEEXT) \
-	matrixInnerEx$(EXEEXT) $(am__EXEEXT_1)
+	multiplyEx$(EXEEXT) matrixInnerEx$(EXEEXT) scm1Ex$(EXEEXT) \
+	scm2Ex$(EXEEXT) derivativeEx$(EXEEXT) scM1Ex$(EXEEXT) \
+	$(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -243,6 +244,15 @@ pno_DEPENDENCIES = $(LIBCHEM) $(MRALIBS)
 am_reconstructEx_OBJECTS = FuseTExamples/ReconstructEx.$(OBJEXT)
 reconstructEx_OBJECTS = $(am_reconstructEx_OBJECTS)
 reconstructEx_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
+am_scm1Ex_OBJECTS = FuseTExamples/SC2016/sc_m1.$(OBJEXT)
+scm1Ex_OBJECTS = $(am_scm1Ex_OBJECTS)
+scm1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
+am_scm2Ex_OBJECTS = FuseTExamples/SC2016/sc_m2.$(OBJEXT)
+scm2Ex_OBJECTS = $(am_scm2Ex_OBJECTS)
+scm2Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
+am_scM1Ex_OBJECTS = FuseTExamples/SC2016/sc_M1.$(OBJEXT)
+scM1Ex_OBJECTS = $(am_scM1Ex_OBJECTS)
+scM1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
 am_sdf_shape_tester_OBJECTS = sdf_shape_tester.$(OBJEXT)
 sdf_shape_tester_OBJECTS = $(am_sdf_shape_tester_OBJECTS)
 sdf_shape_tester_LDADD = $(LDADD)
@@ -306,17 +316,18 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(cc2_SOURCES) $(compressEx_SOURCES) $(copyEx_SOURCES) \
 	$(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
-	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
-	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
-	$(h2_SOURCES) $(h2dft_SOURCES) $(h2dynamic_SOURCES) \
-	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
-	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
-	$(hefxc_SOURCES) $(hehf_SOURCES) $(helium_exact_SOURCES) \
-	$(hello_SOURCES) $(innerEx_SOURCES) $(matrixInnerEx_SOURCES) \
-	$(mp2_SOURCES) $(multiplyEx_SOURCES) $(nemo_SOURCES) \
-	$(newsolver_SOURCES) $(nonlinschro_SOURCES) $(oep_SOURCES) \
-	$(pno_SOURCES) $(reconstructEx_SOURCES) \
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) $(dielectric_SOURCES) \
+	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
+	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
+	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
+	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
+	$(heat2_SOURCES) $(hedft_SOURCES) $(hefxc_SOURCES) \
+	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
+	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
+	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
+	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
+	$(reconstructEx_SOURCES) $(scm1Ex_SOURCES) \
+	$(scm2Ex_SOURCES) $(scM1Ex_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -325,17 +336,18 @@ SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(binaryop_SOURCES) $(cc2_SOURCES) $(compressEx_SOURCES) \
 	$(copyEx_SOURCES) $(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
-	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
-	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
-	$(h2_SOURCES) $(h2dft_SOURCES) $(h2dynamic_SOURCES) \
-	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
-	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
-	$(am__hefxc_SOURCES_DIST) $(hehf_SOURCES) \
-	$(helium_exact_SOURCES) $(hello_SOURCES) $(innerEx_SOURCES) \
-	$(matrixInnerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
-	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
-	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) $(dielectric_SOURCES) \
+	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
+	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
+	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
+	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
+	$(heat2_SOURCES) $(hedft_SOURCES) $(am__hefxc_SOURCES_DIST) \
+	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
+	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
+	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
+	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
+	$(reconstructEx_SOURCES) $(scm1Ex_SOURCES) \
+	$(scm2Ex_SOURCES) $(scM1Ex_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -552,6 +564,12 @@ GITREV = "MADNESS_GITREVISION=\"`git --git-dir=$(top_srcdir)/.git rev-parse HEAD
 thisincludedir = $(includedir)/examples
 thisinclude_HEADERS = molecularmask.h  nonlinsol.h spectralprop.h
 AUTOMAKE_OPTIONS = subdir-objects
+scm1Ex_SOURCES = FuseTExamples/SC2016/sc_m1.cc
+scm1Ex_LDADD = $(LIBWORLD) $(MRALIBS)
+scm2Ex_SOURCES = FuseTExamples/SC2016/sc_m2.cc
+scm2Ex_LDADD = $(LIBWORLD) $(MRALIBS)
+scM1Ex_SOURCES = FuseTExamples/SC2016/sc_M1.cc
+scM1Ex_LDADD = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
 copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
@@ -799,6 +817,30 @@ FuseTExamples/ReconstructEx.$(OBJEXT): FuseTExamples/$(am__dirstamp) \
 reconstructEx$(EXEEXT): $(reconstructEx_OBJECTS) $(reconstructEx_DEPENDENCIES) 
 	@rm -f reconstructEx$(EXEEXT)
 	$(CXXLINK) $(reconstructEx_OBJECTS) $(reconstructEx_LDADD) $(LIBS)
+FuseTExamples/SC2016/$(am__dirstamp):
+	@$(MKDIR_P) FuseTExamples/SC2016
+	@: > FuseTExamples/SC2016/$(am__dirstamp)
+FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) FuseTExamples/SC2016/$(DEPDIR)
+	@: > FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+FuseTExamples/SC2016/sc_m1.$(OBJEXT):  \
+	FuseTExamples/SC2016/$(am__dirstamp) \
+	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+scm1Ex$(EXEEXT): $(scm1Ex_OBJECTS) $(scm1Ex_DEPENDENCIES) 
+	@rm -f scm1Ex$(EXEEXT)
+	$(CXXLINK) $(scm1Ex_OBJECTS) $(scm1Ex_LDADD) $(LIBS)
+FuseTExamples/SC2016/sc_m2.$(OBJEXT):  \
+	FuseTExamples/SC2016/$(am__dirstamp) \
+	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+scm2Ex$(EXEEXT): $(scm2Ex_OBJECTS) $(scm2Ex_DEPENDENCIES) 
+	@rm -f scm2Ex$(EXEEXT)
+	$(CXXLINK) $(scm2Ex_OBJECTS) $(scm2Ex_LDADD) $(LIBS)
+FuseTExamples/SC2016/sc_M1.$(OBJEXT):  \
+	FuseTExamples/SC2016/$(am__dirstamp) \
+	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+scM1Ex$(EXEEXT): $(scM1Ex_OBJECTS) $(scM1Ex_DEPENDENCIES) 
+	@rm -f scM1Ex$(EXEEXT)
+	$(CXXLINK) $(scM1Ex_OBJECTS) $(scM1Ex_LDADD) $(LIBS)
 sdf_shape_tester$(EXEEXT): $(sdf_shape_tester_OBJECTS) $(sdf_shape_tester_DEPENDENCIES) 
 	@rm -f sdf_shape_tester$(EXEEXT)
 	$(CXXLINK) $(sdf_shape_tester_OBJECTS) $(sdf_shape_tester_LDADD) $(LIBS)
@@ -848,6 +890,7 @@ mostlyclean-compile:
 	-rm -f FuseTExamples/MatrixInnerEx.$(OBJEXT)
 	-rm -f FuseTExamples/MultiplyEx.$(OBJEXT)
 	-rm -f FuseTExamples/ReconstructEx.$(OBJEXT)
+	-rm -f FuseTExamples/SC2016/sc_m1.$(OBJEXT)
 	-rm -f FuseTExamples/Test_FusedEx.$(OBJEXT)
 	-rm -f FuseTExamples/compress.$(OBJEXT)
 
@@ -904,6 +947,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/ReconstructEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/Test_FusedEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/compress.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/SC2016/$(DEPDIR)/sc_m1.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1067,6 +1111,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f FuseTExamples/$(DEPDIR)/$(am__dirstamp)
 	-rm -f FuseTExamples/$(am__dirstamp)
+	-rm -f FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+	-rm -f FuseTExamples/SC2016/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1077,7 +1123,7 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR) FuseTExamples/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) FuseTExamples/$(DEPDIR) FuseTExamples/SC2016/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1123,7 +1169,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR) FuseTExamples/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) FuseTExamples/$(DEPDIR) FuseTExamples/SC2016/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

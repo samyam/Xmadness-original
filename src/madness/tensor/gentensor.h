@@ -747,7 +747,8 @@ namespace madness {
         /// returns the trace of <this|rhs>
 		template<typename Q>
 		TENSOR_RESULT_TYPE(T,Q) trace_conj(const GenTensor<Q>& rhs) const {
-		    std::cout<<"Trace Conj  Line 750 gentensor.h"<<std::endl;
+			printf ("%s-1\n", __func__);
+
             if (TensorTypeData<T>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
             if (TensorTypeData<Q>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
 
@@ -763,8 +764,10 @@ namespace madness {
 
         /// returns the trace of <this|rhs>
 		template<typename Q>
-		    TENSOR_RESULT_TYPE(T,Q) trace_conj(const Tensor<Q>& rhs) const {
-		    std::cout<<"Trace Conj  Line 766 gentensor.h"<<std::endl;
+
+		TENSOR_RESULT_TYPE(T,Q) trace_conj(const Tensor<Q>& rhs) const {
+			printf ("%s-2\n", __func__);
+
             if (TensorTypeData<T>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
             if (TensorTypeData<Q>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
 
