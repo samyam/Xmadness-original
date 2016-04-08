@@ -748,6 +748,7 @@ namespace madness {
 		template<typename Q>
 		TENSOR_RESULT_TYPE(T,Q) trace_conj(const GenTensor<Q>& rhs) const {
 			printf ("%s-1\n", __func__);
+
             if (TensorTypeData<T>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
             if (TensorTypeData<Q>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
 
@@ -763,15 +764,17 @@ namespace madness {
 
         /// returns the trace of <this|rhs>
 		template<typename Q>
+
 		TENSOR_RESULT_TYPE(T,Q) trace_conj(const Tensor<Q>& rhs) const {
 			printf ("%s-2\n", __func__);
+
             if (TensorTypeData<T>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
             if (TensorTypeData<Q>::iscomplex) MADNESS_EXCEPTION("no complex trace in GenTensor, sorry",1);
 
             typedef TENSOR_RESULT_TYPE(T,Q) resultT;
 			// fast return if possible
 			if ((this->rank()==0)) return resultT(0.0);
-
+			
 			// fast return if this is a full tensor
 			// otherwise reconstruct this to a full tensor, since it's presumably
 			// faster than turning the full tensor rhs into a low-rank approximation
