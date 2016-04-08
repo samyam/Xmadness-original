@@ -81,7 +81,7 @@ using namespace madness;
 
 static const double L		= 20;     // Half box size
 static const long	k		= 8;        // wavelet order
-static const double thresh	= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
+static const double thresh	= 1e-3; // precision   // w/o diff. and 1e-12 -> 64 x 64
 static const double c		= 2.0;       //
 static const double tstep	= 0.1;
 static const double alpha	= 1.9; // Exponent
@@ -316,6 +316,7 @@ int main(int argc, char** argv)
 
 	// FuseT
 	vector<PrimitiveOp<double,3>*> sequence;
+	vector<PrimitiveOp<double,3>*> sequence1;
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_h[i]);
@@ -324,14 +325,21 @@ int main(int argc, char** argv)
 		sequence.push_back(compress_op_g[i]);
 
 	sequence.push_back(matrix_inner_op);	
+	//sequence1.push_back(matrix_inner_op);	
 
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
+
+	if(world.rank() == 0){
+	  odag.printOpsAndTrees();
+	  odag.printValidSequences();
+	}
 
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecutor(world, &fsequence);
 	fexecutor.execute();
 
+	
 	// OpExecutor
 	//OpExecutor<double,3> exe(world);
 	//exe.execute(matrix_inner_op, false);
@@ -340,6 +348,8 @@ int main(int argc, char** argv)
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
+	finalize();
+	exit(0);
 #ifdef DEBUG_OUTPUT
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
@@ -352,7 +362,7 @@ int main(int argc, char** argv)
 //
 //
 //
-	if (world.rank() == 0) print ("====================================================");
+/*	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("==      MADNESS					       ============");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
@@ -392,7 +402,7 @@ int main(int argc, char** argv)
 	}
 	world.gop.fence();
 #endif
-
+*/
     finalize();    
     return 0;
 }

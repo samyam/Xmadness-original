@@ -80,18 +80,19 @@ namespace madness {
     {
 	for(int i = 0; i< _fOps->_validOpDags.size(); i++)
 	{
-
+	    cout<<"Beginning"<<endl<<fflush;
 		LocalFuseInfo<T,NDIM> lInfo;
 		for(int j : _fOps->_validOpDags[i]._preOps)
 		    lInfo._preCompute.push_back(j);	  
-		
+		cout<<"Middle"<<endl<<fflush;
 		for(int j : _fOps->_validOpDags[i]._postOps)
 		    lInfo._postCompute.push_back(j);
-		
+		cout<<"Second Middle"<<endl<<fflush;
 		for(int j : _fOps->_validOpDags[i]._postOperands)
 		    lInfo._postOperands.push_back(j);
 		//contains a mapping of parameters for each operation
 		//the key is the order in which the operations appear in _fOps->sequence
+		cout<<"Second Execution Time"<<endl<<fflush;
 		if(_world.rank() == _coeffs.owner(keyT(0))){  
 		    paraMap pMap;
 		    fusedTraversal(keyT(0),lInfo,pMap);
@@ -203,7 +204,7 @@ namespace madness {
 
 
 	    newlInfo._notEmpty[treeID] = notEmpty;
-	    if(DEBUG) cout<<"Source Tree : "<<source->_treeName<<" Tree ID "<<treeID<<" Not Empty : "<<newlInfo._notEmpty[treeID]<<endl<<fflush;
+	    if(DEBUG) cout<<"Source Tree : "<<source->_treeName<<" Tree ID "<<treeID<<" Not Empty : "<<newlInfo._notEmpty[treeID]<<endl;
 
 	}
 
@@ -213,7 +214,7 @@ namespace madness {
 	for(int i : lInfo._postCompute){
 	    PrimitiveOp<T,NDIM>* postOp = _fOps->_sequence[i];
 	    if(postOp->notEmpty(newlInfo._notEmpty)){
-		if(DEBUG1) cout<<endl<<"Not empty postOp : "<<postOp->_result->_treeName<<endl;
+		if(DEBUG1) cout<<endl<<"Not empty postOp : "<<postOp->_OpID<<endl;
 		newlInfo._notEmpty[postOp->_OpID]  = true;
 		newlInfo._postCompute.push_back(i);
 	    }
@@ -269,6 +270,7 @@ namespace madness {
 	//will hold new parameters
 	vector<paraMap> pMapVec = vector<paraMap>(1<<NDIM);
 	FuseTContainer<T> temp = FuseTContainer<T>();
+	//cout<<"About to enter continue traversal"<<endl;
 	return continueTraversal(key,lInfo,pMap,newlInfo,pMapVec, -1, temp);
     }
 
