@@ -80,19 +80,19 @@ namespace madness {
     {
 	for(int i = 0; i< _fOps->_validOpDags.size(); i++)
 	{
-	    cout<<"Beginning"<<endl<<fflush;
+	 //   cout<<"Beginning"<<endl<<fflush;
 		LocalFuseInfo<T,NDIM> lInfo;
 		for(int j : _fOps->_validOpDags[i]._preOps)
 		    lInfo._preCompute.push_back(j);	  
-		cout<<"Middle"<<endl<<fflush;
+	//	cout<<"Middle"<<endl<<fflush;
 		for(int j : _fOps->_validOpDags[i]._postOps)
 		    lInfo._postCompute.push_back(j);
-		cout<<"Second Middle"<<endl<<fflush;
+	//	cout<<"Second Middle"<<endl<<fflush;
 		for(int j : _fOps->_validOpDags[i]._postOperands)
 		    lInfo._postOperands.push_back(j);
 		//contains a mapping of parameters for each operation
 		//the key is the order in which the operations appear in _fOps->sequence
-		cout<<"Second Execution Time"<<endl<<fflush;
+	//	cout<<"Second Execution Time"<<endl<<fflush;
 		if(_world.rank() == _coeffs.owner(keyT(0))){  
 		    paraMap pMap;
 		    fusedTraversal(keyT(0),lInfo,pMap);

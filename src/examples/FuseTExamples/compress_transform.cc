@@ -81,7 +81,7 @@ using namespace madness;
 
 static const double L		= 20;     // Half box size
 static const long	k		= 8;        // wavelet order
-static const double thresh	= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
+static const double thresh	= 1e-3; // precision   // w/o diff. and 1e-12 -> 64 x 64
 static const double c		= 2.0;       //
 static const double tstep	= 0.1;
 static const double alpha	= 1.9; // Exponent
@@ -253,10 +253,6 @@ int main(int argc, char** argv)
 		for (j=0; j<FUNC_SIZE_M; j++)
 			output[i*FUNC_SIZE + j] = h[i]*g[j];
 
-	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
-			output[i*FUNC_SIZE + j].compress();
-
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		comp_factory_h[i]	= real_factory_3d(world);
@@ -280,6 +276,20 @@ int main(int argc, char** argv)
 	world.gop.fence();
 
 	clkbegin = rtclock();
+
+	CompressOp<double,3> compress_op_1("Compress",comp_h[0],&output[0]);
+	CompressOp<double,3> compress_op_2("Compress",comp_h[1],&output[1]);
+	CompressOp<double,3> compress_op_3("Compress",comp_h[2],&output[2]);
+	CompressOp<double,3> compress_op_4("Compress",comp_h[3],&output[3]);
+	CompressOp<double,3> compress_op_5("Compress",comp_h[4],&output[4]);
+	CompressOp<double,3> compress_op_6("Compress",comp_h[5],&output[5]);
+	CompressOp<double,3> compress_op_7("Compress",comp_h[6],&output[6]);
+	CompressOp<double,3> compress_op_8("Compress",comp_h[7],&output[7]);
+	CompressOp<double,3> compress_op_9("Compress",comp_h[8],&output[8]);
+	CompressOp<double,3> compress_op_10("Compress",comp_h[9],&output[9]);
+
+
+
 
 
 	// Creating Compress Operators
@@ -306,6 +316,7 @@ int main(int argc, char** argv)
 
 	// FuseT
 	vector<PrimitiveOp<double,3>*> sequence;
+	vector<PrimitiveOp<double,3>*> sequence1;
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_h[i]);
@@ -314,14 +325,21 @@ int main(int argc, char** argv)
 		sequence.push_back(compress_op_g[i]);
 
 	sequence.push_back(matrix_inner_op);	
+	//sequence1.push_back(matrix_inner_op);	
 
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
+
+	if(world.rank() == 0){
+	  odag.printOpsAndTrees();
+	  odag.printValidSequences();
+	}
 
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecutor(world, &fsequence);
 	fexecutor.execute();
 
+	
 	// OpExecutor
 	//OpExecutor<double,3> exe(world);
 	//exe.execute(matrix_inner_op, false);
@@ -330,6 +348,8 @@ int main(int argc, char** argv)
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
+	finalize();
+	exit(0);
 #ifdef DEBUG_OUTPUT
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
@@ -342,7 +362,7 @@ int main(int argc, char** argv)
 //
 //
 //
-	if (world.rank() == 0) print ("====================================================");
+/*	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("==      MADNESS					       ============");
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
@@ -382,7 +402,7 @@ int main(int argc, char** argv)
 	}
 	world.gop.fence();
 #endif
-
+*/
     finalize();    
     return 0;
 }

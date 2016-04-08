@@ -570,11 +570,9 @@ int main(int argc, char** argv)
 	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
 
 	// Pushing MatrixInnerOp
-	//sequence.push_back(matrixinner_op_a);
-	//sequence.push_back(matrixinner_op_b);
-	//sequence.push_back(matrixinner_op_c);
-
-
+	sequence.push_back(matrixinner_op_a);
+	sequence.push_back(matrixinner_op_b);
+	sequence.push_back(matrixinner_op_c);
 
 	// Processing a sequence of Operators
 	FuseT<double,3> odag(sequence);
