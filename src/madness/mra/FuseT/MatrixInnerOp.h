@@ -44,6 +44,10 @@ namespace madness
 
 		bool notEmpty(map<int,bool>& notEmptyMap) const
 		{
+		    //unsigned long treeID = _i1->get_impl()->id().get_obj_id();
+		    //unsigned long treeID2 = _i2->get_impl()->id().get_obj_id();
+		    //cout<<"Checking for treeID : "<<treeID<<" and result is "<<notEmptyMap[treeID]<<endl;
+		    //return  notEmptyMap[treeID2] && notEmptyMap[treeID];
 			unsigned long treeID = _i1->get_impl()->id().get_obj_id();
 		    return  notEmptyMap[treeID];
 		}
@@ -90,6 +94,7 @@ namespace madness
 	: PrimitiveOp<T,NDIM>(opName, output, false, true)
 	, _sym(sym)
 	{
+	//	this->_i1 = f[0];
 		this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
 
 		for (unsigned int i=0; i<f.size(); i++)
@@ -106,12 +111,12 @@ namespace madness
 	    this->_OpID = output->get_impl()->id().get_obj_id();
 
 		for (unsigned int i=0; i<f.size(); i++)
-			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&f[i], true, true, false, false));
+			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&f[i],true,false,false,false));
 
 		for (unsigned int i=0; i<g.size(); i++)
-			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&g[i], true, true, false, false));
+			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&g[i],true,false,false,false));
 
-	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,true,false,false));
+	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,false,false,false));
 
 		woT(f[0].world());
 	}
@@ -123,6 +128,7 @@ namespace madness
 	FuseTContainer<T>
 	MatrixInnerOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
 	{
+		//std::cout<<__func__<<", key: "<<key<<std::endl;
 		FuseT_VParameter<T>*	inheritedWhole;
 		FuseT_VType<T>*			inheritedLeft;
 		FuseT_VType<T>*			inheritedRight;

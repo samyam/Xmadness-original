@@ -106,8 +106,8 @@ static double sigma_sq_x	= sigma_x*sigma_x;
 static double sigma_sq_y	= sigma_y*sigma_y;
 static double sigma_sq_z	= sigma_z*sigma_z;
 
-#define FUNC_SIZE	4
-#define FUNC_SIZE_M	4
+#define FUNC_SIZE	2
+#define FUNC_SIZE_M	2
 
 double rtclock();
 
@@ -221,13 +221,14 @@ int main(int argc, char** argv)
 
 	// M*N functions		(i.e., 1024 functions.)
 	real_function_3d  output[FUNC_SIZE*FUNC_SIZE_M];
+	real_function_3d  output2[FUNC_SIZE*FUNC_SIZE_M];
 
 	// M*N output functions for compress operator
 	real_function_3d  comp_factory_h[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* comp_h[FUNC_SIZE*FUNC_SIZE_M/2];
+	real_function_3d comp_h[FUNC_SIZE*FUNC_SIZE_M/2];
 
 	real_function_3d  comp_factory_g[FUNC_SIZE*FUNC_SIZE_M/2];
-	real_function_3d* comp_g[FUNC_SIZE*FUNC_SIZE_M/2];
+	real_function_3d comp_g[FUNC_SIZE*FUNC_SIZE_M/2];
 
 	// Matrix_inner
     real_function_3d result_factory = real_factory_3d(world);
@@ -250,19 +251,26 @@ int main(int argc, char** argv)
 	}
 
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
+		for (j=0; j<FUNC_SIZE_M; j++) {
 			output[i*FUNC_SIZE + j] = h[i]*g[j];
+			output2[i*FUNC_SIZE + j] = h[i]*g[j];
+		}
+
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++)
+			output[i*FUNC_SIZE + j].truncate();
+
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		comp_factory_h[i]	= real_factory_3d(world);
-		comp_h[i]			= new real_function_3d(comp_factory_h[i]);
+		comp_h[i]			= real_function_3d(comp_factory_h[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		comp_factory_g[i]	= real_factory_3d(world);
-		comp_g[i]			= new real_function_3d(comp_factory_g[i]);
+		comp_g[i]			= real_function_3d(comp_factory_g[i]);
 	}
 
 //
@@ -277,20 +285,6 @@ int main(int argc, char** argv)
 
 	clkbegin = rtclock();
 
-	CompressOp<double,3> compress_op_1("Compress",comp_h[0],&output[0]);
-	CompressOp<double,3> compress_op_2("Compress",comp_h[1],&output[1]);
-	CompressOp<double,3> compress_op_3("Compress",comp_h[2],&output[2]);
-	CompressOp<double,3> compress_op_4("Compress",comp_h[3],&output[3]);
-	CompressOp<double,3> compress_op_5("Compress",comp_h[4],&output[4]);
-	CompressOp<double,3> compress_op_6("Compress",comp_h[5],&output[5]);
-	CompressOp<double,3> compress_op_7("Compress",comp_h[6],&output[6]);
-	CompressOp<double,3> compress_op_8("Compress",comp_h[7],&output[7]);
-	CompressOp<double,3> compress_op_9("Compress",comp_h[8],&output[8]);
-	CompressOp<double,3> compress_op_10("Compress",comp_h[9],&output[9]);
-
-
-
-
 
 	// Creating Compress Operators
 	CompressOp<double,3>* compress_op_h[FUNC_SIZE*FUNC_SIZE_M/2];
@@ -298,21 +292,20 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
-		compress_op_h[i] = new CompressOp<double,3>("Compress",comp_h[i],&output[i]);
-		compress_op_g[i] = new CompressOp<double,3>("Compress",comp_g[i],&output[i+(FUNC_SIZE*FUNC_SIZE_M/2)]);
+		compress_op_h[i] = new CompressOp<double,3>("Compress",&comp_h[i],&output[i]);
+		compress_op_g[i] = new CompressOp<double,3>("Compress",&comp_g[i],&output[i+(FUNC_SIZE*FUNC_SIZE_M/2)]);
 	}
 
+	// OpExecutor
+//	OpExecutor<double,3> exe(world);
+	
+
+	if (world.rank() == 0) print ("after");
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M; i++)
+		output2[i].compress();
+
+
 	// Creating Matrix-Inner Operator
-	vecfuncT fs;
-	vecfuncT gs;
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		fs.push_back(*comp_h[i]);
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		gs.push_back(*comp_g[i]);
-
-	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
 
 	// FuseT
 	vector<PrimitiveOp<double,3>*> sequence;
@@ -320,21 +313,39 @@ int main(int argc, char** argv)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_h[i]);
 
+	for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
+		sequence.push_back(compress_op_g[j]);
+
+	vecfuncT fs;
+	vecfuncT gs;
+
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		sequence.push_back(compress_op_g[i]);
+		fs.push_back(output2[i]);
+		//fs.push_back(comp_h[i]);
+	//	fs.push_back(output2[i]);
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		gs.push_back(output2[i+FUNC_SIZE*FUNC_SIZE_M/2]);
+		//gs.push_back(comp_g[i]);
+	//	gs.push_back(output2[i+FUNC_SIZE*FUNC_SIZE_M/2]);
+
+	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
 
 	sequence.push_back(matrix_inner_op);	
 
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
 
+	if (world.rank() == 0)
+	{
+		odag.printOpsAndTrees();
+        odag.printValidSequences();
+	}
+
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecutor(world, &fsequence);
 	fexecutor.execute();
 
-	// OpExecutor
-	//OpExecutor<double,3> exe(world);
-	//exe.execute(matrix_inner_op, false);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time: %f\n", clkend);

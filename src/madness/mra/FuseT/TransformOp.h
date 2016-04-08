@@ -39,7 +39,7 @@ namespace madness
 		typedef Tensor<T> tensorT;
 
     public:
-									TransformOp	(string opName, KTREE* output, const std::vector<KTREE>& f, const std::vector<KTREE>& g, bool sym);
+									TransformOp	(string opName, std::vector<KTREE>& output, const std::vector<KTREE>& v, const DistributedMatrix<T>& g, bool sym);
 		FuseTContainer<T>			compute			(const keyT& key, const FuseTContainer<T> &s);
 
 		bool notEmpty(map<int,bool>& notEmptyMap) const
@@ -86,34 +86,42 @@ namespace madness
 	// Constructor
 	// World is needed for communication in the "compute" function
     template<typename T, std::size_t NDIM>
-	TransformOp<T,NDIM>::TransformOp(string opName, KTREE* output, const std::vector<KTREE>& f, const std::vector<KTREE>& g, bool sym)
+	TransformOp<T,NDIM>::TransformOp(string opName, std::vector<KTREE>& output, const std::vector<KTREE>& v, const DistributedMatrix<T>& c, bool sym)
 	: PrimitiveOp<T,NDIM>(opName, output, false, true)
 	, _sym(sym)
 	{
-		this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
+		long n = v.size();
+		long m = c.rowdim();
 
-		for (unsigned int i=0; i<f.size(); i++)
-			for (unsigned int j=0; j<g.size(); j++)
-				(*this->_r)(i,j) = 0.0;
+		MADNESS_ASSERT(n == c.columndim());
 
-		for (unsigned int i=0; i<f.size(); i++) _left.push_back( f[i].get_impl().get() );
-		for (unsigned int i=0; i<g.size(); i++) _right.push_back( g[i].get_impl().get() );
 
-		for (unsigned int i=0; i<f.size(); i++) _left_v_coeffs.push_back( f[i].get_impl()->get_coeffs() );
-		for (unsigned int j=0; j<g.size(); j++) _right_v_coeffs.push_back( g[j].get_impl()->get_coeffs() );
+		output = zero_functions_compressed<T,NDIM>(v[0].world(), m);
+
+//		this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
+
+//		for (unsigned int i=0; i<f.size(); i++)
+//			for (unsigned int j=0; j<g.size(); j++)
+//				(*this->_r)(i,j) = 0.0;
+
+//		for (unsigned int i=0; i<f.size(); i++) _left.push_back( f[i].get_impl().get() );
+	//	for (unsigned int i=0; i<g.size(); i++) _right.push_back( g[i].get_impl().get() );
+
+//		for (unsigned int i=0; i<f.size(); i++) _left_v_coeffs.push_back( f[i].get_impl()->get_coeffs() );
+	//	for (unsigned int j=0; j<g.size(); j++) _right_v_coeffs.push_back( g[j].get_impl()->get_coeffs() );
 
 	    // dependnecy Info PSI, ALPHA, DELTA,SIGMA, ID
-	    this->_OpID = output->get_impl()->id().get_obj_id();
+	  //  this->_OpID = output->get_impl()->id().get_obj_id();
 
-		for (unsigned int i=0; i<f.size(); i++)
-			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&f[i], true, true, false, false));
+		for (unsigned int i=0; i<v.size(); i++)
+			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&v[i], true, true, false, false));
 
-		for (unsigned int i=0; i<g.size(); i++)
-			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&g[i], true, true, false, false));
+	//	for (unsigned int i=0; i<g.size(); i++)
+	//		this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&g[i], true, true, false, false));
 
-	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,true,false,false));
+	    //this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,true,false,false));
 
-		woT(f[0].world());
+		woT(v[0].world());
 	}
 	
 	//
@@ -123,6 +131,7 @@ namespace madness
 	FuseTContainer<T>
 	TransformOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
 	{
+/*
 		FuseT_VParameter<T>*	inheritedWhole;
 		FuseT_VType<T>*			inheritedLeft;
 		FuseT_VType<T>*			inheritedRight;
@@ -274,6 +283,7 @@ namespace madness
 		// Return Parameters
 		FuseTContainer<T> targets(static_cast<Base<T>*>(new FuseT_VParameter<T>(v_parameter.value)));
 		return targets;
+*/
 	}
 
 	// isDone
@@ -281,6 +291,7 @@ namespace madness
 	bool 
 	TransformOp<T,NDIM>::isDone(const keyT& key) const 
 	{
+/*
 		bool isE1;
 		bool isE2;
 
@@ -299,14 +310,14 @@ namespace madness
 
 		if (checkKeyDoneLeft.find(key)->second)		return true;
 		if (checkKeyDoneRight.find(key)->second)	return true;
-
+*/
 		return false;
     }
 
     template<typename T, std::size_t NDIM>
 	void  
 	TransformOp<T,NDIM>::reduce(World& world){
-        world.gop.sum(_r->ptr(),_left.size()*_right.size());
+  //      world.gop.sum(_r->ptr(),_left.size()*_right.size());
     }
 
 }; /*fuset*/

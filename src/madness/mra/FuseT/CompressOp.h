@@ -108,6 +108,7 @@ namespace madness
 	FuseTContainer<T>
 	CompressOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
 	{	
+		//std::cout<<__func__<<", key: "<<key<<std::endl;
 		// For Root
 		if ( key == keyT(0) ) // need to be changed.
 		{
