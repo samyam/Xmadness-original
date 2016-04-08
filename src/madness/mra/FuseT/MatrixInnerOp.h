@@ -51,7 +51,7 @@ namespace madness
 			    return true;
 			}
 		    }
-		}
+	}	
 	    }
 	    return false;
 	    //unsigned long treeID = _i1->get_impl()->id().get_obj_id();

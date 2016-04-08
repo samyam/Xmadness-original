@@ -263,8 +263,20 @@ int main(int argc, char** argv)
 	clkbegin = rtclock();
 	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
 
-	OpExecutor<double,3> exe(world);
-	exe.execute(matrix_inner_op, false);
+	vector<PrimitiveOp<double,3>*>	sequence_temp;
+
+	sequence_temp.push_back(matrix_inner_op);
+
+	FuseT<double,3> odag2(sequence_temp);
+	odag2.processSequence();
+
+	FusedOpSequence<double,3> fsequence2 = odag2.getFusedOpSequence();
+	FusedExecutor<double,3> fexecuter2(world, &fsequence2);
+	clkend = rtclock() - clkbegin;
+	fexecuter2.execute();
+
+//	OpExecutor<double,3> exe(world);
+//	exe.execute(matrix_inner_op, false);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
