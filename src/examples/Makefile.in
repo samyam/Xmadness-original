@@ -52,8 +52,9 @@ noinst_PROGRAMS = pno$(EXEEXT) h2dft$(EXEEXT) hedft$(EXEEXT) \
 	siam_example$(EXEEXT) gaussian$(EXEEXT) copyEx$(EXEEXT) \
 	compressEx$(EXEEXT) reconstructEx$(EXEEXT) innerEx$(EXEEXT) \
 	fusedEx$(EXEEXT) testFusedEx$(EXEEXT) addEx$(EXEEXT) \
-	multiplyEx$(EXEEXT) matrixInnerEx$(EXEEXT) scm1Ex$(EXEEXT) \
-	scm2Ex$(EXEEXT) derivativeEx$(EXEEXT) scM1Ex$(EXEEXT) \
+	multiplyEx$(EXEEXT) derivativeEx$(EXEEXT) \
+	matrixInnerEx$(EXEEXT) scm1Ex$(EXEEXT) scm2Ex$(EXEEXT) \
+	scm3Ex$(EXEEXT) scM1Ex$(EXEEXT) scM2Ex$(EXEEXT) \
 	$(am__EXEEXT_1)
 @MADNESS_HAS_LIBXC_TRUE@am__append_1 = hefxc
 subdir = src/examples
@@ -244,15 +245,21 @@ pno_DEPENDENCIES = $(LIBCHEM) $(MRALIBS)
 am_reconstructEx_OBJECTS = FuseTExamples/ReconstructEx.$(OBJEXT)
 reconstructEx_OBJECTS = $(am_reconstructEx_OBJECTS)
 reconstructEx_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
+am_scM1Ex_OBJECTS = FuseTExamples/SC2016/sc_M1.$(OBJEXT)
+scM1Ex_OBJECTS = $(am_scM1Ex_OBJECTS)
+scM1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
+am_scM2Ex_OBJECTS = FuseTExamples/SC2016/sc_M2.$(OBJEXT)
+scM2Ex_OBJECTS = $(am_scM2Ex_OBJECTS)
+scM2Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
 am_scm1Ex_OBJECTS = FuseTExamples/SC2016/sc_m1.$(OBJEXT)
 scm1Ex_OBJECTS = $(am_scm1Ex_OBJECTS)
 scm1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
 am_scm2Ex_OBJECTS = FuseTExamples/SC2016/sc_m2.$(OBJEXT)
 scm2Ex_OBJECTS = $(am_scm2Ex_OBJECTS)
 scm2Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
-am_scM1Ex_OBJECTS = FuseTExamples/SC2016/sc_M1.$(OBJEXT)
-scM1Ex_OBJECTS = $(am_scM1Ex_OBJECTS)
-scM1Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
+am_scm3Ex_OBJECTS = FuseTExamples/SC2016/sc_m3.$(OBJEXT)
+scm3Ex_OBJECTS = $(am_scm3Ex_OBJECTS)
+scm3Ex_DEPENDENCIES = $(LIBWORLD) $(MRALIBS)
 am_sdf_shape_tester_OBJECTS = sdf_shape_tester.$(OBJEXT)
 sdf_shape_tester_OBJECTS = $(am_sdf_shape_tester_OBJECTS)
 sdf_shape_tester_LDADD = $(LDADD)
@@ -316,38 +323,40 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) $(binaryop_SOURCES) \
 	$(cc2_SOURCES) $(compressEx_SOURCES) $(copyEx_SOURCES) \
 	$(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) $(dielectric_SOURCES) \
-	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
-	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
-	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
-	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
-	$(heat2_SOURCES) $(hedft_SOURCES) $(hefxc_SOURCES) \
-	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
-	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
-	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
-	$(reconstructEx_SOURCES) $(scm1Ex_SOURCES) \
-	$(scm2Ex_SOURCES) $(scM1Ex_SOURCES) \
-	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
-	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
-	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
-	$(test_gmres_SOURCES) $(testsolver_SOURCES) \
-	$(testspectralprop_SOURCES) $(tiny_SOURCES) $(vnucso_SOURCES)
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
+	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
+	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
+	$(h2_SOURCES) $(h2dft_SOURCES) $(h2dynamic_SOURCES) \
+	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
+	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
+	$(hefxc_SOURCES) $(hehf_SOURCES) $(helium_exact_SOURCES) \
+	$(hello_SOURCES) $(innerEx_SOURCES) $(matrixInnerEx_SOURCES) \
+	$(mp2_SOURCES) $(multiplyEx_SOURCES) $(nemo_SOURCES) \
+	$(newsolver_SOURCES) $(nonlinschro_SOURCES) $(oep_SOURCES) \
+	$(pno_SOURCES) $(reconstructEx_SOURCES) $(scM1Ex_SOURCES) \
+	$(scM2Ex_SOURCES) $(scm1Ex_SOURCES) $(scm2Ex_SOURCES) \
+	$(scm3Ex_SOURCES) $(sdf_shape_tester_SOURCES) \
+	$(siam_example_SOURCES) $(sininteg_SOURCES) $(tdhf_SOURCES) \
+	$(tdse1d_SOURCES) $(tdse_example_SOURCES) \
+	$(testFusedEx_SOURCES) $(test_gmres_SOURCES) \
+	$(testsolver_SOURCES) $(testspectralprop_SOURCES) \
+	$(tiny_SOURCES) $(vnucso_SOURCES)
 DIST_SOURCES = $(3dharmonic_SOURCES) $(addEx_SOURCES) \
 	$(binaryop_SOURCES) $(cc2_SOURCES) $(compressEx_SOURCES) \
 	$(copyEx_SOURCES) $(csqrt_SOURCES) $(dataloadbal_SOURCES) \
-	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) $(dielectric_SOURCES) \
-	$(dielectric_external_field_SOURCES) $(functionio_SOURCES) \
-	$(fusedEx_SOURCES) $(gaussian_SOURCES) $(h2_SOURCES) \
-	$(h2dft_SOURCES) $(h2dynamic_SOURCES) $(hatom_1d_SOURCES) \
-	$(hatom_energy_SOURCES) $(he_SOURCES) $(heat_SOURCES) \
-	$(heat2_SOURCES) $(hedft_SOURCES) $(am__hefxc_SOURCES_DIST) \
-	$(hehf_SOURCES) $(helium_exact_SOURCES) $(hello_SOURCES) \
-	$(innerEx_SOURCES) $(matrixInnerEx_SOURCES) $(mp2_SOURCES) \
-	$(multiplyEx_SOURCES) $(nemo_SOURCES) $(newsolver_SOURCES) \
-	$(nonlinschro_SOURCES) $(oep_SOURCES) $(pno_SOURCES) \
-	$(reconstructEx_SOURCES) $(scm1Ex_SOURCES) \
-	$(scm2Ex_SOURCES) $(scM1Ex_SOURCES) \
+	$(density_smoothing_SOURCES) $(derivativeEx_SOURCES) \
+	$(dielectric_SOURCES) $(dielectric_external_field_SOURCES) \
+	$(functionio_SOURCES) $(fusedEx_SOURCES) $(gaussian_SOURCES) \
+	$(h2_SOURCES) $(h2dft_SOURCES) $(h2dynamic_SOURCES) \
+	$(hatom_1d_SOURCES) $(hatom_energy_SOURCES) $(he_SOURCES) \
+	$(heat_SOURCES) $(heat2_SOURCES) $(hedft_SOURCES) \
+	$(am__hefxc_SOURCES_DIST) $(hehf_SOURCES) \
+	$(helium_exact_SOURCES) $(hello_SOURCES) $(innerEx_SOURCES) \
+	$(matrixInnerEx_SOURCES) $(mp2_SOURCES) $(multiplyEx_SOURCES) \
+	$(nemo_SOURCES) $(newsolver_SOURCES) $(nonlinschro_SOURCES) \
+	$(oep_SOURCES) $(pno_SOURCES) $(reconstructEx_SOURCES) \
+	$(scM1Ex_SOURCES) $(scM2Ex_SOURCES) $(scm1Ex_SOURCES) \
+	$(scm2Ex_SOURCES) $(scm3Ex_SOURCES) \
 	$(sdf_shape_tester_SOURCES) $(siam_example_SOURCES) \
 	$(sininteg_SOURCES) $(tdhf_SOURCES) $(tdse1d_SOURCES) \
 	$(tdse_example_SOURCES) $(testFusedEx_SOURCES) \
@@ -568,8 +577,12 @@ scm1Ex_SOURCES = FuseTExamples/SC2016/sc_m1.cc
 scm1Ex_LDADD = $(LIBWORLD) $(MRALIBS)
 scm2Ex_SOURCES = FuseTExamples/SC2016/sc_m2.cc
 scm2Ex_LDADD = $(LIBWORLD) $(MRALIBS)
+scm3Ex_SOURCES = FuseTExamples/SC2016/sc_m3.cc
+scm3Ex_LDADD = $(LIBWORLD) $(MRALIBS)
 scM1Ex_SOURCES = FuseTExamples/SC2016/sc_M1.cc
 scM1Ex_LDADD = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
+scM2Ex_SOURCES = FuseTExamples/SC2016/sc_M2.cc
+scM2Ex_LDADD = $(LIBWORLD) $(MRALIBS) $(LIBCHEM)
 copyEx_SOURCES = FuseTExamples/CopyEx.cc
 copyEx_LDADD = $(LIBWORLD) $(MRALIBS)
 compressEx_SOURCES = FuseTExamples/compress.cc
@@ -823,6 +836,18 @@ FuseTExamples/SC2016/$(am__dirstamp):
 FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) FuseTExamples/SC2016/$(DEPDIR)
 	@: > FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+FuseTExamples/SC2016/sc_M1.$(OBJEXT):  \
+	FuseTExamples/SC2016/$(am__dirstamp) \
+	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+scM1Ex$(EXEEXT): $(scM1Ex_OBJECTS) $(scM1Ex_DEPENDENCIES) 
+	@rm -f scM1Ex$(EXEEXT)
+	$(CXXLINK) $(scM1Ex_OBJECTS) $(scM1Ex_LDADD) $(LIBS)
+FuseTExamples/SC2016/sc_M2.$(OBJEXT):  \
+	FuseTExamples/SC2016/$(am__dirstamp) \
+	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
+scM2Ex$(EXEEXT): $(scM2Ex_OBJECTS) $(scM2Ex_DEPENDENCIES) 
+	@rm -f scM2Ex$(EXEEXT)
+	$(CXXLINK) $(scM2Ex_OBJECTS) $(scM2Ex_LDADD) $(LIBS)
 FuseTExamples/SC2016/sc_m1.$(OBJEXT):  \
 	FuseTExamples/SC2016/$(am__dirstamp) \
 	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
@@ -835,12 +860,12 @@ FuseTExamples/SC2016/sc_m2.$(OBJEXT):  \
 scm2Ex$(EXEEXT): $(scm2Ex_OBJECTS) $(scm2Ex_DEPENDENCIES) 
 	@rm -f scm2Ex$(EXEEXT)
 	$(CXXLINK) $(scm2Ex_OBJECTS) $(scm2Ex_LDADD) $(LIBS)
-FuseTExamples/SC2016/sc_M1.$(OBJEXT):  \
+FuseTExamples/SC2016/sc_m3.$(OBJEXT):  \
 	FuseTExamples/SC2016/$(am__dirstamp) \
 	FuseTExamples/SC2016/$(DEPDIR)/$(am__dirstamp)
-scM1Ex$(EXEEXT): $(scM1Ex_OBJECTS) $(scM1Ex_DEPENDENCIES) 
-	@rm -f scM1Ex$(EXEEXT)
-	$(CXXLINK) $(scM1Ex_OBJECTS) $(scM1Ex_LDADD) $(LIBS)
+scm3Ex$(EXEEXT): $(scm3Ex_OBJECTS) $(scm3Ex_DEPENDENCIES) 
+	@rm -f scm3Ex$(EXEEXT)
+	$(CXXLINK) $(scm3Ex_OBJECTS) $(scm3Ex_LDADD) $(LIBS)
 sdf_shape_tester$(EXEEXT): $(sdf_shape_tester_OBJECTS) $(sdf_shape_tester_DEPENDENCIES) 
 	@rm -f sdf_shape_tester$(EXEEXT)
 	$(CXXLINK) $(sdf_shape_tester_OBJECTS) $(sdf_shape_tester_LDADD) $(LIBS)
@@ -890,7 +915,11 @@ mostlyclean-compile:
 	-rm -f FuseTExamples/MatrixInnerEx.$(OBJEXT)
 	-rm -f FuseTExamples/MultiplyEx.$(OBJEXT)
 	-rm -f FuseTExamples/ReconstructEx.$(OBJEXT)
+	-rm -f FuseTExamples/SC2016/sc_M1.$(OBJEXT)
+	-rm -f FuseTExamples/SC2016/sc_M2.$(OBJEXT)
 	-rm -f FuseTExamples/SC2016/sc_m1.$(OBJEXT)
+	-rm -f FuseTExamples/SC2016/sc_m2.$(OBJEXT)
+	-rm -f FuseTExamples/SC2016/sc_m3.$(OBJEXT)
 	-rm -f FuseTExamples/Test_FusedEx.$(OBJEXT)
 	-rm -f FuseTExamples/compress.$(OBJEXT)
 
@@ -947,7 +976,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/ReconstructEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/Test_FusedEx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/$(DEPDIR)/compress.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/SC2016/$(DEPDIR)/sc_M1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/SC2016/$(DEPDIR)/sc_M2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/SC2016/$(DEPDIR)/sc_m1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/SC2016/$(DEPDIR)/sc_m2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@FuseTExamples/SC2016/$(DEPDIR)/sc_m3.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

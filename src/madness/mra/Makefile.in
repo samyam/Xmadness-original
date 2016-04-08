@@ -481,7 +481,8 @@ thisinclude_HEADERS = adquad.h  funcimpl.h  indexit.h  legendre.h  operator.h  v
 					  FuseT/FusedExecutor.h FuseT/FuseTContainer.h \
 					  FuseT/InnerOp.h FuseT/OpExecutor.h FuseT/ReconstructOp.h \
 					  FuseT/FuseT.h FuseT/AddOp.h FuseT/DerivativeOp.h \
-					  FuseT/MultiplyOp.h FuseT/FuseT.h FuseT/MatrixInnerOp.h
+					  FuseT/MultiplyOp.h FuseT/FuseT.h FuseT/MatrixInnerOp.h \
+					  FuseT/TransformOp.h
 
 LDADD = libMADmra.la $(LIBLINALG) $(LIBTENSOR) $(LIBMISC) $(LIBMUPARSER) $(LIBWORLD)
 libMADmra_la_SOURCES = mra1.cc mra2.cc mra3.cc mra4.cc mra5.cc mra6.cc \

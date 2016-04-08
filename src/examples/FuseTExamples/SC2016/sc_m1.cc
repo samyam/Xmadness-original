@@ -163,10 +163,10 @@ int main(int argc, char** argv)
 	// (4) type			-- 0: all, 1: FuseT, 2: vmra, 3: OpExecutor
 
 	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
-	int		max_refine_level	= 30;
-	double	thresh				= 1e-12; // precision   // w/o diff. and 1e-12 -> 64 x 64
-	int		FUNC_SIZE			= 4;
-	int		FUNC_SIZE_M			= 4;
+	int		max_refine_level	= 14;
+	double	thresh				= 1e-06; // precision   // w/o diff. and 1e-12 -> 64 x 64
+	int		FUNC_SIZE			= 32;
+	int		FUNC_SIZE_M			= 32;
 	int		type				= 0;
 
 	if (argc == 5)
@@ -363,7 +363,12 @@ int main(int argc, char** argv)
 	if (world.rank() == 0) print ("====================================================");
 	world.gop.fence();
 
-	double resultInner[FUNC_SIZE*FUNC_SIZE_M/2][FUNC_SIZE_M*FUNC_SIZE/2] = {0.0, };
+	double resultInner[FUNC_SIZE*FUNC_SIZE_M/2][FUNC_SIZE_M*FUNC_SIZE/2];
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+		for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
+			resultInner[i][j] = 0.0;
+
 	clkbegin = rtclock();
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
