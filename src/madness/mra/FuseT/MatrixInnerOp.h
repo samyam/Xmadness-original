@@ -44,14 +44,15 @@ namespace madness
 
 	bool notEmpty(map<int,bool>& notEmptyMap) const
 	{
-	    for(auto a:_left){
-		if(notEmptyMap[a->id().get_obj_id()]){
-		    for(auto b:_right){
-			if(notEmptyMap[b->id().get_obj_id()]){
-			    return true;
-			}
-		    }
-	}	
+	    for(auto a:_left)
+		{
+			if(notEmptyMap[a->id().get_obj_id()]){
+				for(auto b:_right){
+					if(notEmptyMap[b->id().get_obj_id()]){
+						return true;
+					}
+				}
+			}	
 	    }
 	    return false;
 	    //unsigned long treeID = _i1->get_impl()->id().get_obj_id();
@@ -133,35 +134,17 @@ namespace madness
 	FuseTContainer<T>
 	MatrixInnerOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
     {
-	//cout<<key<<"running compute"<<endl;
-	//FuseT_VParameter<T>*	inheritedWhole;
+	FuseT_VParameter<T>*	inheritedWhole;
 	FuseT_VType<T>*			inheritedLeft;
 	FuseT_VType<T>*			inheritedRight;
 
 	inheritedLeft	= new FuseT_VType<T>;
 	inheritedRight	= new FuseT_VType<T>;
 		
-	for (unsigned int i=0; i<_left.size(); i++){
-	    if(_left[i]->get_coeffs().probe(key)){
-			
-		inheritedRight->value.push_back(i);
-	    }
-	}
-
-	if(inheritedLeft->value.empty())
-	    return FuseTContainer<T>();
-
-	for (unsigned int i=0; i<_right.size(); i++){
-	    if(_right[i]->get_coeffs().probe(key)){
-		inheritedRight->value.push_back(i);
-	    }
-	}
 	//cout<<"Running middle"<<endl;
-	if(inheritedRight->value.empty())
-	    return FuseTContainer<T>();
 	//cout<<"Running not middle"<<endl;
 	// Processing for Paramter
-/*		if (s.get() == 0)
+		if (s.get() == 0)
 		{
 		inheritedLeft	= new FuseT_VType<T>;
 		inheritedRight	= new FuseT_VType<T>;
@@ -178,23 +161,21 @@ namespace madness
 		for (unsigned int i=0; i<_left.size(); i++){
 		if(_left[i]->get_coeffs().probe(key)){
 
-		inheritedRight->value.push_back(i);
+			inheritedRight->value.push_back(i);
 		}
 		}
 
 		for (unsigned int i=0; i<_right.size(); i++){
-		if(_right[i]->get_coeffs().probe(key)){
-		inheritedRight->value.push_back(i);
-		}
+			if(_right[i]->get_coeffs().probe(key)){
+				inheritedRight->value.push_back(i);
+			}
 						
 		}
 			
-		//inheritedRight->value.push_back(i);
 
-
-		//inheritedLeft	= new FuseT_VType<T>(((FuseT_VType<T>*)(((inheritedWhole->value[0]).get())))->value);
-		//inheritedRight	= new FuseT_VType<T>(((FuseT_VType<T>*)(((inheritedWhole->value[1]).get())))->value);
-		}		*/
+		inheritedLeft	= new FuseT_VType<T>(((FuseT_VType<T>*)(((inheritedWhole->value[0]).get())))->value);
+		inheritedRight	= new FuseT_VType<T>(((FuseT_VType<T>*)(((inheritedWhole->value[1]).get())))->value);
+		}		
 
 	FuseT_VType<T> whichNodesLeft;		// value = std::vector<int>
 	FuseT_VType<T> whichNodesRight;
@@ -307,7 +288,7 @@ namespace madness
 
 
 	// 
-	/*FuseT_VParameter<T> v_parameter;
+	FuseT_VParameter<T> v_parameter;
 	  FuseT_VParameter<T> inner_parameter;
 	
 	  FuseTContainer<T>	candiParameter_L(static_cast<Base<T>*> (new FuseT_VType<T>(whichNodesLeft.value)));	
@@ -320,12 +301,11 @@ namespace madness
 	  FuseTContainer<T> wrapper(static_cast<Base<T>*>(new FuseT_VParameter<T>(inner_parameter.value)));
 	  v_parameter.value.push_back(wrapper);
 	  }
-	*/
+	
 	// Return Parameters
-	//FuseTContainer<T> targets;//(static_cast<Base<T>*>(new FuseT_VParameter<T>(v_parameter.value)));
+	FuseTContainer<T> targets(static_cast<Base<T>*>(new FuseT_VParameter<T>(v_parameter.value)));
 	//cout<<"exiting compute"<<endl;
-	return FuseTContainer<T>();
-
+	return targets;
     }
 
     // isDone
