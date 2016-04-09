@@ -79,9 +79,11 @@ static double sigma_sq_z	= sigma_z*sigma_z;
 
 double rtclock();
 
-static double uinitial(const coord_3d& r) {
-    const double x=r[0], y=r[1], z=r[2];
-    return exp(-alpha*(2*x*x+3.2*y*y+1.7*z*z))*pow(constants::pi/alpha,-1.5);
+
+static double uinitial(const coord_3d& r) 
+{
+	const double x=r[0], y=r[1], z=r[2];
+    return -2.0/(sqrt(x*x+y*y+z*z+1e-8));
 }
 static double random_function(const coord_3d& r) {
 	const double x=r[0], y=r[1], z=r[2];
@@ -184,13 +186,13 @@ typedef std::vector<functionT> vecfuncT;
     return 0;
 */
 
-void checkCorrectness(World& world, vecfuncT &f, vecfuncT &g)
+void checkCorrectness(World& world, vecfuncT &f, vecfuncT &g, string inputString)
 {
 	double f_norm	= 0.0;
 	double f_trace	= 0.0;
 	double g_norm	= 0.0;
 	double g_trace	= 0.0;
-
+	cout<< "Checking : "<<inputString<<endl;
 	for (int i=0; i<f.size(); i++)
 	{
 		f_norm	= f[i].norm2();
@@ -218,7 +220,7 @@ int main(int argc, char** argv)
 
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	int		max_refine_level	= 30; //
-	double	thresh				= 1e-06; // precision   // w/o diff. and 1e-12 -> 64 x 64
+	double	thresh				= 1e-6; // precision   // w/o diff. and 1e-12 -> 64 x 64
 	int		FUNC_SIZE			= 2;
 	int		FUNC_SIZE_M			= 2;
 	int		type				= 0;
@@ -236,7 +238,7 @@ int main(int argc, char** argv)
     World world(SafeMPI::COMM_WORLD);
 
     startup(world, argc, argv);
-
+    
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) printf("  Micro Benchmark #2 \n");
 	if (world.rank() == 0) printf("  %d functions based on %d and %d random functions\n", FUNC_SIZE*FUNC_SIZE_M, FUNC_SIZE, FUNC_SIZE_M);
@@ -344,19 +346,14 @@ int main(int argc, char** argv)
 		reconstruct(world, v_f);
 		reconstruct(world, v_g);
 
-		checkCorrectness(world, v_f, v_g);
-
 		vecfuncT dvx_bra = apply(world, *(gradop[0]), v_f, false);
 		vecfuncT dvy_bra = apply(world, *(gradop[1]), v_f, false);
 		vecfuncT dvz_bra = apply(world, *(gradop[2]), v_f, false);
 		vecfuncT dvx_ket = apply(world, *(gradop[0]), v_g, false);
 		vecfuncT dvy_ket = apply(world, *(gradop[1]), v_g, false);
 		vecfuncT dvz_ket = apply(world, *(gradop[2]), v_g, false);
-		checkCorrectness(world, dvx_bra, dvx_ket);
-		checkCorrectness(world, dvy_bra, dvy_ket);
-		checkCorrectness(world, dvz_bra, dvz_ket);
 		world.gop.fence();
-/*
+
 		world.gop.fence();
 		compress(world,dvx_bra,false);
 		compress(world,dvy_bra,false);
@@ -368,10 +365,18 @@ int main(int argc, char** argv)
 		r_2 += matrix_inner(world, dvx_bra, dvx_ket);
 		r_2 += matrix_inner(world, dvy_bra, dvy_ket);
 		r_2 += matrix_inner(world, dvz_bra, dvz_ket);
+/*
 		r_2 *= 0.5;
 */
 	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
+	if (world.rank() == 0)	printf("MADNESS Running Time: %f\n", clkend);
+
+//	checkCorrectness(world, v_f, v_g, "MADNESS Reconstruct");
+//	checkCorrectness(world, dvx_bra, dvx_ket, "MADNESS Derivative dx") ;
+//	checkCorrectness(world, dvy_bra, dvy_ket, "MADNESS Derivative dy");
+//	checkCorrectness(world, dvz_bra, dvz_ket, "MADNESS Derivative dz");
+//
+
 	world.gop.fence();
 /*
 	if (world.rank() == 0)
@@ -579,7 +584,7 @@ int main(int argc, char** argv)
 		sequence.push_back(derivative_op_y_b[i]);
 		sequence.push_back(derivative_op_z_b[i]);
 	}
-/*
+
 	// Pushing CompressOp
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_x_b[i]);
@@ -593,7 +598,7 @@ int main(int argc, char** argv)
 		sequence.push_back(compress_op_y_k[i]);
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_z_k[i]);
-
+/*
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		h_x.push_back(compress_h_x[i]);	
@@ -620,7 +625,13 @@ int main(int argc, char** argv)
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
 	FusedExecutor<double,3> fexecuter(world, &fsequence);
 	clkbegin = rtclock();
+
+
+	//////////////Execution//////////////////
+
 	fexecuter.execute();
+
+	////////////Execution End//////////////////////
 /*
 	r += (*matrixinner_op_a->_r);
 	r += (*matrixinner_op_b->_r);
@@ -634,51 +645,51 @@ int main(int argc, char** argv)
 	vecfuncT abc;
 	vecfuncT bcd;
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
-		abc.push_back(*reconstruct_h[i]);
-		bcd.push_back(*reconstruct_h[i]);
-	}
-
-	checkCorrectness(world,abc, bcd);
-	vecfuncT a123;
-	vecfuncT a234;
-	vecfuncT a345;
-	vecfuncT b123;
-	vecfuncT b234;
-	vecfuncT b345;
-/*
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		derivative_op_x_b[i] = new DerivativeOp<double,3>("Derivative00",derivative_h_x[i],reconstruct_h[i], world,&D_h_x);
-		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
-		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
-	}
-
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
-		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
-		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
-	}
-*/
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-	{
-		a123.push_back(*derivative_h_x[i]);
-		a234.push_back(*derivative_h_y[i]);
-		a345.push_back(*derivative_h_z[i]);
-		b123.push_back(*derivative_g_x[i]);
-		b234.push_back(*derivative_g_y[i]);
-		b345.push_back(*derivative_g_z[i]);
-	}
-
-	checkCorrectness(world,a123,b123);
-	checkCorrectness(world,a234,b234);
-	checkCorrectness(world,a345,b345);
+//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
+//		abc.push_back(*reconstruct_h[i]);
+//		bcd.push_back(*reconstruct_h[i]);
+//	}
+//
+//	checkCorrectness(world,abc, bcd, "FuseT Reconstruct");
+//	vecfuncT a123;
+//	vecfuncT a234;
+//	vecfuncT a345;
+//	vecfuncT b123;
+//	vecfuncT b234;
+//	vecfuncT b345;
+///*
+//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+//	{
+//		derivative_op_x_b[i] = new DerivativeOp<double,3>("Derivative00",derivative_h_x[i],reconstruct_h[i], world,&D_h_x);
+//		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
+//		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
+//	}
+//
+//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+//	{
+//		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
+//		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
+//		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
+//	}
+//*/
+//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+//	{
+//		a123.push_back(*derivative_h_x[i]);
+//		a234.push_back(*derivative_h_y[i]);
+//		a345.push_back(*derivative_h_z[i]);
+//		b123.push_back(*derivative_g_x[i]);
+//		b234.push_back(*derivative_g_y[i]);
+//		b345.push_back(*derivative_g_z[i]);
+//	}
+//
+//	checkCorrectness(world,a123,b123, "FuseT Derivative dx");
+//	checkCorrectness(world,a234,b234, "FuseT Derivative dy");
+//	checkCorrectness(world,a345,b345, "FuseT Derivative dz");
 
 
 		
 	if (world.rank() == 0) printf ("Done!\n");
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
+	if (world.rank() == 0)	printf("FuseT Running Time: %f\n", clkend);
 	world.gop.fence();
 /*
 	if (world.rank() == 0)
