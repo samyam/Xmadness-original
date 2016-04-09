@@ -514,9 +514,9 @@ int main(int argc, char** argv)
 		g_z.push_back(*compress_g_z[i]);	
 	}
 
-	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true);
-	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true);
-	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
+	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true, false);
+	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true, false);
+	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true, false);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);

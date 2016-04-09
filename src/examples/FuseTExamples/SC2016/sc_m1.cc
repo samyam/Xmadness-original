@@ -172,10 +172,9 @@ int main(int argc, char** argv)
 	if (argc == 5)
 	{
 		FUNC_SIZE			= atoi(argv[1]);
-		FUNC_SIZE_M			= FUNC_SIZE;
-		max_refine_level	= atoi(argv[3]);
-		thresh				= atof(argv[2]);
-		type				= atoi(argv[4]);
+		FUNC_SIZE_M			= atoi(argv[2]);
+		thresh				= atof(argv[3]);
+		max_refine_level	= atoi(argv[4]);
 	}
 
     initialize(argc, argv);
@@ -238,8 +237,10 @@ int main(int argc, char** argv)
 
 	clkbegin = rtclock();
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++)
-			output[i*FUNC_SIZE + j].compress();
+		for (j=0; j<FUNC_SIZE_M; j++) {
+			output[i*FUNC_SIZE_M + j].compress(); 
+			output[i*FUNC_SIZE_M + j].truncate();
+		}
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0) printf("Running Time-- compress(): %f\n", clkend);
@@ -254,35 +255,19 @@ int main(int argc, char** argv)
 	vecfuncT fs;
 	vecfuncT gs;
 
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		fs.push_back(output[i]);
-
-	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
-		gs.push_back(output[i]);
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)						fs.push_back(output[i]);
+	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)	gs.push_back(output[i]);
 
 	clkbegin = rtclock();
-	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
 
-	vector<PrimitiveOp<double,3>*>	sequence_temp;
-
-	sequence_temp.push_back(matrix_inner_op);
-
-	FuseT<double,3> odag2(sequence_temp);
-	odag2.processSequence();
-
-	FusedOpSequence<double,3> fsequence2 = odag2.getFusedOpSequence();
-	FusedExecutor<double,3> fexecuter2(world, &fsequence2);
-	clkend = rtclock() - clkbegin;
-	fexecuter2.execute();
-
-//	OpExecutor<double,3> exe(world);
-//	exe.execute(matrix_inner_op, false);
+	MatrixInnerOp<double,3>*	matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false, false);
+	OpExecutor<double,3>		exe(world);
+	exe.execute(matrix_inner_op, false);
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
-
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
@@ -290,6 +275,7 @@ int main(int argc, char** argv)
 			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
 		}
 	world.gop.fence();
+*/
 
 //
 //
@@ -317,7 +303,7 @@ int main(int argc, char** argv)
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
-
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
@@ -325,7 +311,7 @@ int main(int argc, char** argv)
 		}
 	}
 	world.gop.fence();
-
+*/
 //
 //
 //

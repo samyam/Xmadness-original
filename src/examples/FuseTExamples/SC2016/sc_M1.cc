@@ -162,27 +162,6 @@ struct unaryexp {
 
 typedef Function<double,3> functionT;
 typedef std::vector<functionT> vecfuncT;
-/*
-    u0_norm  = u0.norm2();
-    u0_trace = u0.trace();
-    u1_norm	 = u1.norm2();
-    u1_trace = u1.trace();
-	double result_norm  = result.norm2();
-	double result_trace = result.trace();
-    
-	result1 = u0 + u1;
-
-	double result1_norm  = result1.norm2();
-	double result1_trace = result1.trace();
-    if (world.rank() == 0) print("u0 norm", u0_norm," u0 trace", u0_trace);
-    if (world.rank() == 0) print("u1 norm", u1_norm," u1 trace", u1_trace);
-    if (world.rank() == 0) print("Result norm", result_norm," result trace", result_trace);
-    if (world.rank() == 0) print("Result1 norm", result1_norm," result1 trace", result1_trace);
-    world.gop.fence();
-   
-	finalize(); 
-    return 0;
-*/
 
 void checkCorrectness(World& world, vecfuncT &f, vecfuncT &g)
 {
@@ -226,10 +205,9 @@ int main(int argc, char** argv)
 	if (argc == 5)
 	{
 		FUNC_SIZE			= atoi(argv[1]);
-		FUNC_SIZE_M			= FUNC_SIZE;
-		max_refine_level	= atoi(argv[3]);
-		thresh				= atof(argv[2]);
-		type				= atoi(argv[4]);
+		FUNC_SIZE_M			= atoi(argv[2]);
+		thresh				= atof(argv[3]);
+		max_refine_level	= atoi(argv[4]);
 	}
 
     initialize(argc, argv);
@@ -269,6 +247,7 @@ int main(int argc, char** argv)
 
 	int i, j;
 	double clkbegin, clkend;
+	double clkReconstruct, clkDerivative, clkCompress, clkMatrixInner;
 	clkbegin = rtclock();
 
 	// M functions
@@ -285,7 +264,7 @@ int main(int argc, char** argv)
 
 	// M*N functions
 	for (i=0; i<FUNC_SIZE; i++)
-		for (j=0; j<FUNC_SIZE_M; j++) {
+		for (j=0; j<FUNC_SIZE_M; j++)  {
 			output[i*FUNC_SIZE_M + j] = h[i]*g[j];
 			output2[i*FUNC_SIZE_M + j] = h[i]*g[j];
 		}
@@ -295,6 +274,11 @@ int main(int argc, char** argv)
 		for (j=0; j<FUNC_SIZE_M; j++) {
 			output[i*FUNC_SIZE_M + j].compress();
 			output2[i*FUNC_SIZE_M + j].compress();
+		}
+
+	for (i=0; i<FUNC_SIZE; i++)
+		for (j=0; j<FUNC_SIZE_M; j++) {
+			output[i*FUNC_SIZE_M + j].truncate();
 		}
 
 	//
@@ -324,9 +308,7 @@ int main(int argc, char** argv)
 		//distmatT r = column_distributed_matrix<double>(world, n, n);
 		reconstruct(world, v_f);
 		reconstruct(world, v_g);
-
-		checkCorrectness(world, v_f, v_g);
-
+	clkReconstruct = rtclock();
 		vecfuncT dvx_bra = apply(world, *(gradop[0]), v_f, false);
 		vecfuncT dvy_bra = apply(world, *(gradop[1]), v_f, false);
 		vecfuncT dvz_bra = apply(world, *(gradop[2]), v_f, false);
@@ -334,26 +316,30 @@ int main(int argc, char** argv)
 		vecfuncT dvy_ket = apply(world, *(gradop[1]), v_g, false);
 		vecfuncT dvz_ket = apply(world, *(gradop[2]), v_g, false);
 		world.gop.fence();
-
+	clkDerivative = rtclock();
 		compress(world,dvx_bra,false);
 		compress(world,dvy_bra,false);
 		compress(world,dvz_bra,false);
 		compress(world,dvx_ket,false);
 		compress(world,dvy_ket,false);
 		compress(world,dvz_ket,false);
-		checkCorrectness(world, dvx_bra, dvx_ket);
-		checkCorrectness(world, dvy_bra, dvy_ket);
-		checkCorrectness(world, dvz_bra, dvz_ket);
 		world.gop.fence();
-
+	clkCompress = rtclock();
 		r_2 += matrix_inner(world, dvx_bra, dvx_ket);
 		r_2 += matrix_inner(world, dvy_bra, dvy_ket);
 		r_2 += matrix_inner(world, dvz_bra, dvz_ket);
 		r_2 *= 0.5;
-
+	clkMatrixInner = rtclock();
 
 	clkend = rtclock() - clkbegin;
-	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
+	if (world.rank() == 0)
+	{
+		printf("Running Time--- Reconstruct: %f\n", clkReconstruct - clkbegin);
+		printf("Running Time--- Derivative: %f\n", clkDerivative - clkReconstruct);
+		printf("Running Time--- Compress: %f\n", clkCompress - clkDerivative);
+		printf("Running Time--- MatrixInner: %f\n", clkMatrixInner - clkCompress);
+		printf("Running Time--- Overall: %f\n", clkend);
+	}
 	world.gop.fence();
 
 	if (world.rank() == 0)
@@ -589,9 +575,9 @@ int main(int argc, char** argv)
 	}
 
 
-	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true);
-	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true);
-	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
+	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, false, false);
+	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, false, false);
+	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, false, false);
 
 	// Pushing MatrixInnerOp
 	sequence.push_back(matrixinner_op_a);
@@ -616,6 +602,7 @@ int main(int argc, char** argv)
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
+/*
 	vecfuncT abc;
 	vecfuncT bcd;
 
@@ -646,7 +633,7 @@ int main(int argc, char** argv)
 	checkCorrectness(world,a345,b345);
 
 
-	
+*/	
 
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {

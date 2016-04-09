@@ -45,7 +45,7 @@ namespace madness
 	Future< FuseTContainer<T> > 
 	OpExecutor<T,NDIM>::traverseTree(const keyT key, const FuseTContainer<T> &s)
 	{
-	//	std::cout<<__func__<<", key: "<<key<<std::endl;
+	//	std::cout <<__func__<<", key: "<<key<<std::endl;
 		FuseTContainer<T> temp;
 
 		// Pre-Computation	
@@ -55,7 +55,7 @@ namespace madness
 		std::vector< Future<FuseTContainer<T> > > v;
 		if (!_pOp->isDone(key))
 		{
-			if (!_pOp->isPre())
+			if (!_pOp->isPre() && _pOp->needsParameter())
 				v = future_vector_factory<FuseTContainer<T> >(1<<NDIM);		
 			int i = 0;
 			for (KeyChildIterator<NDIM> kit(key); kit; ++kit, ++i)
@@ -69,7 +69,7 @@ namespace madness
 					else
 						v[i] = woT::task(coeffs->owner(child), &OpExecutor<T,NDIM>::traverseTree, child, temp);
 				}
-				else
+				else 
 					woT::task(coeffs->owner(child), &OpExecutor<T,NDIM>::traverseTree, child, temp);
 			}
 		}

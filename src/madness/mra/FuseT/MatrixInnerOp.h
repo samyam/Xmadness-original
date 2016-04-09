@@ -39,7 +39,7 @@ namespace madness
 	typedef Tensor<T> tensorT;
 
     public:
-	MatrixInnerOp	(string opName, KTREE* output, const std::vector<KTREE>& f, const std::vector<KTREE>& g, bool sym);
+	MatrixInnerOp	(string opName, KTREE* output, const std::vector<KTREE>& f, const std::vector<KTREE>& g, bool sym, bool dgemm);
 	FuseTContainer<T>			compute			(const keyT& key, const FuseTContainer<T> &s);
 
 	bool notEmpty(map<int,bool>& notEmptyMap) const
@@ -60,9 +60,9 @@ namespace madness
 	}
 
 	bool						isDone			(const keyT& key) const;
-	bool						isPre			() const { return false; } // false does not work. but It should be false.
+	bool						isPre			() const { return true; } // false does not work. but It should be false.
 	bool						needsParameter	() const { return false; }
-        void						reduce			(World& world);
+	void						reduce			(World& world);
 
     public:	
 	// MatrixInnerOpp
@@ -81,9 +81,10 @@ namespace madness
 	//dcT&										_coeffs;
 	//dcT&										_coeffs_target;
 
-	bool										_sym;
-        std::vector<const FunctionImpl<T,NDIM>* >	_left;
-        std::vector<const FunctionImpl<T,NDIM>* >	_right;
+	bool						_sym;
+	bool						_dgemm;
+	std::vector<const FunctionImpl<T,NDIM>* >	_left;
+	std::vector<const FunctionImpl<T,NDIM>* >	_right;
 	
 	std::map<keyT, bool>	checkKeyDoneLeft;
 	std::map<keyT, bool>	checkKeyDoneRight;
@@ -97,34 +98,35 @@ namespace madness
     // Constructor
     // World is needed for communication in the "compute" function
     template<typename T, std::size_t NDIM>
-	MatrixInnerOp<T,NDIM>::MatrixInnerOp(string opName, KTREE* output, const std::vector<KTREE>& f, const std::vector<KTREE>& g, bool sym)
+	MatrixInnerOp<T,NDIM>::MatrixInnerOp(string opName, KTREE* output, const std::vector<KTREE>& f, const std::vector<KTREE>& g, bool sym, bool dgemm)
 	: PrimitiveOp<T,NDIM>(opName, output, false, true)
 	, _sym(sym)
+	, _dgemm(dgemm)
     {
-	this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
+		this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
 
-	for (unsigned int i=0; i<f.size(); i++)
-	    for (unsigned int j=0; j<g.size(); j++)
-		(*this->_r)(i,j) = 0.0;
+		for (unsigned int i=0; i<f.size(); i++)
+			for (unsigned int j=0; j<g.size(); j++)
+				(*this->_r)(i,j) = 0.0;
 
-	for (unsigned int i=0; i<f.size(); i++) _left.push_back( f[i].get_impl().get() );
-	for (unsigned int i=0; i<g.size(); i++) _right.push_back( g[i].get_impl().get() );
+		for (unsigned int i=0; i<f.size(); i++) _left.push_back( f[i].get_impl().get() );
+		for (unsigned int i=0; i<g.size(); i++) _right.push_back( g[i].get_impl().get() );
 
-	for (unsigned int i=0; i<f.size(); i++) _left_v_coeffs.push_back( f[i].get_impl()->get_coeffs() );
-	for (unsigned int j=0; j<g.size(); j++) _right_v_coeffs.push_back( g[j].get_impl()->get_coeffs() );
+		for (unsigned int i=0; i<f.size(); i++) _left_v_coeffs.push_back( f[i].get_impl()->get_coeffs() );
+		for (unsigned int j=0; j<g.size(); j++) _right_v_coeffs.push_back( g[j].get_impl()->get_coeffs() );
 
-	// dependnecy Info PSI, ALPHA, DELTA,SIGMA, ID
-	this->_OpID = output->get_impl()->id().get_obj_id();
+		// dependnecy Info PSI, ALPHA, DELTA,SIGMA, ID
+		this->_OpID = output->get_impl()->id().get_obj_id();
 
-	for (unsigned int i=0; i<f.size(); i++)
-	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&f[i], true, false, false, false));
+		for (unsigned int i=0; i<f.size(); i++)
+			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&f[i], true, false, false, false));
 
-	for (unsigned int i=0; i<g.size(); i++)
-	    this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&g[i], true, false, false, false));
+		for (unsigned int i=0; i<g.size(); i++)
+			this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(&g[i], true, false, false, false));
 
-	this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,false,false,false));
+		this->_dInfoVec.push_back(DependencyInfo<T,NDIM>(output,true,false,false,false));
 
-	woT(f[0].world());
+		woT(f[0].world());
     }
 	
     //
@@ -134,26 +136,48 @@ namespace madness
 	FuseTContainer<T>
 	MatrixInnerOp<T,NDIM>::compute(const keyT& key, const FuseTContainer<T> &s)
     {
+	//	std::cout<<__func__<<", key: "<<key<<std::endl;
+
 		FuseT_VType<T>* inheritedLeft;
 		FuseT_VType<T>*	inheritedRight;
 
 		inheritedLeft	= new FuseT_VType<T>;
 		inheritedRight	= new FuseT_VType<T>;
 
-		for (unsigned int i=0; i<_left.size(); i++)
-			if(_left[i]->get_coeffs().probe(key))
+		for (unsigned int i=0; i<_left.size(); i++) {
+			if(_left[i]->get_coeffs().probe(key)) {
 				inheritedLeft->value.push_back(i);
+			}
+		}
 
-	
+		for (unsigned int i=0; i<_right.size(); i++) {
+			if(_right[i]->get_coeffs().probe(key))  {
+				inheritedRight->value.push_back(i);
+			}
+		}
+
 		if(inheritedLeft->value.empty())
-			return FuseTContainer<T>();
+		{
+			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,true));
 
-		for (unsigned int i=0; i<_right.size(); i++)
-			if(_right[i]->get_coeffs().probe(key))
-			inheritedRight->value.push_back(i);
+			if(inheritedRight->value.empty()) {
+				checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true)); 
+			} else {
+				checkKeyDoneRight.insert(std::pair<keyT,bool>(key,false)); 
+			}
 
-		if(inheritedRight->value.empty())
 			return FuseTContainer<T>();
+		}
+		else
+		{
+			if(inheritedRight->value.empty()) {
+				checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,false));
+				checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true)); 
+				return FuseTContainer<T>();
+			} else {
+			
+			}
+		}
 
 
 		FuseT_VType<T> whichNodesLeft;		// value = std::vector<int>
@@ -165,6 +189,7 @@ namespace madness
 		unsigned int rightSize	= inheritedRight->value.size();
 
 
+
 		// The Pre-Computatio
 		// Assumption: the size of coefficient --> 16*16*16 = 4096
 		double* A = (double*)malloc(sizeof(double)*16*16*16*leftSize);
@@ -173,6 +198,46 @@ namespace madness
 		unsigned int k,l,m;
 
 		//
+/*
+		std::cout<<"without DGEMM"<<std::endl;
+		for (unsigned int i=0; i<leftSize; i++)
+		{
+			indexLeft = inheritedLeft->value[i];
+			const KNODE& fnode = _left_v_coeffs[indexLeft].find(key).get()->second;
+
+			if (_left_v_coeffs[indexLeft].find(key).get()->second.has_children())
+				whichNodesLeft.value.push_back(indexLeft);
+
+			if (fnode.has_coeff())
+			{
+				for (unsigned int j=0; j<rightSize; j++)
+				{
+					indexRight = inheritedRight->value[i];
+					const KNODE& gnode = _right_v_coeffs[indexRight].find(key).get()->second;
+			
+					if (i == 0)	
+						if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
+							whichNodesRight.value.push_back(indexRight);
+
+					if (gnode.has_coeff())
+						(*this->_r)(indexLeft, indexRight) += fnode.coeff().trace_conj(gnode.coeff());
+				}
+			}
+			else
+			{
+				if (i == 0)
+				{	
+					for (unsigned int j=0; j<rightSize; j++)
+					{
+						indexRight = inheritedRight->value[i];
+						if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
+							whichNodesRight.value.push_back(indexRight);
+					}
+				}
+			}		
+		}
+*/
+	//
 		for (unsigned int i=0; i<leftSize; i++)
 		{
 			indexLeft = inheritedLeft->value[i];
@@ -199,7 +264,7 @@ namespace madness
 		}
 
 
-//
+		//
 		for (unsigned int i=0; i<rightSize; i++)
 		{
 			indexRight = inheritedRight->value[i];
@@ -227,97 +292,86 @@ namespace madness
 
 		// 
 		for (k=0; k<leftSize; k++)
-		for (l=0; l<rightSize; l++)
-		C[k*rightSize + l] = 0.0;
+			for (l=0; l<rightSize; l++)
+				C[k*rightSize + l] = 0.0;
 
-//	The Actual-Computation
-//	Return: left.size() * right.size();
-//
-//	A [leftSize * 4096] 
-//	B [rightSize * 4096] 
-//	C [leftSize*rightSize]
-//
-cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, leftSize, rightSize, 16*16*16, 1, A, 16*16*16, B, 16*16*16, 1, C, leftSize);
+		//
+		//
+		//
+		cblas::gemm(cblas::CBLAS_TRANSPOSE::Trans, cblas::CBLAS_TRANSPOSE::NoTrans, leftSize, rightSize, 16*16*16, 1, A, 16*16*16, B, 16*16*16, 1, C, leftSize);
 
-// The Post-Computation
-for (k=0; k<leftSize; k++)
-{	
-	indexLeft = inheritedLeft->value[k];	
-	for (l=0; l<rightSize; l++)
-	{
-	indexRight = inheritedRight->value[l];
-	(*this->_r)(indexLeft, indexRight) += C[k + l*leftSize];	// k*rightSize + l --> row-major
+
+		// The Post-Computation
+		for (k=0; k<leftSize; k++)
+		{	
+			indexLeft = inheritedLeft->value[k];	
+			for (l=0; l<rightSize; l++)
+			{
+				indexRight = inheritedRight->value[l];
+				(*this->_r)(indexLeft, indexRight) += C[k + l*leftSize];	// k*rightSize + l --> row-major
+			}
+		}
+
+		delete A;
+		delete B;
+		delete C;
+
+
+		if (whichNodesLeft.value.size() == 0)
+			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,true));
+		else
+			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,false));
+
+		if (whichNodesRight.value.size() == 0)
+			checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true));
+		else
+			checkKeyDoneRight.insert(std::pair<keyT,bool>(key,false));
+
+		return FuseTContainer<T>();
 	}
-}
 
-delete A;
-delete B;
-delete C;
+	// isDone
+	template<typename T, std::size_t NDIM>
+	bool 
+	MatrixInnerOp<T,NDIM>::isDone(const keyT& key) const 
+	{
+		bool isE1;
+		bool isE2;
 
-
-
-if (whichNodesLeft.value.size() == 0)
-	checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,true));
-else
-	checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,false));
-
-if (whichNodesRight.value.size() == 0)
-	checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true));
-else
-	checkKeyDoneRight.insert(std::pair<keyT,bool>(key,false));
-
-
-// 
 /*
-FuseT_VParameter<T> v_parameter;
-  FuseT_VParameter<T> inner_parameter;
-
-  FuseTContainer<T>	candiParameter_L(static_cast<Base<T>*> (new FuseT_VType<T>(whichNodesLeft.value)));	
-  FuseTContainer<T>	candiParameter_R(static_cast<Base<T>*> (new FuseT_VType<T>(whichNodesRight.value)));	
-  inner_parameter.value.push_back(candiParameter_L);
-  inner_parameter.value.push_back(candiParameter_R);
-
-  for (KeyChildIterator<NDIM> kit(key); kit; ++kit)
-  {
-  FuseTContainer<T> wrapper(static_cast<Base<T>*>(new FuseT_VParameter<T>(inner_parameter.value)));
-  v_parameter.value.push_back(wrapper);
-  }
+		for (unsigned int i=0; i<_right.size(); i++)
+			if(_right[i]->get_coeffs().probe(key))
+			inheritedRight->value.push_back(i);
+			if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
+				whichNodesRight.value.push_back(indexRight);
 */
-	return FuseTContainer<T>();
-}
 
-// isDone
-template<typename T, std::size_t NDIM>
-bool 
-MatrixInnerOp<T,NDIM>::isDone(const keyT& key) const 
-{
-bool isE1;
-bool isE2;
 
-// O(M + N)
-for (unsigned int i=0; i<_left.size(); i++)	
-{
-	isE1 = _left[i]->get_coeffs().probe(key) || isE1;
-}
-if (!isE1) { std::cout<<key<<"!!!"<<std::endl; return isE1;}
+		// O(M + N)
+		for (unsigned int i=0; i<_left.size(); i++)	
+		{
+			isE1 = _left[i]->get_coeffs().probe(key) || isE1;
+		}
+		if (!isE1) { std::cout<<key<<"!!!"<<std::endl; return isE1;}
 
-for (unsigned int i=0; i<_right.size(); i++)
-{	
-	isE2 = _right[i]->get_coeffs().probe(key) || isE2;
-}
-if (!isE2) { std::cout<<key<<"???"<<std::endl;  return isE2;}
+		for (unsigned int i=0; i<_right.size(); i++)
+		{	
+			isE2 = _right[i]->get_coeffs().probe(key) || isE2;
+		}
+		if (!isE2) { std::cout<<key<<"???"<<std::endl;  return isE2;}
 
-if (checkKeyDoneLeft.find(key)->second)		return true;
-if (checkKeyDoneRight.find(key)->second)	return true;
+		if (checkKeyDoneLeft.find(key)->second)	 { return true; }
+		if (checkKeyDoneRight.find(key)->second) { return true; }
 
-return false;
-}
 
-template<typename T, std::size_t NDIM>
-void  
-MatrixInnerOp<T,NDIM>::reduce(World& world){
-	world.gop.sum(_r->ptr(),_left.size()*_right.size());
-}
+		return false;
+	}
+
+	template<typename T, std::size_t NDIM>
+	void  
+	MatrixInnerOp<T,NDIM>::reduce(World& world){
+		world.gop.sum(_r->ptr(),_left.size()*_right.size());
+	}
 
 }; /*fuset*/
 
