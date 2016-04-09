@@ -262,7 +262,7 @@ int main(int argc, char** argv)
 		gs.push_back(output[i]);
 
 	clkbegin = rtclock();
-	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
+	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false, true);
 
 	OpExecutor<double,3> exe(world);
 	exe.execute(matrix_inner_op, false);

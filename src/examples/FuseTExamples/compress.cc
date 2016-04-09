@@ -332,7 +332,7 @@ int main(int argc, char** argv)
 		//gs.push_back(comp_g[i]);
 	//	gs.push_back(output2[i+FUNC_SIZE*FUNC_SIZE_M/2]);
 
-	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false);
+	MatrixInnerOp<double,3>* matrix_inner_op = new MatrixInnerOp<double, 3>("MatrixInner", &result, fs, gs, false, true);
 
 	sequence.push_back(matrix_inner_op);	
 

@@ -147,10 +147,9 @@ int main(int argc, char** argv)
 	if (argc == 5)
 	{
 		FUNC_SIZE			= atoi(argv[1]);
-		FUNC_SIZE_M			= FUNC_SIZE;
-		max_refine_level	= atoi(argv[3]);
-		thresh				= atof(argv[2]);
-		type				= atoi(argv[4]);
+		FUNC_SIZE_M			= atoi(argv[2]);
+		thresh				= atof(argv[3]);
+		max_refine_level	= atoi(argv[4]);
 	}
 
 	if (world.rank() == 0) print ("====================================================");
