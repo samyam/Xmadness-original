@@ -189,7 +189,6 @@ namespace madness
 		unsigned int rightSize	= inheritedRight->value.size();
 
 
-	//`	std::cout<<__func__<<", key: "<<key<<", "<<leftSize<<","<<rightSize<<std::endl;
 
 		// The Pre-Computatio
 		// Assumption: the size of coefficient --> 16*16*16 = 4096
