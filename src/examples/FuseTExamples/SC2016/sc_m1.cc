@@ -282,7 +282,7 @@ int main(int argc, char** argv)
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
-/*
+
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE_M/2; j++)	
@@ -290,7 +290,7 @@ int main(int argc, char** argv)
 			printf ("(%d,%d): %f\n", i, j, (*matrix_inner_op->_r)(i, j));
 		}
 	world.gop.fence();
-*/
+
 //
 //
 //
@@ -317,7 +317,7 @@ int main(int argc, char** argv)
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
 
-/*
+
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
 		}
 	}
 	world.gop.fence();
-*/
+
 //
 //
 //
