@@ -162,44 +162,50 @@ struct unaryexp {
 
 typedef Function<double,3> functionT;
 typedef std::vector<functionT> vecfuncT;
+/*
+    u0_norm  = u0.norm2();
+    u0_trace = u0.trace();
+    u1_norm	 = u1.norm2();
+    u1_trace = u1.trace();
+	double result_norm  = result.norm2();
+	double result_trace = result.trace();
+    
+	result1 = u0 + u1;
 
-struct write_test_input {
+	double result1_norm  = result1.norm2();
+	double result1_trace = result1.trace();
+    if (world.rank() == 0) print("u0 norm", u0_norm," u0 trace", u0_trace);
+    if (world.rank() == 0) print("u1 norm", u1_norm," u1 trace", u1_trace);
+    if (world.rank() == 0) print("Result norm", result_norm," result trace", result_trace);
+    if (world.rank() == 0) print("Result1 norm", result1_norm," result1 trace", result1_trace);
+    world.gop.fence();
+   
+	finalize(); 
+    return 0;
+*/
 
-    double eprec=FunctionDefaults<3>::get_thresh()*0.1;
+void checkCorrectness(World& world, vecfuncT &f, vecfuncT &g)
+{
+	double f_norm	= 0.0;
+	double f_trace	= 0.0;
+	double g_norm	= 0.0;
+	double g_trace	= 0.0;
 
-    std::string filename_;
-    write_test_input(std::string mol="lih") : filename_("test_input") {
-        std::ofstream of(filename_);
-        of << "dft\n";
-        of << "xc hf\n";
-        of << "no_orient\n";
-        of << "k 8\n";
-        of << "protocol 1.e-5 \n";
-        of << "nuclear_corrfac  slater 2.0\n";
-        of << "end\n";
+	for (int i=0; i<f.size(); i++)
+	{
+		f_norm	= f[i].norm2();
+		f_trace	= f[i].trace();
 
-        if (mol=="lih") {
-            of << "geometry\n";
-            of << "eprec " << eprec << std::endl;
-            of << "Li 0.0    0.0 0.0\n";
-            of << "H  1.4375 0.0 0.0\n";
-            of << "end\n";
-        } else if (mol=="hf") {
-            double eprec=1.e-5;
-            of << "geometry\n";
-            of << "eprec " << eprec << std::endl;
-            of << "F  0.1    0.0 0.2\n";
-            of << "H  1.4375 0.0 0.0\n";
-            of << "end\n";
-        }
-        of.close();
-    }
+		if (world.rank() == 0)	print("f[", i, "] Result norm", f_norm," result trace", f_trace);
+	}
 
-    ~write_test_input() {
-        std::remove(filename_.c_str());
-    }
+	for (int i=0; i<g.size(); i++)
+	{
+		g_norm	= f[i].norm2();
+		g_trace	= f[i].trace();
 
-    std::string filename() const {return filename_;}
+		if (world.rank() == 0)	print("g[", i, "] Result norm", g_norm," result trace", g_trace);
+	}
 };
 
 int main(int argc, char** argv) 
@@ -291,6 +297,25 @@ int main(int argc, char** argv)
 			output2[i*FUNC_SIZE_M + j].compress();
 		}
 
+	//
+	double r_norm;
+	double r_trace;
+	world.gop.fence();
+	for (i=0; i<FUNC_SIZE; i++)
+	{
+		for (j=0; j<FUNC_SIZE_M; j++)
+		{
+			r_norm = output[i*FUNC_SIZE + j].norm2();
+			r_trace = output[i*FUNC_SIZE + j].trace();
+			if (world.rank() == 0) printf("o[%d] Result norm %f, Result trace %f\n", i*FUNC_SIZE+j, r_norm, r_trace);
+
+			r_norm = output[i*FUNC_SIZE + j].norm2();
+			r_trace = output[i*FUNC_SIZE + j].trace();
+			if (world.rank() == 0) printf("o1[%d] Result norm %f, Result trace %f\n", i*FUNC_SIZE+j, r_norm, r_trace);
+
+		}
+	}
+
 
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	if (world.rank() == 0) print ("====================================================");
@@ -303,33 +328,59 @@ int main(int argc, char** argv)
 	vecfuncT v_f;
 	vecfuncT v_g;
 
-	if (world.rank() == 0) print ("=1==================================================");
-
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		v_f.push_back(output2[i]);
 
 	for (i=FUNC_SIZE*FUNC_SIZE_M/2; i<FUNC_SIZE*FUNC_SIZE_M; i++)
 		v_g.push_back(output2[i]);
-	if (world.rank() == 0) print ("=2==================================================");
 
-    write_test_input test_input;
-	if (world.rank() == 0) print ("=3==================================================", test_input.filename().c_str());
-	SCF temp(world,test_input.filename().c_str());
-
-	if (world.rank() == 0) print ("=4==================================================");
+	Tensor<TENSOR_RESULT_TYPE(double,double)> r_2= Tensor<TENSOR_RESULT_TYPE(double,double)>(FUNC_SIZE*FUNC_SIZE_M/2, FUNC_SIZE*FUNC_SIZE_M/2);
 	clkbegin = rtclock();
-	r_1 = temp.kinetic_energy_matrix(world, v_f, v_g);
 
+		std::vector< std::shared_ptr<real_derivative_3d> > gradop;
+		gradop = gradient_operator<double,3>(world);
+
+		//distmatT r = column_distributed_matrix<double>(world, n, n);
+		reconstruct(world, v_f);
+		reconstruct(world, v_g);
+
+		checkCorrectness(world, v_f, v_g);
+
+		vecfuncT dvx_bra = apply(world, *(gradop[0]), v_f, false);
+		vecfuncT dvy_bra = apply(world, *(gradop[1]), v_f, false);
+		vecfuncT dvz_bra = apply(world, *(gradop[2]), v_f, false);
+		vecfuncT dvx_ket = apply(world, *(gradop[0]), v_g, false);
+		vecfuncT dvy_ket = apply(world, *(gradop[1]), v_g, false);
+		vecfuncT dvz_ket = apply(world, *(gradop[2]), v_g, false);
+		checkCorrectness(world, dvx_bra, dvx_ket);
+		checkCorrectness(world, dvy_bra, dvy_ket);
+		checkCorrectness(world, dvz_bra, dvz_ket);
+		world.gop.fence();
+/*
+		world.gop.fence();
+		compress(world,dvx_bra,false);
+		compress(world,dvy_bra,false);
+		compress(world,dvz_bra,false);
+		compress(world,dvx_ket,false);
+		compress(world,dvy_ket,false);
+		compress(world,dvz_ket,false);
+		world.gop.fence();
+		r_2 += matrix_inner(world, dvx_bra, dvx_ket);
+		r_2 += matrix_inner(world, dvy_bra, dvy_ket);
+		r_2 += matrix_inner(world, dvz_bra, dvz_ket);
+		r_2 *= 0.5;
+*/
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
+/*
 	if (world.rank() == 0)
 	{
 		for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 			for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
-				printf ("r(%d,%d): %f\n", i, j, (r_1.data())(i,j));	
+				printf ("r(%d,%d): %f\n", i, j, r_2(i,j));
 	}
+*/
 //
 //
 //
@@ -515,7 +566,6 @@ int main(int argc, char** argv)
 		sequence.push_back(reconstruct_op_g[i]);
 
 	// Pushing DerivativeOp
-
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		sequence.push_back(derivative_op_x_k[i]);
@@ -529,7 +579,7 @@ int main(int argc, char** argv)
 		sequence.push_back(derivative_op_y_b[i]);
 		sequence.push_back(derivative_op_z_b[i]);
 	}
-
+/*
 	// Pushing CompressOp
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_x_b[i]);
@@ -562,7 +612,7 @@ int main(int argc, char** argv)
 	sequence.push_back(matrixinner_op_a);
 	sequence.push_back(matrixinner_op_b);
 	sequence.push_back(matrixinner_op_c);
-
+*/
 	// Processing a sequence of Operators
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
@@ -571,28 +621,75 @@ int main(int argc, char** argv)
 	FusedExecutor<double,3> fexecuter(world, &fsequence);
 	clkbegin = rtclock();
 	fexecuter.execute();
-
-	clkend = rtclock() - clkbegin;
+/*
 	r += (*matrixinner_op_a->_r);
 	r += (*matrixinner_op_b->_r);
 	r += (*matrixinner_op_c->_r);
 	r *= 0.5;
-
+*/
+	clkend = rtclock() - clkbegin;
 	//matrix_inner_op_a->_r
+		//reconstruct_op_h[i]	= new ReconstructOp<double,3>("ReconstructOp", reconstruct_h[i], &output[i]);
+		//reconstruct_op_g[i]	= new ReconstructOp<double,3>("ReconstructOp", reconstruct_g[i], &output[i + (FUNC_SIZE*FUNC_SIZE_M/2)]);
+	vecfuncT abc;
+	vecfuncT bcd;
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
+		abc.push_back(*reconstruct_h[i]);
+		bcd.push_back(*reconstruct_h[i]);
+	}
+
+	checkCorrectness(world,abc, bcd);
+	vecfuncT a123;
+	vecfuncT a234;
+	vecfuncT a345;
+	vecfuncT b123;
+	vecfuncT b234;
+	vecfuncT b345;
+/*
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
+		derivative_op_x_b[i] = new DerivativeOp<double,3>("Derivative00",derivative_h_x[i],reconstruct_h[i], world,&D_h_x);
+		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
+		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
+	}
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
+		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
+		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
+		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
+	}
+*/
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
+		a123.push_back(*derivative_h_x[i]);
+		a234.push_back(*derivative_h_y[i]);
+		a345.push_back(*derivative_h_z[i]);
+		b123.push_back(*derivative_g_x[i]);
+		b234.push_back(*derivative_g_y[i]);
+		b345.push_back(*derivative_g_z[i]);
+	}
+
+	checkCorrectness(world,a123,b123);
+	checkCorrectness(world,a234,b234);
+	checkCorrectness(world,a345,b345);
+
 
 		
 	if (world.rank() == 0) printf ("Done!\n");
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
 			printf ("(%d,%d): %f\n", i, j, r(i, j));
 		}
 	}
-	world.gop.fence();
 
+	world.gop.fence();
+*/
 //
 //
 //
