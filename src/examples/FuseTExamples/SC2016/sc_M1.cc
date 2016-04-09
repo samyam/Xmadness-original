@@ -594,9 +594,9 @@ int main(int argc, char** argv)
 	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
 
 	// Pushing MatrixInnerOp
-	//sequence.push_back(matrixinner_op_a);
-	//sequence.push_back(matrixinner_op_b);
-	//sequence.push_back(matrixinner_op_c);
+	sequence.push_back(matrixinner_op_a);
+	sequence.push_back(matrixinner_op_b);
+	sequence.push_back(matrixinner_op_c);
 
 	// Processing a sequence of Operators
 	FuseT<double,3> odag(sequence);
@@ -610,7 +610,7 @@ int main(int argc, char** argv)
 	r += (*matrixinner_op_a->_r);
 	r += (*matrixinner_op_b->_r);
 	r += (*matrixinner_op_c->_r);
-	r += 0.5;
+	r *= 0.5;
 
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
