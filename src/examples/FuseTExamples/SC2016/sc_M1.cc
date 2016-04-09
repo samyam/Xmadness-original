@@ -300,25 +300,6 @@ int main(int argc, char** argv)
 		}
 
 	//
-	double r_norm;
-	double r_trace;
-	world.gop.fence();
-	for (i=0; i<FUNC_SIZE; i++)
-	{
-		for (j=0; j<FUNC_SIZE_M; j++)
-		{
-			r_norm = output[i*FUNC_SIZE + j].norm2();
-			r_trace = output[i*FUNC_SIZE + j].trace();
-			if (world.rank() == 0) printf("o[%d] Result norm %f, Result trace %f\n", i*FUNC_SIZE+j, r_norm, r_trace);
-
-			r_norm = output[i*FUNC_SIZE + j].norm2();
-			r_trace = output[i*FUNC_SIZE + j].trace();
-			if (world.rank() == 0) printf("o1[%d] Result norm %f, Result trace %f\n", i*FUNC_SIZE+j, r_norm, r_trace);
-
-		}
-	}
-
-
 	// M1. Kinetic Energy Matrix Calculation : vmra.h vs FusedExecutor (Reconstruct + DerivativeOp + CompressOp + InnerMatrixOp) 
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("=== Kinetic Energy Matrix Calculation ==============");
@@ -354,7 +335,6 @@ int main(int argc, char** argv)
 		vecfuncT dvz_ket = apply(world, *(gradop[2]), v_g, false);
 		world.gop.fence();
 
-		world.gop.fence();
 		compress(world,dvx_bra,false);
 		compress(world,dvy_bra,false);
 		compress(world,dvz_bra,false);
@@ -362,14 +342,17 @@ int main(int argc, char** argv)
 		compress(world,dvy_ket,false);
 		compress(world,dvz_ket,false);
 		world.gop.fence();
-		r_2 += matrix_inner(world, dvx_bra, dvx_ket);
-		r_2 += matrix_inner(world, dvy_bra, dvy_ket);
-		r_2 += matrix_inner(world, dvz_bra, dvz_ket);
-/*
-		r_2 *= 0.5;
-*/
+
+//		r_2 += matrix_inner(world, dvx_bra, dvx_ket);
+//		r_2 += matrix_inner(world, dvy_bra, dvy_ket);
+//		r_2 += matrix_inner(world, dvz_bra, dvz_ket);
+///*
+//		r_2 *= 0.5;
+//
+
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("MADNESS Running Time: %f\n", clkend);
+
 
 //	checkCorrectness(world, v_f, v_g, "MADNESS Reconstruct");
 //	checkCorrectness(world, dvx_bra, dvx_ket, "MADNESS Derivative dx") ;
@@ -378,14 +361,14 @@ int main(int argc, char** argv)
 //
 
 	world.gop.fence();
-/*
+
 	if (world.rank() == 0)
 	{
 		for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 			for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
 				printf ("r(%d,%d): %f\n", i, j, r_2(i,j));
 	}
-*/
+
 //
 //
 //
@@ -513,28 +496,33 @@ int main(int argc, char** argv)
 	DerivativeOp<double,3>* derivative_op_y_k[FUNC_SIZE*FUNC_SIZE_M/2];
 	DerivativeOp<double,3>* derivative_op_z_k[FUNC_SIZE*FUNC_SIZE_M/2];
 
+		//vecfuncT dvx_bra = apply(world, *(gradop[0]), v_f, false);
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		derivative_op_x_b[i] = new DerivativeOp<double,3>("Derivative00",derivative_h_x[i],reconstruct_h[i], world,&D_h_x);
-		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
-		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
+		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],reconstruct_h[i],world,&D_h_y);
+		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],reconstruct_h[i],world,&D_h_z);
+		//derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
+		//derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
 	}
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
-		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
-		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
+		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],reconstruct_g[i],world,&D_g_y);
+		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],reconstruct_g[i],world,&D_g_z);
+		//derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
+		//derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
 	}
 
 
 	// Compress Op
-	CompressOp<double,3>* compress_op_x_b[FUNC_SIZE];
-	CompressOp<double,3>* compress_op_y_b[FUNC_SIZE];
-	CompressOp<double,3>* compress_op_z_b[FUNC_SIZE];
-	CompressOp<double,3>* compress_op_x_k[FUNC_SIZE];
-	CompressOp<double,3>* compress_op_y_k[FUNC_SIZE];
-	CompressOp<double,3>* compress_op_z_k[FUNC_SIZE];
+	CompressOp<double,3>* compress_op_x_b[FUNC_SIZE*FUNC_SIZE_M/2];
+	CompressOp<double,3>* compress_op_y_b[FUNC_SIZE*FUNC_SIZE_M/2];
+	CompressOp<double,3>* compress_op_z_b[FUNC_SIZE*FUNC_SIZE_M/2];
+	CompressOp<double,3>* compress_op_x_k[FUNC_SIZE*FUNC_SIZE_M/2];
+	CompressOp<double,3>* compress_op_y_k[FUNC_SIZE*FUNC_SIZE_M/2];
+	CompressOp<double,3>* compress_op_z_k[FUNC_SIZE*FUNC_SIZE_M/2];
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
@@ -587,18 +575,15 @@ int main(int argc, char** argv)
 
 	// Pushing CompressOp
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
 		sequence.push_back(compress_op_x_b[i]);
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_y_b[i]);
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_z_b[i]);
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_x_k[i]);
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_y_k[i]);
-	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(compress_op_z_k[i]);
-/*
+	}
+
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
 		h_x.push_back(compress_h_x[i]);	
@@ -609,15 +594,16 @@ int main(int argc, char** argv)
 		g_z.push_back(compress_g_z[i]);	
 	}
 
+
 	MatrixInnerOp<double,3>* matrixinner_op_a = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_x, h_x, g_x, true);
 	MatrixInnerOp<double,3>* matrixinner_op_b = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_y, h_y, g_y, true);
 	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, true);
 
 	// Pushing MatrixInnerOp
-	sequence.push_back(matrixinner_op_a);
-	sequence.push_back(matrixinner_op_b);
-	sequence.push_back(matrixinner_op_c);
-*/
+	//sequence.push_back(matrixinner_op_a);
+	//sequence.push_back(matrixinner_op_b);
+	//sequence.push_back(matrixinner_op_c);
+
 	// Processing a sequence of Operators
 	FuseT<double,3> odag(sequence);
 	odag.processSequence();
@@ -632,66 +618,50 @@ int main(int argc, char** argv)
 	fexecuter.execute();
 
 	////////////Execution End//////////////////////
-/*
-	r += (*matrixinner_op_a->_r);
-	r += (*matrixinner_op_b->_r);
-	r += (*matrixinner_op_c->_r);
-	r *= 0.5;
-*/
+	//r += (*matrixinner_op_a->_r);
+	//r += (*matrixinner_op_b->_r);
+	//r += (*matrixinner_op_c->_r);
+	//r += 0.5;
+
 	clkend = rtclock() - clkbegin;
-	//matrix_inner_op_a->_r
-		//reconstruct_op_h[i]	= new ReconstructOp<double,3>("ReconstructOp", reconstruct_h[i], &output[i]);
-		//reconstruct_op_g[i]	= new ReconstructOp<double,3>("ReconstructOp", reconstruct_g[i], &output[i + (FUNC_SIZE*FUNC_SIZE_M/2)]);
+
+	if (world.rank() == 0)	printf("FuseT Running Time: %f\n", clkend);
+	world.gop.fence();
+
+	finalize();
+	exit(0);
 	vecfuncT abc;
 	vecfuncT bcd;
-
-//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
-//		abc.push_back(*reconstruct_h[i]);
-//		bcd.push_back(*reconstruct_h[i]);
-//	}
-//
-//	checkCorrectness(world,abc, bcd, "FuseT Reconstruct");
-//	vecfuncT a123;
-//	vecfuncT a234;
-//	vecfuncT a345;
-//	vecfuncT b123;
-//	vecfuncT b234;
-//	vecfuncT b345;
-///*
-//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-//	{
-//		derivative_op_x_b[i] = new DerivativeOp<double,3>("Derivative00",derivative_h_x[i],reconstruct_h[i], world,&D_h_x);
-//		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
-//		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
-//	}
-//
-//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-//	{
-//		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
-//		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
-//		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
-//	}
-//*/
-//	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-//	{
-//		a123.push_back(*derivative_h_x[i]);
-//		a234.push_back(*derivative_h_y[i]);
-//		a345.push_back(*derivative_h_z[i]);
-//		b123.push_back(*derivative_g_x[i]);
-//		b234.push_back(*derivative_g_y[i]);
-//		b345.push_back(*derivative_g_z[i]);
-//	}
-//
-//	checkCorrectness(world,a123,b123, "FuseT Derivative dx");
-//	checkCorrectness(world,a234,b234, "FuseT Derivative dy");
-//	checkCorrectness(world,a345,b345, "FuseT Derivative dz");
-
-
-		
+	
 	if (world.rank() == 0) printf ("Done!\n");
 	if (world.rank() == 0)	printf("FuseT Running Time: %f\n", clkend);
 	world.gop.fence();
-/*
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
+		abc.push_back(*reconstruct_h[i]);
+		bcd.push_back(*reconstruct_h[i]);
+	}
+
+	vecfuncT a123;
+	vecfuncT a234;
+	vecfuncT a345;
+	vecfuncT b123;
+	vecfuncT b234;
+	vecfuncT b345;
+
+	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
+	{
+		a123.push_back(compress_h_x[i]);
+		a234.push_back(compress_h_y[i]);
+		a345.push_back(compress_h_z[i]);
+		b123.push_back(compress_g_x[i]);
+		b234.push_back(compress_g_y[i]);
+		b345.push_back(compress_g_z[i]);
+	}
+
+	checkCorrectness(world,a123,b123,"Compress x");
+	checkCorrectness(world,a234,b234,"Compress y");
+	checkCorrectness(world,a345,b345,"Compress z");
+
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
@@ -700,7 +670,7 @@ int main(int argc, char** argv)
 	}
 
 	world.gop.fence();
-*/
+
 //
 //
 //
