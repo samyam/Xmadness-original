@@ -103,6 +103,9 @@ namespace madness
 	, _sym(sym)
 	, _dgemm(dgemm)
     {
+	std::map<keyT, bool>	checkKeyDoneLeft = std::map<keyT,bool>();
+	std::map<keyT, bool>	checkKeyDoneRight = std::map<keyT,bool>();
+
 		this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
 
 		for (unsigned int i=0; i<f.size(); i++)
@@ -247,7 +250,7 @@ namespace madness
 				whichNodesLeft.value.push_back(indexLeft);
 
 			// 3D array to 1D array with i for fnode and j for gnode
-			if (fnode.has_coeff())
+				if (fnode.has_coeff())
 			{
 				for (k=0; k<16; k++) 
 					for (l=0; l<16; l++) 
@@ -260,7 +263,7 @@ namespace madness
 					for (l=0; l<16; l++) 
 						for (m=0; m<16; m++) 
 							A[i*16*16*16 + k*16*16 + l*16 + m] = 0.0;
-			}
+							}
 		}
 
 
@@ -274,7 +277,7 @@ namespace madness
 				whichNodesRight.value.push_back(indexRight);
 
 			// 3D array to 1D array with i for fnode and j for gnode
-			if (gnode.has_coeff())
+				if (gnode.has_coeff())
 			{
 				for (k=0; k<16; k++) 
 					for (l=0; l<16; l++) 
@@ -287,7 +290,7 @@ namespace madness
 					for (l=0; l<16; l++) 
 						for (m=0; m<16; m++) 
 							B[i*16*16*16 + k*16*16 + l*16 + m] = 0.0;
-			}
+							}
 		}
 
 		// 
@@ -317,16 +320,16 @@ namespace madness
 		delete C;
 
 
-		if (whichNodesLeft.value.size() == 0)
-			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,true));
+/*		if (whichNodesLeft.value.size() == 0)
+			checkKeyDoneLeft[key]=true;
 		else
-			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,false));
+			checkKeyDoneLeft[key]=false;
 
 		if (whichNodesRight.value.size() == 0)
-			checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true));
+			checkKeyDoneRight[key]= true;
 		else
-			checkKeyDoneRight.insert(std::pair<keyT,bool>(key,false));
-
+			checkKeyDoneRight[key] = false;
+*/
 		return FuseTContainer<T>();
 	}
 
@@ -335,9 +338,20 @@ namespace madness
 	bool 
 	MatrixInnerOp<T,NDIM>::isDone(const keyT& key) const 
 	{
-		bool isE1;
-		bool isE2;
+	    bool isE1= false;
+	    bool isE2 =false;
 
+
+	    for (unsigned int i=0; i<_left.size(); i++) {
+		if(_left[i]->get_coeffs().probe(key))
+		    isE1 = isE1 || _left_v_coeffs[i].find(key).get()->second.has_children();
+	    }
+	    for (unsigned int i=0; i<_right.size(); i++) {
+		if(_right[i]->get_coeffs().probe(key))
+		    isE2 = isE2 || _right_v_coeffs[i].find(key).get()->second.has_children();
+	    }
+	    
+	    return !(isE1 && isE2);
 /*
 		for (unsigned int i=0; i<_right.size(); i++)
 			if(_right[i]->get_coeffs().probe(key))
