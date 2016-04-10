@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 	}
 
 	if (world.rank() == 0) print ("====================================================");
-	if (world.rank() == 0) printf("  Micro Benchmark #1 \n");
+	if (world.rank() == 0) printf("  Macro Benchmark #2 \n");
 	if (world.rank() == 0) printf("  %d functions\n", FUNC_SIZE);
 	if (world.rank() == 0) printf("  threshold: %13.4g, max_refine_level: %d\n", thresh, max_refine_level);
 	if (world.rank() == 0) print ("====================================================");
@@ -180,7 +180,6 @@ int main(int argc, char** argv)
 	real_function_3d  dm1[FUNC_SIZE];
 	real_function_3d  dm2[FUNC_SIZE];
 
-	std::cout<<"Differentiation of "<<FUNC_SIZE<<" vector of functions"<<std::endl;
 
 
 	int i, j;

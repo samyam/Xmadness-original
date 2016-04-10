@@ -341,14 +341,14 @@ int main(int argc, char** argv)
 		printf("Running Time--- Overall: %f\n", clkend);
 	}
 	world.gop.fence();
-
+/*
 	if (world.rank() == 0)
 	{
 		for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 			for (j=0; j<FUNC_SIZE*FUNC_SIZE_M/2; j++)
 				printf ("r(%d,%d): %f\n", i, j, r_2(i,j));
 	}
-
+*/
 //
 //
 //
@@ -634,7 +634,7 @@ int main(int argc, char** argv)
 
 
 */	
-
+/*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {
 		for (j=0; j<FUNC_SIZE_M*FUNC_SIZE/2; j++){
@@ -643,7 +643,7 @@ int main(int argc, char** argv)
 	}
 
 	world.gop.fence();
-
+*/
 //
 //
 //
