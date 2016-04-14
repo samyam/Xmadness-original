@@ -229,7 +229,7 @@ int main(int argc, char** argv)
 
 	for (i=0; i<FUNC_SIZE; i++)
 		for (j=0; j<FUNC_SIZE_M; j++)
-			output[i*FUNC_SIZE + j] = h[i]*g[j];
+			output[i*FUNC_SIZE_M + j] = h[i]*g[j];
 
 	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
 	clkend = rtclock() - clkbegin;
@@ -354,7 +354,7 @@ int main(int argc, char** argv)
 	}
 	world.gop.fence();
 */
-
+/*
 	// m1. MatrixInner : MatrixInnerOp-DGEMM (OpExecutor) vs MatrixInner-MADNESS (vmra.h) vs MatrixInner using lots of InnerOp (FusedExecutor) vs Matrix Inner using funcimpl.inner (MADNESS)
 	if (world.rank() == 0) print ("====================================================");
 	if (world.rank() == 0) print ("=== MatrixInner using funcimpl.inner (MADNESS) =====");
@@ -376,7 +376,7 @@ int main(int argc, char** argv)
 	clkend = rtclock() - clkbegin;
 	if (world.rank() == 0)	printf("Running Time: %f\n", clkend);
 	world.gop.fence();
-
+*/
 /*
 	if (world.rank() == 0)
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++) {

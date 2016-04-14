@@ -86,12 +86,7 @@ namespace madness
 	std::vector<const FunctionImpl<T,NDIM>* >	_left;
 	std::vector<const FunctionImpl<T,NDIM>* >	_right;
 	
-	std::map<keyT, bool>	checkKeyDoneLeft;
-	std::map<keyT, bool>	checkKeyDoneRight;
 		
-	std::map<keyT, int>		candidatesLeft;
-	std::map<keyT, int>		candidatesRight;	
-
 	int						_k;		// Wavelet order
     };
 		
@@ -103,8 +98,6 @@ namespace madness
 	, _sym(sym)
 	, _dgemm(dgemm)
     {
-	std::map<keyT, bool>	checkKeyDoneLeft = std::map<keyT,bool>();
-	std::map<keyT, bool>	checkKeyDoneRight = std::map<keyT,bool>();
 
 		this->_r = new Tensor<TENSOR_RESULT_TYPE(T,T)>(f.size(), g.size());
 
@@ -161,37 +154,19 @@ namespace madness
 
 		if(inheritedLeft->value.empty())
 		{
-			checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,true));
-
-			if(inheritedRight->value.empty()) {
-				checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true)); 
-			} else {
-				checkKeyDoneRight.insert(std::pair<keyT,bool>(key,false)); 
-			}
-
 			return FuseTContainer<T>();
 		}
-		else
+
+		if(inheritedRight->value.empty()) 
 		{
-			if(inheritedRight->value.empty()) {
-				checkKeyDoneLeft.insert(std::pair<keyT,bool>(key,false));
-				checkKeyDoneRight.insert(std::pair<keyT,bool>(key,true)); 
-				return FuseTContainer<T>();
-			} else {
-			
-			}
+			return FuseTContainer<T>();
 		}
 
 
-		FuseT_VType<T> whichNodesLeft;		// value = std::vector<int>
-		FuseT_VType<T> whichNodesRight;
-	
 		unsigned int indexLeft;
 		unsigned int indexRight;
 		unsigned int leftSize	= inheritedLeft->value.size();
 		unsigned int rightSize	= inheritedRight->value.size();
-
-
 
 		// The Pre-Computatio
 		// Assumption: the size of coefficient --> 16*16*16 = 4096
@@ -201,53 +176,12 @@ namespace madness
 		unsigned int k,l,m;
 
 		//
-/*
-		std::cout<<"without DGEMM"<<std::endl;
-		for (unsigned int i=0; i<leftSize; i++)
-		{
-			indexLeft = inheritedLeft->value[i];
-			const KNODE& fnode = _left_v_coeffs[indexLeft].find(key).get()->second;
-
-			if (_left_v_coeffs[indexLeft].find(key).get()->second.has_children())
-				whichNodesLeft.value.push_back(indexLeft);
-
-			if (fnode.has_coeff())
-			{
-				for (unsigned int j=0; j<rightSize; j++)
-				{
-					indexRight = inheritedRight->value[i];
-					const KNODE& gnode = _right_v_coeffs[indexRight].find(key).get()->second;
-			
-					if (i == 0)	
-						if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
-							whichNodesRight.value.push_back(indexRight);
-
-					if (gnode.has_coeff())
-						(*this->_r)(indexLeft, indexRight) += fnode.coeff().trace_conj(gnode.coeff());
-				}
-			}
-			else
-			{
-				if (i == 0)
-				{	
-					for (unsigned int j=0; j<rightSize; j++)
-					{
-						indexRight = inheritedRight->value[i];
-						if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
-							whichNodesRight.value.push_back(indexRight);
-					}
-				}
-			}		
-		}
-*/
 	//
 		for (unsigned int i=0; i<leftSize; i++)
 		{
 			indexLeft = inheritedLeft->value[i];
 			const KNODE& fnode = _left_v_coeffs[indexLeft].find(key).get()->second;
 
-			if (_left_v_coeffs[indexLeft].find(key).get()->second.has_children())
-				whichNodesLeft.value.push_back(indexLeft);
 
 			// 3D array to 1D array with i for fnode and j for gnode
 				if (fnode.has_coeff())
@@ -273,8 +207,6 @@ namespace madness
 			indexRight = inheritedRight->value[i];
 			const KNODE& gnode = _right_v_coeffs[indexRight].find(key).get()->second;
 
-			if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
-				whichNodesRight.value.push_back(indexRight);
 
 			// 3D array to 1D array with i for fnode and j for gnode
 				if (gnode.has_coeff())
@@ -320,16 +252,6 @@ namespace madness
 		delete C;
 
 
-/*		if (whichNodesLeft.value.size() == 0)
-			checkKeyDoneLeft[key]=true;
-		else
-			checkKeyDoneLeft[key]=false;
-
-		if (whichNodesRight.value.size() == 0)
-			checkKeyDoneRight[key]= true;
-		else
-			checkKeyDoneRight[key] = false;
-*/
 		return FuseTContainer<T>();
 	}
 
@@ -352,33 +274,7 @@ namespace madness
 	    }
 	    
 	    return !(isE1 && isE2);
-/*
-		for (unsigned int i=0; i<_right.size(); i++)
-			if(_right[i]->get_coeffs().probe(key))
-			inheritedRight->value.push_back(i);
-			if (_right_v_coeffs[indexRight].find(key).get()->second.has_children())
-				whichNodesRight.value.push_back(indexRight);
-*/
 
-
-		// O(M + N)
-		for (unsigned int i=0; i<_left.size(); i++)	
-		{
-			isE1 = _left[i]->get_coeffs().probe(key) || isE1;
-		}
-		if (!isE1) { std::cout<<key<<"!!!"<<std::endl; return isE1;}
-
-		for (unsigned int i=0; i<_right.size(); i++)
-		{	
-			isE2 = _right[i]->get_coeffs().probe(key) || isE2;
-		}
-		if (!isE2) { std::cout<<key<<"???"<<std::endl;  return isE2;}
-
-		if (checkKeyDoneLeft.find(key)->second)	 { return true; }
-		if (checkKeyDoneRight.find(key)->second) { return true; }
-
-
-		return false;
 	}
 
 	template<typename T, std::size_t NDIM>

@@ -483,6 +483,8 @@ int main(int argc, char** argv)
 		derivative_op_x_b[i] = new DerivativeOp<double,3>("Derivative00",derivative_h_x[i],reconstruct_h[i], world,&D_h_x);
 		derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],reconstruct_h[i],world,&D_h_y);
 		derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],reconstruct_h[i],world,&D_h_z);
+		//derivative_op_y_b[i] = new DerivativeOp<double,3>("Derivative01",derivative_h_y[i],derivative_h_x[i],world,&D_h_y);
+		//derivative_op_z_b[i] = new DerivativeOp<double,3>("Derivative02",derivative_h_z[i],derivative_h_y[i],world,&D_h_z);
 	}
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
@@ -490,6 +492,8 @@ int main(int argc, char** argv)
 		derivative_op_x_k[i] = new DerivativeOp<double,3>("Derivative10",derivative_g_x[i],reconstruct_g[i], world,&D_g_x);
 		derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],reconstruct_g[i],world,&D_g_y);
 		derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],reconstruct_g[i],world,&D_g_z);
+		//derivative_op_y_k[i] = new DerivativeOp<double,3>("Derivative11",derivative_g_y[i],derivative_g_x[i],world,&D_g_y);
+		//derivative_op_z_k[i] = new DerivativeOp<double,3>("Derivative12",derivative_g_z[i],derivative_g_y[i],world,&D_g_z);
 	}
 
 
@@ -528,21 +532,19 @@ int main(int argc, char** argv)
 //
 	//clkbegin = rtclock();
 	vector<PrimitiveOp<double,3>*>	sequence;
-	vector<PrimitiveOp<double,3>*>	sequenceRight;
-	vector<PrimitiveOp<double,3>*>	sequenceOverall;
 
 	// Pushing ReconstructOp
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 		sequence.push_back(reconstruct_op_h[i]);
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
-		sequenceRight.push_back(reconstruct_op_g[i]);
+		sequence.push_back(reconstruct_op_g[i]);
 
 	// Pushing DerivativeOp
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
 	{
-		sequenceRight.push_back(derivative_op_x_k[i]);
-		sequenceRight.push_back(derivative_op_y_k[i]);
-		sequenceRight.push_back(derivative_op_z_k[i]);
+		sequence.push_back(derivative_op_x_k[i]);
+		sequence.push_back(derivative_op_y_k[i]);
+		sequence.push_back(derivative_op_z_k[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
@@ -558,9 +560,9 @@ int main(int argc, char** argv)
 		sequence.push_back(compress_op_x_b[i]);
 		sequence.push_back(compress_op_y_b[i]);
 		sequence.push_back(compress_op_z_b[i]);
-		sequenceRight.push_back(compress_op_x_k[i]);
-		sequenceRight.push_back(compress_op_y_k[i]);
-		sequenceRight.push_back(compress_op_z_k[i]);
+		sequence.push_back(compress_op_x_k[i]);
+		sequence.push_back(compress_op_y_k[i]);
+		sequence.push_back(compress_op_z_k[i]);
 	}
 
 	for (i=0; i<FUNC_SIZE*FUNC_SIZE_M/2; i++)
@@ -579,28 +581,18 @@ int main(int argc, char** argv)
 	MatrixInnerOp<double,3>* matrixinner_op_c = new MatrixInnerOp<double,3>("MatrixInner", &matrixinner_z, h_z, g_z, false, false);
 
 	// Pushing MatrixInnerOp
-	sequenceOverall.push_back(matrixinner_op_a);
-	sequenceOverall.push_back(matrixinner_op_b);
-	sequenceOverall.push_back(matrixinner_op_c);
+	sequence.push_back(matrixinner_op_a);
+	sequence.push_back(matrixinner_op_b);
+	sequence.push_back(matrixinner_op_c);
 
 	// Processing a sequence of Operators
 	FuseT<double,3> odag(sequence);
-	FuseT<double,3> odagRight(sequenceRight);
-	FuseT<double,3> odagOverall(sequenceOverall);
 	odag.processSequence();
-	odagRight.processSequence();
-	odagOverall.processSequence();
 
 	FusedOpSequence<double,3> fsequence = odag.getFusedOpSequence();
-	FusedOpSequence<double,3> fsequenceRight = odagRight.getFusedOpSequence();
-	FusedOpSequence<double,3> fsequenceOverall = odagOverall.getFusedOpSequence();
 	FusedExecutor<double,3> fexecuter(world, &fsequence);
-	FusedExecutor<double,3> fexecuterRight(world, &fsequenceRight);
-	FusedExecutor<double,3> fexecuterOverall(world, &fsequenceOverall);
 	clkbegin = rtclock();
 	fexecuter.execute();
-	fexecuterRight.execute();
-	fexecuterOverall.execute();
 
 	r += (*matrixinner_op_a->_r);
 	r += (*matrixinner_op_b->_r);
